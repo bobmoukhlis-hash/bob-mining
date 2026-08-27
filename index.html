@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="theme-color" content="#080b16">
 <title>BOB Mining</title>
 
@@ -12,21 +12,30 @@
   -webkit-tap-highlight-color:transparent;
 }
 
-body{
+html,body{
   margin:0;
+  padding:0;
+  min-height:100%;
   font-family:Arial,Helvetica,sans-serif;
-  background:
-    radial-gradient(circle at 50% 20%,#18254a 0%,#080b16 45%,#05070d 100%);
+  background:#070a12;
   color:#fff;
-  min-height:100vh;
+}
+
+body{
+  padding-bottom:85px;
+}
+
+button{
+  font-family:inherit;
+  border:0;
+  cursor:pointer;
 }
 
 .app{
   width:100%;
-  max-width:500px;
-  min-height:100vh;
+  max-width:520px;
   margin:auto;
-  padding:15px 16px 30px;
+  padding:14px 15px 25px;
 }
 
 /* HEADER */
@@ -35,7 +44,7 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:8px 4px 15px;
+  padding:7px 3px 15px;
 }
 
 .brand{
@@ -45,40 +54,61 @@ body{
 }
 
 .brand-icon{
-  font-size:30px;
+  font-size:29px;
 }
 
-.brand-name{
-  font-size:21px;
-  font-weight:800;
+.brand-title{
+  font-size:20px;
+  font-weight:900;
 }
 
 .online{
-  font-size:12px;
   color:#6ee7b7;
+  font-size:11px;
+  margin-top:2px;
+}
+
+.header-right{
+  font-size:23px;
+}
+
+/* PAGES */
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+/* CARDS */
+
+.card{
+  background:linear-gradient(145deg,#151e34,#0f1628);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:22px;
+  padding:18px;
+  margin-bottom:14px;
+  box-shadow:0 12px 35px rgba(0,0,0,.3);
 }
 
 /* BALANCE */
 
 .balance-card{
-  background:linear-gradient(145deg,#17213b,#101729);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:22px;
-  padding:17px;
   text-align:center;
-  box-shadow:0 15px 40px rgba(0,0,0,.35);
 }
 
 .balance-label{
-  color:#9ca3af;
-  font-size:12px;
+  color:#8f99aa;
+  font-size:11px;
   letter-spacing:1px;
 }
 
 .balance{
-  font-size:38px;
+  font-size:39px;
   font-weight:900;
-  margin-top:4px;
+  margin:5px 0;
 }
 
 .currency{
@@ -90,31 +120,25 @@ body{
 /* MINER */
 
 .miner-card{
-  margin-top:15px;
-  background:linear-gradient(160deg,#182644,#0e1528);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:28px;
-  padding:22px 18px;
   text-align:center;
-  box-shadow:0 20px 45px rgba(0,0,0,.4);
+  padding:20px 15px;
 }
 
-.miner-level{
+.level-badge{
   display:inline-block;
   background:#202d4a;
-  padding:6px 13px;
-  border-radius:20px;
   color:#facc15;
-  font-size:12px;
+  border-radius:20px;
+  padding:7px 13px;
+  font-size:11px;
   font-weight:bold;
 }
 
 .miner-icon{
-  font-size:100px;
-  line-height:1.1;
-  margin:18px 0 5px;
-  filter:drop-shadow(0 8px 12px rgba(0,0,0,.4));
+  font-size:92px;
+  margin:15px 0 4px;
   animation:float 2.5s ease-in-out infinite;
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.45));
 }
 
 @keyframes float{
@@ -128,68 +152,64 @@ body{
 }
 
 .hashrate{
-  color:#9ca3af;
-  margin-top:5px;
+  color:#929caf;
   font-size:14px;
+  margin-top:5px;
 }
 
-/* PRODUCTION */
+/* STATS */
 
-.production{
-  margin-top:18px;
-  background:#0b1120;
-  border-radius:18px;
-  padding:13px;
+.stats{
   display:flex;
-  justify-content:space-around;
+  margin-top:18px;
+  background:#0a1020;
+  border-radius:17px;
+  padding:12px 5px;
 }
 
 .stat{
-  text-align:center;
   flex:1;
+  text-align:center;
 }
 
-.stat:not(:last-child){
-  border-right:1px solid rgba(255,255,255,.08);
+.stat+ .stat{
+  border-left:1px solid rgba(255,255,255,.08);
 }
 
 .stat-title{
-  color:#9ca3af;
-  font-size:11px;
+  color:#8c96a8;
+  font-size:10px;
   margin-bottom:5px;
 }
 
 .stat-value{
+  font-size:15px;
   font-weight:800;
-  font-size:16px;
 }
 
 /* PROGRESS */
 
 .progress-card{
-  margin-top:15px;
-  background:#121a2d;
-  border-radius:20px;
-  padding:17px;
+  padding:16px;
 }
 
-.progress-title{
+.progress-top{
   display:flex;
   justify-content:space-between;
   font-size:13px;
 }
 
-.progress-title span{
-  color:#9ca3af;
+.progress-percent{
+  color:#facc15;
+  font-weight:bold;
 }
 
 .progress-bg{
-  width:100%;
   height:10px;
-  background:#30394d;
+  background:#30394c;
   border-radius:20px;
+  margin:11px 0 8px;
   overflow:hidden;
-  margin:12px 0 8px;
 }
 
 .progress{
@@ -200,83 +220,75 @@ body{
   transition:width .3s;
 }
 
-.next{
+.progress-next{
   text-align:center;
-  color:#9ca3af;
-  font-size:12px;
+  color:#929caf;
+  font-size:11px;
 }
 
 /* BUTTONS */
 
-.buttons{
-  margin-top:15px;
-}
-
-button{
+.main-button{
   width:100%;
-  border:0;
-  border-radius:17px;
-  padding:17px;
-  font-size:17px;
+  padding:16px;
+  border-radius:16px;
+  font-size:16px;
   font-weight:900;
-  margin-top:10px;
-  cursor:pointer;
+  margin-bottom:10px;
 }
 
 .claim{
   background:#facc15;
   color:#111827;
-  box-shadow:0 8px 25px rgba(250,204,21,.18);
+  box-shadow:0 8px 22px rgba(250,204,21,.15);
 }
 
 .upgrade{
   background:#2563eb;
-  color:white;
-  box-shadow:0 8px 25px rgba(37,99,235,.2);
+  color:#fff;
+  box-shadow:0 8px 22px rgba(37,99,235,.18);
 }
 
-button:active{
-  transform:scale(.98);
+.secondary{
+  background:#202a40;
+  color:#fff;
 }
 
-button:disabled{
-  background:#30394d;
-  color:#8992a3;
+.main-button:disabled{
+  background:#30394c;
+  color:#7f8999;
   box-shadow:none;
 }
 
-/* NEXT UPGRADE */
+/* STATUS */
 
-.upgrade-card{
-  margin-top:15px;
-  background:#121a2d;
-  border-radius:20px;
-  padding:17px;
-}
-
-.upgrade-header{
-  color:#9ca3af;
+.status{
+  text-align:center;
+  color:#6ee7b7;
   font-size:12px;
-  margin-bottom:12px;
+  min-height:20px;
+  margin:4px 0 13px;
 }
 
-.upgrade-preview{
+/* NEXT MINER */
+
+.preview{
   display:flex;
   align-items:center;
-  gap:13px;
+  gap:14px;
 }
 
-.next-icon{
-  font-size:42px;
+.preview-icon{
+  font-size:43px;
 }
 
-.next-name{
-  font-weight:900;
+.preview-name{
   font-size:18px;
+  font-weight:900;
 }
 
-.next-info{
-  color:#9ca3af;
+.preview-info{
+  color:#8e98aa;
   font-size:12px;
   margin-top:4px;
 }
@@ -284,42 +296,260 @@ button:disabled{
 /* OFFLINE */
 
 .offline{
-  margin-top:15px;
   text-align:center;
-  padding:13px;
-  border-radius:16px;
   background:#10251f;
+  color:#6ee7b7;
+  border-radius:16px;
+  padding:13px;
+  font-size:12px;
+  margin-bottom:14px;
+}
+
+/* SECTION TITLE */
+
+.section-title{
+  font-size:20px;
+  font-weight:900;
+  margin:5px 0 15px;
+}
+
+/* MINERS LIST */
+
+.miner-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:#111a2d;
+  border-radius:16px;
+  padding:13px;
+  margin-bottom:9px;
+}
+
+.miner-row.current{
+  border:1px solid #facc15;
+}
+
+.miner-row-icon{
+  font-size:32px;
+}
+
+.miner-row-main{
+  flex:1;
+}
+
+.miner-row-name{
+  font-size:14px;
+  font-weight:bold;
+}
+
+.miner-row-info{
+  color:#8f99aa;
+  font-size:11px;
+  margin-top:4px;
+}
+
+.miner-row-cost{
+  text-align:right;
+  color:#facc15;
+  font-size:11px;
+  font-weight:bold;
+}
+
+/* UPGRADE ITEMS */
+
+.upgrade-item{
+  background:#111a2d;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:11px;
+}
+
+.upgrade-item-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.upgrade-name{
+  font-weight:900;
+}
+
+.upgrade-value{
   color:#6ee7b7;
   font-size:12px;
 }
 
-/* STATUS */
+.upgrade-cost{
+  color:#facc15;
+  font-size:12px;
+  margin-top:6px;
+}
 
-.status{
+/* REWARDS */
+
+.reward-big{
   text-align:center;
-  min-height:20px;
-  margin:14px 0;
-  color:#6ee7b7;
+  padding:25px 10px;
+}
+
+.reward-icon{
+  font-size:60px;
+}
+
+.reward-number{
+  font-size:35px;
+  font-weight:900;
+  margin:8px 0;
+}
+
+.reward-text{
+  color:#929caf;
+  font-size:12px;
+}
+
+.reward-box{
+  background:#111a2d;
+  padding:15px;
+  border-radius:16px;
+  margin-top:12px;
+}
+
+.reward-line{
+  display:flex;
+  justify-content:space-between;
+  padding:8px 0;
   font-size:13px;
 }
 
-.warning{
-  text-align:center;
-  color:#7f899b;
-  font-size:10px;
-  line-height:1.5;
-  padding:0 10px;
+.reward-line span{
+  color:#929caf;
 }
 
-.reset{
-  display:block;
-  width:auto;
-  margin:18px auto 0;
-  padding:7px 12px;
-  background:transparent;
-  color:#667085;
+/* PROFILE */
+
+.profile-avatar{
+  text-align:center;
+  font-size:70px;
+}
+
+.profile-name{
+  text-align:center;
+  font-size:23px;
+  font-weight:900;
+}
+
+.profile-id{
+  text-align:center;
+  color:#7f8999;
+  font-size:11px;
+  margin-top:5px;
+}
+
+.profile-stat{
+  display:flex;
+  justify-content:space-between;
+  padding:13px 0;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  font-size:13px;
+}
+
+.profile-stat span{
+  color:#929caf;
+}
+
+/* WALLET */
+
+.wallet-icon{
+  text-align:center;
+  font-size:65px;
+}
+
+.wallet-address{
+  background:#0a1020;
+  border-radius:12px;
+  padding:12px;
+  text-align:center;
+  font-size:11px;
+  color:#8e98aa;
+  word-break:break-all;
+  margin-top:12px;
+}
+
+/* WARNING */
+
+.warning{
+  text-align:center;
+  color:#727d90;
   font-size:10px;
-  box-shadow:none;
+  line-height:1.5;
+  padding:5px 10px 15px;
+}
+
+/* BOTTOM NAV */
+
+.bottom-nav{
+  position:fixed;
+  z-index:100;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+  width:100%;
+  max-width:520px;
+  background:rgba(10,14,25,.96);
+  backdrop-filter:blur(12px);
+  border-top:1px solid rgba(255,255,255,.08);
+  display:flex;
+  justify-content:space-around;
+  padding:8px 3px calc(8px + env(safe-area-inset-bottom));
+}
+
+.nav-button{
+  background:transparent;
+  color:#707a8c;
+  padding:5px 4px;
+  width:20%;
+  font-size:10px;
+}
+
+.nav-icon{
+  display:block;
+  font-size:21px;
+  margin-bottom:3px;
+}
+
+.nav-button.active{
+  color:#facc15;
+}
+
+/* TOAST */
+
+.toast{
+  position:fixed;
+  z-index:200;
+  left:50%;
+  bottom:92px;
+  transform:translateX(-50%);
+  background:#202a40;
+  color:#fff;
+  padding:12px 18px;
+  border-radius:14px;
+  font-size:12px;
+  opacity:0;
+  pointer-events:none;
+  transition:.25s;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+
+.toast.show{
+  opacity:1;
+}
+
+/* SMALL */
+
+.muted{
+  color:#929caf;
+  font-size:12px;
+  line-height:1.5;
 }
 </style>
 </head>
@@ -328,579 +558,1463 @@ button:disabled{
 
 <div class="app">
 
-  <!-- HEADER -->
-  <div class="header">
+<!-- ================= HOME ================= -->
 
-    <div class="brand">
-      <div class="brand-icon">⛏️</div>
-      <div>
-        <div class="brand-name">BOB Mining</div>
-        <div class="online">● Mining online</div>
+<section id="home" class="page active">
+
+<div class="header">
+
+  <div class="brand">
+    <div class="brand-icon">⛏️</div>
+    <div>
+      <div class="brand-title">BOB Mining</div>
+      <div class="online">● Mining online</div>
+    </div>
+  </div>
+
+  <div class="header-right">⚡</div>
+
+</div>
+
+
+<div class="card balance-card">
+
+  <div class="balance-label">
+    SALDO DISPONIBILE
+  </div>
+
+  <div class="balance" id="balance">
+    0.00
+  </div>
+
+  <div class="currency">
+    BOB Points
+  </div>
+
+</div>
+
+
+<div class="card miner-card">
+
+  <div class="level-badge" id="levelBadge">
+    LIVELLO 1
+  </div>
+
+  <div class="miner-icon" id="minerIcon">
+    👷
+  </div>
+
+  <div class="miner-name" id="minerName">
+    Rookie
+  </div>
+
+  <div class="hashrate" id="hashrate">
+    10 GH/s
+  </div>
+
+
+  <div class="stats">
+
+    <div class="stat">
+      <div class="stat-title">
+        ⚡ PRODUZIONE
+      </div>
+
+      <div class="stat-value" id="production">
+        0.10/min
       </div>
     </div>
 
-    <div>⚡</div>
+    <div class="stat">
+      <div class="stat-title">
+        ⏱️ STATO
+      </div>
+
+      <div class="stat-value">
+        ONLINE
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+
+<div class="card progress-card">
+
+  <div class="progress-top">
+    <strong>Progresso upgrade</strong>
+    <span class="progress-percent" id="percent">
+      0%
+    </span>
+  </div>
+
+  <div class="progress-bg">
+    <div class="progress" id="progress"></div>
+  </div>
+
+  <div class="progress-next" id="nextText">
+    Worker — 100 BOB Points
+  </div>
+
+</div>
+
+
+<button class="main-button claim" onclick="claim()">
+  🎁 CLAIM BOB POINTS
+</button>
+
+<button
+  class="main-button upgrade"
+  id="upgradeButton"
+  onclick="upgrade()">
+  ⬆️ UPGRADE
+</button>
+
+
+<div class="status" id="status">
+  ⛏️ Mining attivo
+</div>
+
+
+<div class="card">
+
+  <div class="section-title">
+    Prossimo minatore
+  </div>
+
+  <div class="preview">
+
+    <div class="preview-icon" id="nextIcon">
+      👷
+    </div>
+
+    <div>
+
+      <div class="preview-name" id="nextName">
+        Worker
+      </div>
+
+      <div class="preview-info" id="nextInfo">
+        25 GH/s • 0.25 Points/min
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div class="offline">
+  ⏱️ Produzione offline:
+  <strong id="offlineReward">
+    0.00
+  </strong>
+  Points
+</div>
+
+</section>
+
+
+<!-- ================= MINERS ================= -->
+
+<section id="miners" class="page">
+
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">⛏️</div>
+      <div class="brand-title">Minatori</div>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <div class="section-title">
+      ⛏️ Tutti i minatori
+    </div>
+
+    <div id="minersList"></div>
+
+  </div>
+
+</section>
+
+
+<!-- ================= UPGRADES ================= -->
+
+<section id="upgrades" class="page">
+
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-title">Upgrade</div>
+    </div>
+  </div>
+
+
+  <div class="card">
+
+    <div class="section-title">
+      ⚡ Velocità
+    </div>
+
+    <div class="upgrade-item">
+
+      <div class="upgrade-item-top">
+        <div class="upgrade-name">
+          Livello 1
+        </div>
+
+        <div class="upgrade-value">
+          +10%
+        </div>
+      </div>
+
+      <div class="upgrade-cost">
+        250 BOB Points
+      </div>
+
+      <button
+        class="main-button upgrade"
+        onclick="buySpeed(1,10,250)">
+        ⚡ Acquista
+      </button>
+
+    </div>
+
+
+    <div class="upgrade-item">
+
+      <div class="upgrade-item-top">
+        <div class="upgrade-name">
+          Livello 2
+        </div>
+
+        <div class="upgrade-value">
+          +25%
+        </div>
+      </div>
+
+      <div class="upgrade-cost">
+        750 BOB Points
+      </div>
+
+      <button
+        class="main-button upgrade"
+        onclick="buySpeed(2,25,750)">
+        ⚡ Acquista
+      </button>
+
+    </div>
+
+
+    <div class="upgrade-item">
+
+      <div class="upgrade-item-top">
+        <div class="upgrade-name">
+          Livello 3
+        </div>
+
+        <div class="upgrade-value">
+          +50%
+        </div>
+      </div>
+
+      <div class="upgrade-cost">
+        2.000 BOB Points
+      </div>
+
+      <button
+        class="main-button upgrade"
+        onclick="buySpeed(3,50,2000)">
+        ⚡ Acquista
+      </button>
+
+    </div>
+
+
+    <div class="upgrade-item">
+
+      <div class="upgrade-item-top">
+        <div class="upgrade-name">
+          Livello 4
+        </div>
+
+        <div class="upgrade-value">
+          +100%
+        </div>
+      </div>
+
+      <div class="upgrade-cost">
+        6.000 BOB Points
+      </div>
+
+      <button
+        class="main-button upgrade"
+        onclick="buySpeed(4,100,6000)">
+        ⚡ Acquista
+      </button>
+
+    </div>
 
   </div>
 
 
-  <!-- BALANCE -->
-  <div class="balance-card">
+  <div class="card">
 
-    <div class="balance-label">
-      SALDO DISPONIBILE
+    <div class="section-title">
+      ⏱️ Produzione offline
     </div>
 
-    <div class="balance" id="balance">
+    <div class="upgrade-item">
+
+      <div class="upgrade-item-top">
+        <div class="upgrade-name">
+          2 ore
+        </div>
+
+        <div class="upgrade-value">
+          GRATIS
+        </div>
+      </div>
+
+      <button
+        class="main-button secondary"
+        onclick="buyOffline(2,0)">
+        ⏱️ Attiva
+      </button>
+
+    </div>
+
+
+    <div class="upgrade-item">
+
+      <div class="upgrade-item-top">
+        <div class="upgrade-name">
+          4 ore
+        </div>
+
+        <div class="upgrade-value">
+          500 Points
+        </div>
+      </div>
+
+      <button
+        class="main-button upgrade"
+        onclick="buyOffline(4,500)">
+        ⏱️ Acquista
+      </button>
+
+    </div>
+
+
+    <div class="upgrade-item">
+
+      <div class="upgrade-item-top">
+        <div class="upgrade-name">
+          8 ore
+        </div>
+
+        <div class="upgrade-value">
+          2.000 Points
+        </div>
+      </div>
+
+      <button
+        class="main-button upgrade"
+        onclick="buyOffline(8,2000)">
+        ⏱️ Acquista
+      </button>
+
+    </div>
+
+
+    <div class="upgrade-item">
+
+      <div class="upgrade-item-top">
+        <div class="upgrade-name">
+          12 ore
+        </div>
+
+        <div class="upgrade-value">
+          8.000 Points
+        </div>
+      </div>
+
+      <button
+        class="main-button upgrade"
+        onclick="buyOffline(12,8000)">
+        ⏱️ Acquista
+      </button>
+
+    </div>
+
+
+    <div class="upgrade-item">
+
+      <div class="upgrade-item-top">
+        <div class="upgrade-name">
+          24 ore
+        </div>
+
+        <div class="upgrade-value">
+          30.000 Points
+        </div>
+      </div>
+
+      <button
+        class="main-button upgrade"
+        onclick="buyOffline(24,30000)">
+        ⏱️ Acquista
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ================= REWARDS ================= -->
+
+<section id="rewards" class="page">
+
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">🎁</div>
+      <div class="brand-title">Rewards</div>
+    </div>
+  </div>
+
+
+  <div class="card reward-big">
+
+    <div class="reward-icon">
+      🎁
+    </div>
+
+    <div class="reward-number" id="rewardBalance">
       0.00
     </div>
 
-    <div class="currency">
+    <div class="reward-text">
+      BOB Points disponibili
+    </div>
+
+    <button
+      class="main-button claim"
+      onclick="claim()">
+      🎁 CLAIM
+    </button>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="section-title">
+      📊 Statistiche
+    </div>
+
+    <div class="reward-box">
+
+      <div class="reward-line">
+        <span>Minatore</span>
+        <strong id="rewardMiner">
+          Rookie
+        </strong>
+      </div>
+
+      <div class="reward-line">
+        <span>Hashrate</span>
+        <strong id="rewardHashrate">
+          10 GH/s
+        </strong>
+      </div>
+
+      <div class="reward-line">
+        <span>Produzione</span>
+        <strong id="rewardProduction">
+          0.10/min
+        </strong>
+      </div>
+
+      <div class="reward-line">
+        <span>Speed Bonus</span>
+        <strong id="rewardSpeed">
+          +0%
+        </strong>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="section-title">
+      💰 Reward Pool
+    </div>
+
+    <div class="muted">
+      Il Reward Pool verrà collegato in futuro al sistema
+      di ricompense. In questa versione i BOB Points sono
+      esclusivamente virtuali.
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ================= WALLET ================= -->
+
+<section id="wallet" class="page">
+
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">💰</div>
+      <div class="brand-title">Wallet</div>
+    </div>
+  </div>
+
+
+  <div class="card reward-big">
+
+    <div class="wallet-icon">
+      💰
+    </div>
+
+    <div class="reward-number" id="walletBalance">
+      0.00
+    </div>
+
+    <div class="reward-text">
       BOB Points
     </div>
 
   </div>
 
 
-  <!-- MAIN MINER -->
-  <div class="miner-card">
+  <div class="card">
 
-    <div class="miner-level" id="level">
-      LIVELLO 1
+    <div class="section-title">
+      🔗 Wallet BOB
     </div>
 
-    <div class="miner-icon" id="minerIcon">
-      👷
+    <div class="muted">
+      Il collegamento al wallet blockchain sarà aggiunto
+      in una versione futura.
     </div>
 
-    <div class="miner-name" id="minerName">
-      Rookie
+    <div class="wallet-address">
+      Wallet non collegato
     </div>
 
-    <div class="hashrate" id="hashrate">
-      10 GH/s
+    <button
+      class="main-button secondary"
+      onclick="connectWallet()">
+      🔗 Collega Wallet
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- ================= PROFILE ================= -->
+
+<section id="profile" class="page">
+
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">👤</div>
+      <div class="brand-title">Profilo</div>
+    </div>
+  </div>
+
+
+  <div class="card">
+
+    <div class="profile-avatar">
+      👤
     </div>
 
+    <div class="profile-name">
+      BOB Miner
+    </div>
 
-    <!-- STATS -->
-    <div class="production">
-
-      <div class="stat">
-        <div class="stat-title">⚡ PRODUZIONE</div>
-        <div class="stat-value" id="production">
-          0.10/min
-        </div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-title">⏱️ STATO</div>
-        <div class="stat-value">
-          ONLINE
-        </div>
-      </div>
-
+    <div class="profile-id">
+      ID: <span id="playerId">BOB-000000</span>
     </div>
 
   </div>
 
 
-  <!-- PROGRESS -->
-  <div class="progress-card">
+  <div class="card">
 
-    <div class="progress-title">
-      <strong>Progresso upgrade</strong>
-      <span id="percent">0%</span>
+    <div class="profile-stat">
+      <span>Livello</span>
+      <strong id="profileLevel">1</strong>
     </div>
 
-    <div class="progress-bg">
-      <div class="progress" id="progress"></div>
+    <div class="profile-stat">
+      <span>Minatore</span>
+      <strong id="profileMiner">Rookie</strong>
     </div>
 
-    <div class="next" id="nextText">
-      Worker — 100 BOB Points
+    <div class="profile-stat">
+      <span>Hashrate</span>
+      <strong id="profileHashrate">10 GH/s</strong>
+    </div>
+
+    <div class="profile-stat">
+      <span>BOB Points</span>
+      <strong id="profileBalance">0.00</strong>
     </div>
 
   </div>
 
 
-  <!-- BUTTONS -->
-  <div class="buttons">
+  <div class="card">
 
-    <button class="claim" onclick="claim()">
-      🎁 CLAIM BOB POINTS
+    <div class="section-title">
+      ⚙️ Impostazioni
+    </div>
+
+    <button
+      class="main-button secondary"
+      onclick="showToast('Le notifiche saranno disponibili più avanti.')">
+      🔔 Notifiche
     </button>
 
     <button
-      class="upgrade"
-      id="upgradeButton"
-      onclick="upgrade()">
-      ⬆️ UPGRADE
+      class="main-button secondary"
+      onclick="showToast('La lingua disponibile è Italiano.')">
+      🌐 Lingua: Italiano
+    </button>
+
+    <button
+      class="main-button secondary"
+      onclick="resetGame()">
+      ♻️ Reset demo
     </button>
 
   </div>
 
+</section>
 
-  <!-- NEXT MINER -->
-  <div class="upgrade-card">
-
-    <div class="upgrade-header">
-      PROSSIMO MINATORE
-    </div>
-
-    <div class="upgrade-preview">
-
-      <div class="next-icon" id="nextIcon">
-        👷
-      </div>
-
-      <div>
-
-        <div class="next-name" id="nextName">
-          Worker
-        </div>
-
-        <div class="next-info" id="nextInfo">
-          25 GH/s • 0.25 Points/min
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
+</div>
 
 
-  <!-- OFFLINE -->
-  <div class="offline">
-    ⏱️ Produzione offline:
-    <strong id="offlineReward">0.00</strong>
-    Points
-  </div>
+<!-- ================= BOTTOM NAV ================= -->
 
+<nav class="bottom-nav">
 
-  <div class="status" id="status">
-    ⛏️ Mining attivo
-  </div>
-
-
-  <div class="warning">
-    ⚠️ BOB Points sono punti virtuali di gioco.
-    Non sono BOB token reali e non hanno valore monetario.
-  </div>
-
-
-  <button class="reset" onclick="resetGame()">
-    Reset demo
+  <button
+    class="nav-button active"
+    onclick="showPage('home',this)">
+    <span class="nav-icon">🏠</span>
+    Home
   </button>
 
+  <button
+    class="nav-button"
+    onclick="showPage('miners',this)">
+    <span class="nav-icon">⛏️</span>
+    Minatori
+  </button>
+
+  <button
+    class="nav-button"
+    onclick="showPage('upgrades',this)">
+    <span class="nav-icon">⚡</span>
+    Upgrade
+  </button>
+
+  <button
+    class="nav-button"
+    onclick="showPage('rewards',this)">
+    <span class="nav-icon">🎁</span>
+    Rewards
+  </button>
+
+  <button
+    class="nav-button"
+    onclick="showPage('profile',this)">
+    <span class="nav-icon">👤</span>
+    Profilo
+  </button>
+
+</nav>
+
+
+<div class="toast" id="toast">
+  OK
 </div>
 
 
 <script>
 
-const miners = [
+/* ================= MINERS ================= */
 
-  {
-    name:"Rookie",
-    icon:"👷",
-    hashrate:"10 GH/s",
-    production:0.10,
-    cost:0
-  },
+const miners=[
 
-  {
-    name:"Worker",
-    icon:"👷",
-    hashrate:"25 GH/s",
-    production:0.25,
-    cost:100
-  },
+{
+ name:"Rookie",
+ icon:"👷",
+ hashrate:"10 GH/s",
+ production:0.10,
+ cost:0
+},
 
-  {
-    name:"Pro Miner",
-    icon:"👷",
-    hashrate:"60 GH/s",
-    production:0.60,
-    cost:300
-  },
+{
+ name:"Worker",
+ icon:"👷",
+ hashrate:"25 GH/s",
+ production:0.25,
+ cost:100
+},
 
-  {
-    name:"Super Miner",
-    icon:"🤖",
-    hashrate:"150 GH/s",
-    production:1.50,
-    cost:1000
-  },
+{
+ name:"Pro Miner",
+ icon:"👷",
+ hashrate:"60 GH/s",
+ production:0.60,
+ cost:300
+},
 
-  {
-    name:"Ultra Miner",
-    icon:"🤖",
-    hashrate:"400 GH/s",
-    production:4.00,
-    cost:3500
-  },
+{
+ name:"Super Miner",
+ icon:"🤖",
+ hashrate:"150 GH/s",
+ production:1.50,
+ cost:1000
+},
 
-  {
-    name:"Mini Farm",
-    icon:"🏭",
-    hashrate:"1 TH/s",
-    production:10.00,
-    cost:12000
-  },
+{
+ name:"Ultra Miner",
+ icon:"🤖",
+ hashrate:"400 GH/s",
+ production:4.00,
+ cost:3500
+},
 
-  {
-    name:"Farm",
-    icon:"🏭",
-    hashrate:"3 TH/s",
-    production:30.00,
-    cost:40000
-  },
+{
+ name:"Mini Farm",
+ icon:"🏭",
+ hashrate:"1 TH/s",
+ production:10.00,
+ cost:12000
+},
 
-  {
-    name:"Mega Farm",
-    icon:"⚡",
-    hashrate:"10 TH/s",
-    production:100.00,
-    cost:150000
-  },
+{
+ name:"Farm",
+ icon:"🏭",
+ hashrate:"3 TH/s",
+ production:30.00,
+ cost:40000
+},
 
-  {
-    name:"Industrial Farm",
-    icon:"🚀",
-    hashrate:"30 TH/s",
-    production:300.00,
-    cost:600000
-  },
+{
+ name:"Mega Farm",
+ icon:"⚡",
+ hashrate:"10 TH/s",
+ production:100.00,
+ cost:150000
+},
 
-  {
-    name:"Global Farm",
-    icon:"🌍",
-    hashrate:"100 TH/s",
-    production:1000.00,
-    cost:2500000
-  }
+{
+ name:"Industrial Farm",
+ icon:"🚀",
+ hashrate:"30 TH/s",
+ production:300.00,
+ cost:600000
+},
+
+{
+ name:"Global Farm",
+ icon:"🌍",
+ hashrate:"100 TH/s",
+ production:1000.00,
+ cost:2500000
+}
 
 ];
 
 
-let balance =
-  parseFloat(localStorage.getItem("bobBalance")) || 0;
+/* ================= DATA ================= */
 
-let minerLevel =
-  parseInt(localStorage.getItem("bobMinerLevel")) || 0;
+let balance=
+parseFloat(localStorage.getItem("bobBalance"))||0;
 
-let lastUpdate =
-  parseInt(localStorage.getItem("bobLastUpdate")) || Date.now();
+let minerLevel=
+parseInt(localStorage.getItem("bobMinerLevel"))||0;
 
+let speedBonus=
+parseInt(localStorage.getItem("bobSpeedBonus"))||0;
+
+let offlineHours=
+parseInt(localStorage.getItem("bobOfflineHours"))||2;
+
+let lastUpdate=
+parseInt(localStorage.getItem("bobLastUpdate"))||Date.now();
+
+let playerId=
+localStorage.getItem("bobPlayerId");
+
+if(!playerId){
+
+ playerId=
+ "BOB-"+Math.floor(
+   100000+Math.random()*900000
+ );
+
+ localStorage.setItem(
+   "bobPlayerId",
+   playerId
+ );
+
+}
+
+
+/* ================= SAVE ================= */
 
 function save(){
 
-  localStorage.setItem(
-    "bobBalance",
-    balance
-  );
+ localStorage.setItem(
+   "bobBalance",
+   balance
+ );
 
-  localStorage.setItem(
-    "bobMinerLevel",
-    minerLevel
-  );
+ localStorage.setItem(
+   "bobMinerLevel",
+   minerLevel
+ );
 
-  localStorage.setItem(
-    "bobLastUpdate",
-    Date.now()
-  );
+ localStorage.setItem(
+   "bobSpeedBonus",
+   speedBonus
+ );
+
+ localStorage.setItem(
+   "bobOfflineHours",
+   offlineHours
+ );
+
+ localStorage.setItem(
+   "bobLastUpdate",
+   Date.now()
+ );
 
 }
 
+
+/* ================= OFFLINE ================= */
 
 function calculateOffline(){
 
-  const now = Date.now();
+ const now=Date.now();
 
-  let minutes =
-    (now - lastUpdate) / 60000;
+ let minutes=
+   (now-lastUpdate)/60000;
 
-  minutes = Math.max(0,minutes);
+ minutes=
+   Math.max(0,minutes);
 
-  // massimo 24 ore
-  minutes = Math.min(minutes,1440);
+ const maxMinutes=
+   offlineHours*60;
 
-  const reward =
-    minutes * miners[minerLevel].production;
+ minutes=
+   Math.min(minutes,maxMinutes);
 
-  if(reward > 0){
+ const base=
+   miners[minerLevel].production;
 
-    balance += reward;
+ const multiplier=
+   1+(speedBonus/100);
 
-  }
+ const reward=
+   minutes*base*multiplier;
 
-  document.getElementById(
-    "offlineReward"
-  ).textContent =
-    reward.toFixed(2);
+ if(reward>0){
 
-  lastUpdate = now;
+   balance+=reward;
 
-  save();
+ }
+
+ document.getElementById(
+   "offlineReward"
+ ).textContent=
+ reward.toFixed(2);
+
+ lastUpdate=now;
+
+ save();
 
 }
 
+
+/* ================= UI ================= */
 
 function updateUI(){
 
-  const miner =
-    miners[minerLevel];
+ const miner=
+   miners[minerLevel];
 
-  document.getElementById(
-    "balance"
-  ).textContent =
-    balance.toFixed(2);
+ const multiplier=
+   1+(speedBonus/100);
 
-  document.getElementById(
-    "level"
-  ).textContent =
-    "LIVELLO " + (minerLevel + 1);
-
-  document.getElementById(
-    "minerIcon"
-  ).textContent =
-    miner.icon;
-
-  document.getElementById(
-    "minerName"
-  ).textContent =
-    miner.name;
-
-  document.getElementById(
-    "hashrate"
-  ).textContent =
-    miner.hashrate;
-
-  document.getElementById(
-    "production"
-  ).textContent =
-    miner.production.toFixed(2)
-    + "/min";
+ const production=
+   miner.production*multiplier;
 
 
-  if(minerLevel < miners.length - 1){
+ document.getElementById(
+   "balance"
+ ).textContent=
+ balance.toFixed(2);
 
-    const next =
-      miners[minerLevel + 1];
+ document.getElementById(
+   "rewardBalance"
+ ).textContent=
+ balance.toFixed(2);
 
-    let percent =
-      (balance / next.cost) * 100;
+ document.getElementById(
+   "walletBalance"
+ ).textContent=
+ balance.toFixed(2);
 
-    percent =
-      Math.min(percent,100);
 
-    document.getElementById(
-      "progress"
-    ).style.width =
-      percent + "%";
+ document.getElementById(
+   "levelBadge"
+ ).textContent=
+ "LIVELLO "+(minerLevel+1);
 
-    document.getElementById(
-      "percent"
-    ).textContent =
-      percent.toFixed(0) + "%";
+ document.getElementById(
+   "minerIcon"
+ ).textContent=
+ miner.icon;
 
-    document.getElementById(
-      "nextText"
-    ).textContent =
-      next.name +
-      " — " +
-      next.cost.toLocaleString("it-IT") +
-      " BOB Points";
+ document.getElementById(
+   "minerName"
+ ).textContent=
+ miner.name;
 
-    document.getElementById(
-      "nextIcon"
-    ).textContent =
-      next.icon;
+ document.getElementById(
+   "hashrate"
+ ).textContent=
+ miner.hashrate;
 
-    document.getElementById(
-      "nextName"
-    ).textContent =
-      next.name;
+ document.getElementById(
+   "production"
+ ).textContent=
+ production.toFixed(2)+"/min";
 
-    document.getElementById(
-      "nextInfo"
-    ).textContent =
-      next.hashrate +
-      " • " +
-      next.production.toFixed(2) +
-      " Points/min";
 
-    const button =
-      document.getElementById(
-        "upgradeButton"
-      );
+ document.getElementById(
+   "rewardMiner"
+ ).textContent=
+ miner.name;
 
-    button.textContent =
-      "⬆️ UPGRADE — " +
-      next.cost.toLocaleString("it-IT") +
-      " POINTS";
+ document.getElementById(
+   "rewardHashrate"
+ ).textContent=
+ miner.hashrate;
 
-    button.disabled =
-      balance < next.cost;
+ document.getElementById(
+   "rewardProduction"
+ ).textContent=
+ production.toFixed(2)+"/min";
 
-  }
+ document.getElementById(
+   "rewardSpeed"
+ ).textContent=
+ "+"+speedBonus+"%";
 
-  else{
 
-    document.getElementById(
-      "progress"
-    ).style.width =
-      "100%";
+ document.getElementById(
+   "profileLevel"
+ ).textContent=
+ minerLevel+1;
 
-    document.getElementById(
-      "percent"
-    ).textContent =
-      "100%";
+ document.getElementById(
+   "profileMiner"
+ ).textContent=
+ miner.name;
 
-    document.getElementById(
-      "nextText"
-    ).textContent =
-      "🌍 LIVELLO MASSIMO";
+ document.getElementById(
+   "profileHashrate"
+ ).textContent=
+ miner.hashrate;
 
-    document.getElementById(
-      "nextIcon"
-    ).textContent =
-      "🏆";
+ document.getElementById(
+   "profileBalance"
+ ).textContent=
+ balance.toFixed(2);
 
-    document.getElementById(
-      "nextName"
-    ).textContent =
-      "Global Farm";
+ document.getElementById(
+   "playerId"
+ ).textContent=
+ playerId;
 
-    document.getElementById(
-      "nextInfo"
-    ).textContent =
-      "100 TH/s • MAX";
 
-    const button =
-      document.getElementById(
-        "upgradeButton"
-      );
+ if(minerLevel<miners.length-1){
 
-    button.textContent =
-      "🏆 LIVELLO MASSIMO";
+   const next=
+     miners[minerLevel+1];
 
-    button.disabled = true;
+   let percent=
+     (balance/next.cost)*100;
 
-  }
+   percent=
+     Math.min(percent,100);
+
+   document.getElementById(
+     "progress"
+   ).style.width=
+   percent+"%";
+
+   document.getElementById(
+     "percent"
+   ).textContent=
+   percent.toFixed(0)+"%";
+
+   document.getElementById(
+     "nextText"
+   ).textContent=
+   next.name+
+   " — "+
+   next.cost.toLocaleString("it-IT")+
+   " BOB Points";
+
+   document.getElementById(
+     "nextIcon"
+   ).textContent=
+   next.icon;
+
+   document.getElementById(
+     "nextName"
+   ).textContent=
+   next.name;
+
+   document.getElementById(
+     "nextInfo"
+   ).textContent=
+   next.hashrate+
+   " • "+
+   (next.production*(1+speedBonus/100))
+   .toFixed(2)+
+   " Points/min";
+
+
+   const button=
+   document.getElementById(
+     "upgradeButton"
+   );
+
+   button.textContent=
+   "⬆️ UPGRADE — "+
+   next.cost.toLocaleString("it-IT")+
+   " POINTS";
+
+   button.disabled=
+   balance<next.cost;
+
+ }else{
+
+   document.getElementById(
+     "progress"
+   ).style.width=
+   "100%";
+
+   document.getElementById(
+     "percent"
+   ).textContent=
+   "100%";
+
+   document.getElementById(
+     "nextText"
+   ).textContent=
+   "🌍 LIVELLO MASSIMO";
+
+   document.getElementById(
+     "nextIcon"
+   ).textContent=
+   "🏆";
+
+   document.getElementById(
+     "nextName"
+   ).textContent=
+   "Global Farm";
+
+   document.getElementById(
+     "nextInfo"
+   ).textContent=
+   "100 TH/s • MAX";
+
+   const button=
+   document.getElementById(
+     "upgradeButton"
+   );
+
+   button.textContent=
+   "🏆 LIVELLO MASSIMO";
+
+   button.disabled=true;
+
+ }
 
 }
 
+
+/* ================= MINERS LIST ================= */
+
+function renderMiners(){
+
+ const container=
+   document.getElementById(
+     "minersList"
+   );
+
+ container.innerHTML="";
+
+ miners.forEach((miner,index)=>{
+
+   const row=
+   document.createElement("div");
+
+   row.className=
+   "miner-row";
+
+   if(index===minerLevel){
+     row.classList.add("current");
+   }
+
+   const unlocked=
+     index<=minerLevel;
+
+   row.innerHTML=`
+
+     <div class="miner-row-icon">
+       ${miner.icon}
+     </div>
+
+     <div class="miner-row-main">
+
+       <div class="miner-row-name">
+         ${index+1}. ${miner.name}
+       </div>
+
+       <div class="miner-row-info">
+         ${miner.hashrate} •
+         ${(
+           miner.production*
+           (1+speedBonus/100)
+         ).toFixed(2)}
+         Points/min
+       </div>
+
+     </div>
+
+     <div class="miner-row-cost">
+
+       ${
+         index===minerLevel
+         ? "ATTIVO"
+         : index<minerLevel
+         ? "✓"
+         : miner.cost.toLocaleString("it-IT")+" BOB"
+       }
+
+     </div>
+   `;
+
+   container.appendChild(row);
+
+ });
+
+}
+
+
+/* ================= NAVIGATION ================= */
+
+function showPage(page,button){
+
+ document.querySelectorAll(
+   ".page"
+ ).forEach(p=>{
+   p.classList.remove("active");
+ });
+
+ document.getElementById(
+   page
+ ).classList.add("active");
+
+
+ document.querySelectorAll(
+   ".nav-button"
+ ).forEach(b=>{
+   b.classList.remove("active");
+ });
+
+ if(button){
+   button.classList.add("active");
+ }
+
+ window.scrollTo({
+   top:0,
+   behavior:"smooth"
+ });
+
+ updateUI();
+ renderMiners();
+
+}
+
+
+/* ================= CLAIM ================= */
 
 function claim(){
 
-  save();
+ save();
 
-  document.getElementById(
-    "status"
-  ).textContent =
-    "🎁 BOB Points aggiornati!";
-
-  setTimeout(()=>{
-
-    document.getElementById(
-      "status"
-    ).textContent =
-      "⛏️ Mining attivo";
-
-  },2000);
+ showToast(
+   "🎁 BOB Points disponibili!"
+ );
 
 }
 
+
+/* ================= MINER UPGRADE ================= */
 
 function upgrade(){
 
-  if(
-    minerLevel >=
-    miners.length - 1
-  ){
-    return;
-  }
+ if(
+   minerLevel>=miners.length-1
+ ){
+   return;
+ }
 
-  const next =
-    miners[minerLevel + 1];
+ const next=
+   miners[minerLevel+1];
 
-  if(balance >= next.cost){
+ if(balance>=next.cost){
 
-    balance -= next.cost;
+   balance-=next.cost;
 
-    minerLevel++;
+   minerLevel++;
 
-    save();
+   save();
 
-    updateUI();
+   updateUI();
+   renderMiners();
 
-    document.getElementById(
-      "status"
-    ).textContent =
-      "🚀 Upgrade completato!";
+   showToast(
+     "🚀 Upgrade completato!"
+   );
 
-  }
+ }else{
 
-  else{
+   showToast(
+     "❌ BOB Points insufficienti"
+   );
 
-    document.getElementById(
-      "status"
-    ).textContent =
-      "❌ Points insufficienti";
-
-  }
+ }
 
 }
 
+
+/* ================= SPEED ================= */
+
+function buySpeed(
+ level,
+ bonus,
+ cost
+){
+
+ if(speedBonus>=bonus){
+
+   showToast(
+     "⚡ Questo upgrade è già attivo."
+   );
+
+   return;
+
+ }
+
+ if(balance<cost){
+
+   showToast(
+     "❌ BOB Points insufficienti"
+   );
+
+   return;
+
+ }
+
+ balance-=cost;
+
+ speedBonus=bonus;
+
+ save();
+
+ updateUI();
+ renderMiners();
+
+ showToast(
+   "⚡ Velocità +"+bonus+"%!"
+ );
+
+}
+
+
+/* ================= OFFLINE ================= */
+
+function buyOffline(
+ hours,
+ cost
+){
+
+ if(hours<=offlineHours){
+
+   showToast(
+     "⏱️ Questo livello è già attivo."
+   );
+
+   return;
+
+ }
+
+ if(balance<cost){
+
+   showToast(
+     "❌ BOB Points insufficienti"
+   );
+
+   return;
+
+ }
+
+ balance-=cost;
+
+ offlineHours=hours;
+
+ save();
+
+ updateUI();
+
+ showToast(
+   "⏱️ Offline "+hours+" ore attivato!"
+ );
+
+}
+
+
+/* ================= WALLET ================= */
+
+function connectWallet(){
+
+ showToast(
+   "🔗 Collegamento wallet disponibile nella versione blockchain."
+ );
+
+}
+
+
+/* ================= TOAST ================= */
+
+function showToast(message){
+
+ const toast=
+   document.getElementById("toast");
+
+ toast.textContent=
+   message;
+
+ toast.classList.add("show");
+
+ clearTimeout(
+   window.toastTimer
+ );
+
+ window.toastTimer=
+ setTimeout(()=>{
+
+   toast.classList.remove("show");
+
+ },2200);
+
+}
+
+
+/* ================= RESET ================= */
 
 function resetGame(){
 
-  if(
-    !confirm(
-      "Vuoi davvero cancellare il progresso della demo?"
-    )
-  ){
-    return;
-  }
+ const answer=
+ confirm(
+   "Vuoi cancellare tutto il progresso della demo?"
+ );
 
-  localStorage.removeItem(
-    "bobBalance"
-  );
+ if(!answer){
+   return;
+ }
 
-  localStorage.removeItem(
-    "bobMinerLevel"
-  );
+ localStorage.removeItem(
+   "bobBalance"
+ );
 
-  localStorage.removeItem(
-    "bobLastUpdate"
-  );
+ localStorage.removeItem(
+   "bobMinerLevel"
+ );
 
-  location.reload();
+ localStorage.removeItem(
+   "bobSpeedBonus"
+ );
+
+ localStorage.removeItem(
+   "bobOfflineHours"
+ );
+
+ localStorage.removeItem(
+   "bobLastUpdate"
+ );
+
+ location.reload();
 
 }
 
 
-/* AVVIO */
+/* ================= START ================= */
 
 calculateOffline();
 
 updateUI();
 
+renderMiners();
 
-/* PRODUZIONE AUTOMATICA */
+
+/* ================= MINING LOOP ================= */
 
 setInterval(()=>{
 
-  balance +=
-    miners[minerLevel].production / 60;
+ const miner=
+   miners[minerLevel];
 
-  lastUpdate =
-    Date.now();
+ const multiplier=
+   1+(speedBonus/100);
 
-  save();
+ balance+=
+   (miner.production*
+   multiplier)/60;
 
-  updateUI();
+ lastUpdate=
+   Date.now();
+
+ save();
+
+ updateUI();
 
 },1000);
 
