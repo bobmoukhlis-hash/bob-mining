@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <title>BOB Mining</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b1020;
+      color: white;
+    }
+
+    .app {
+      max-width: 500px;
+      margin: auto;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .logo {
+      font-size: 55px;
+    }
+
+    h1 {
+      margin: 5px 0;
+      font-size: 32px;
+    }
+
+    .subtitle {
+      color: #9ca3af;
+    }
+
+    .card {
+      background: #151d32;
+      border-radius: 20px;
+      padding: 20px;
+      margin: 15px 0;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    }
+
+    .balance {
+      text-align: center;
+    }
+
+    .balance-label {
+      color: #9ca3af;
+      font-size: 14px;
+    }
+
+    .balance-value {
+      font-size: 38px;
+      font-weight: bold;
+      margin: 8px 0;
+    }
+
+    .bob {
+      font-size: 16px;
+      color: #facc15;
+    }
+
+    .miner {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .miner-icon {
+      font-size: 50px;
+    }
+
+    .miner-name {
+      font-size: 23px;
+      font-weight: bold;
+    }
+
+    .hashrate {
+      color: #9ca3af;
+      margin-top: 5px;
+    }
+
+    .production {
+      text-align: center;
+      font-size: 18px;
+    }
+
+    .production strong {
+      font-size: 25px;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 12px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .claim {
+      background: #facc15;
+      color: #111827;
+    }
+
+    .upgrade {
+      background: #2563eb;
+      color: white;
+    }
+
+    button:disabled {
+      background: #374151;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .progress-bg {
+      height: 12px;
+      background: #374151;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress {
+      height: 100%;
+      width: 0%;
+      background: #facc15;
+      transition: width 0.3s;
+    }
+
+    .next {
+      text-align: center;
+      color: #9ca3af;
+      margin-top: 10px;
+    }
+
+    .status {
+      text-align: center;
+      color: #6ee7b7;
+      font-size: 14px;
+      margin-top: 15px;
+    }
+
+    .warning {
+      color: #fbbf24;
+      font-size: 12px;
+      text-align: center;
+      margin-top: 20px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <div class="logo">⛏️</div>
+    <h1>BOB Mining</h1>
+    <div class="subtitle">Virtual Mining</div>
+  </div>
+
+  <div class="card balance">
+    <div class="balance-label">SALDO</div>
+    <div class="balance-value" id="balance">0.00</div>
+    <div class="bob">BOB Points</div>
+  </div>
+
+  <div class="card miner">
+    <div class="miner-icon">👷</div>
+    <div>
+      <div class="miner-name" id="minerName">Rookie</div>
+      <div class="hashrate" id="hashrate">10 GH/s</div>
+    </div>
+  </div>
+
+  <div class="card production">
+    ⚡ Produzione
+    <br><br>
+    <strong id="production">0.10</strong> Points/minuto
+  </div>
+
+  <div class="card">
+    <div>📊 Progresso verso il prossimo livello</div>
+
+    <div class="progress-bg">
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="next" id="nextUpgrade">
+      Worker — 100 BOB Points
+    </div>
+
+    <button class="claim" onclick="claim()">
+      🎁 CLAIM
+    </button>
+
+    <button class="upgrade" id="upgradeButton" onclick="upgrade()">
+      ⬆️ UPGRADE
+    </button>
+  </div>
+
+  <div class="status" id="status">
+    ⛏️ Mining attivo
+  </div>
+
+  <div class="warning">
+    ⚠️ BOB Points sono punti virtuali di gioco.
+    Non rappresentano ancora BOB token reali e non hanno valore monetario.
+  </div>
+
+</div>
+
+<script>
+
+  const miners = [
+    {
+      name: "Rookie",
+      icon: "👷",
+      hashrate: "10 GH/s",
+      production: 0.10,
+      cost: 0
+    },
+    {
+      name: "Worker",
+      icon: "👷",
+      hashrate: "25 GH/s",
+      production: 0.25,
+      cost: 100
+    },
+    {
+      name: "Pro Miner",
+      icon: "👷",
+      hashrate: "60 GH/s",
+      production: 0.60,
+      cost: 300
+    },
+    {
+      name: "Super Miner",
+      icon: "🤖",
+      hashrate: "150 GH/s",
+      production: 1.50,
+      cost: 1000
+    },
+    {
+      name: "Ultra Miner",
+      icon: "🤖",
+      hashrate: "400 GH/s",
+      production: 4.00,
+      cost: 3500
+    },
+    {
+      name: "Mini Farm",
+      icon: "🏭",
+      hashrate: "1 TH/s",
+      production: 10.00,
+      cost: 12000
+    },
+    {
+      name: "Farm",
+      icon: "🏭",
+      hashrate: "3 TH/s",
+      production: 30.00,
+      cost: 40000
+    },
+    {
+      name: "Mega Farm",
+      icon: "⚡",
+      hashrate: "10 TH/s",
+      production: 100.00,
+      cost: 150000
+    },
+    {
+      name: "Industrial Farm",
+      icon: "🚀",
+      hashrate: "30 TH/s",
+      production: 300.00,
+      cost: 600000
+    },
+    {
+      name: "Global Farm",
+      icon: "🌍",
+      hashrate: "100 TH/s",
+      production: 1000.00,
+      cost: 2500000
+    }
+  ];
+
+  let balance = parseFloat(localStorage.getItem("bobBalance")) || 0;
+  let minerLevel = parseInt(localStorage.getItem("bobMinerLevel")) || 0;
+  let lastUpdate = parseInt(localStorage.getItem("bobLastUpdate")) || Date.now();
+
+  function save() {
+    localStorage.setItem("bobBalance", balance);
+    localStorage.setItem("bobMinerLevel", minerLevel);
+    localStorage.setItem("bobLastUpdate", Date.now());
+  }
+
+  function updateOfflineProduction() {
+    const now = Date.now();
+    const elapsedMinutes = (now - lastUpdate) / 60000;
+
+    if (elapsedMinutes > 0 && elapsedMinutes < 1440) {
+      balance += elapsedMinutes * miners[minerLevel].production;
+    }
+
+    lastUpdate = now;
+  }
+
+  function updateUI() {
+
+    const miner = miners[minerLevel];
+
+    document.getElementById("balance").textContent =
+      balance.toFixed(2);
+
+    document.getElementById("minerName").textContent =
+      miner.icon + " " + miner.name;
+
+    document.getElementById("hashrate").textContent =
+      miner.hashrate;
+
+    document.getElementById("production").textContent =
+      miner.production.toFixed(2);
+
+    if (minerLevel < miners.length - 1) {
+
+      const next = miners[minerLevel + 1];
+
+      document.getElementById("nextUpgrade").textContent =
+        next.name + " — " + next.cost.toLocaleString("it-IT") +
+        " BOB Points";
+
+      let progress = (balance / next.cost) * 100;
+
+      if (progress > 100) progress = 100;
+
+      document.getElementById("progress").style.width =
+        progress + "%";
+
+      const button = document.getElementById("upgradeButton");
+
+      button.textContent =
+        "⬆️ Upgrade a " + next.name;
+
+      button.disabled = balance < next.cost;
+
+    } else {
+
+      document.getElementById("nextUpgrade").textContent =
+        "🌍 Livello massimo raggiunto";
+
+      document.getElementById("progress").style.width = "100%";
+
+      document.getElementById("upgradeButton").textContent =
+        "🏆 MAX LEVEL";
+
+      document.getElementById("upgradeButton").disabled = true;
+    }
+  }
+
+  function claim() {
+
+    save();
+
+    document.getElementById("status").textContent =
+      "🎁 Ricompensa aggiornata!";
+
+    setTimeout(() => {
+      document.getElementById("status").textContent =
+        "⛏️ Mining attivo";
+    }, 2000);
+  }
+
+  function upgrade() {
+
+    if (minerLevel >= miners.length - 1) return;
+
+    const next = miners[minerLevel + 1];
+
+    if (balance >= next.cost) {
+
+      balance -= next.cost;
+      minerLevel++;
+
+      save();
+      updateUI();
+
+      document.getElementById("status").textContent =
+        "🚀 Upgrade completato!";
+
+    } else {
+
+      document.getElementById("status").textContent =
+        "❌ BOB Points insufficienti";
+    }
+  }
+
+  // Aggiornamento ogni secondo
+  setInterval(() => {
+
+    balance += miners[minerLevel].production / 60;
+
+    updateUI();
+    save();
+
+  }, 1000);
+
+  // Produzione offline
+  updateOfflineProduction();
+
+  updateUI();
+
+</script>
+
+</body>
+</html>
