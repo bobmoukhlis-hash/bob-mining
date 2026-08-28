@@ -33,7 +33,7 @@ let miningTimer = null;
 
 const $ = (id) => document.getElementById(id);
 
-const loginBox = $("loginBox");
+const loginBox = $("authBox");
 const miningBox = $("miningBox");
 
 const emailInput = $("email");
