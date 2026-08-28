@@ -601,7 +601,20 @@ window.toggleMining = toggleMining;
 window.claimPoints = claimPoints;
 window.upgradeMiner = upgradeMiner;
 window.saveWallet = saveWallet;
+document.addEventListener("DOMContentLoaded", () => {
 
+    const signupBtn = document.getElementById("signupBtn");
+    const loginBtn = document.getElementById("loginBtn");
+
+    if (signupBtn) {
+        signupBtn.addEventListener("click", register);
+    }
+
+    if (loginBtn) {
+        loginBtn.addEventListener("click", login);
+    }
+
+});
 
 // -----------------------------------------------------
 // AVVIO
