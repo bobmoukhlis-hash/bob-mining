@@ -1,4 +1,3 @@
-```text
 // =====================================================
 // BOB MINING - app.js V5
 // Supabase + Login + Password + Mining Offline
