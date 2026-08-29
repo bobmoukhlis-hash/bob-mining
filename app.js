@@ -999,7 +999,47 @@ setInterval(
 document.addEventListener(
     "DOMContentLoaded",
     async () => {
+const togglePassword =
+    $("togglePassword");
 
+if (togglePassword && passwordInput) {
+
+    togglePassword.addEventListener(
+        "click",
+        () => {
+
+            if (
+                passwordInput.type ===
+                "password"
+            ) {
+
+                passwordInput.type =
+                    "text";
+
+                togglePassword.textContent =
+                    "🙈";
+
+                togglePassword.setAttribute(
+                    "aria-label",
+                    "Nascondi password"
+                );
+
+            } else {
+
+                passwordInput.type =
+                    "password";
+
+                togglePassword.textContent =
+                    "👁️";
+
+                togglePassword.setAttribute(
+                    "aria-label",
+                    "Mostra password"
+                );
+            }
+        }
+    );
+}
         loginBox =
             $("authBox");
 
