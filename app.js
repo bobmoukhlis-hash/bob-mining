@@ -38,7 +38,7 @@ const supabaseClient =
 console.log(
     "BOB Mining: app.js caricato correttamente."
 );
-
+window.supabaseClient = supabaseClient;
 
 // -----------------------------------------------------
 // VARIABILI
