@@ -1,13 +1,8 @@
 ```text
 // =====================================================
-// BOB MINING - app.js V4
-// Supabase + Autenticazione + Mining Offline
+// BOB MINING - app.js V5
+// Supabase + Login + Password + Mining Offline
 // =====================================================
-
-
-// -----------------------------------------------------
-// SUPABASE
-// -----------------------------------------------------
 
 const SUPABASE_URL =
     "https://fxyqeeznykdtmaoywpmm.supabase.co";
@@ -15,69 +10,76 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
     "sb_publishable_n6-IZsqob6jeQzL8igv-EA_lSNtURMn";
 
+
+// -----------------------------------------------------
+// SUPABASE
+// -----------------------------------------------------
+
+if (!window.supabase) {
+
+    console.error(
+        "BOB Mining: libreria Supabase non caricata."
+    );
+
+} else {
+
+    console.log(
+        "BOB Mining: libreria Supabase caricata."
+    );
+}
+
+
 const supabaseClient =
     window.supabase.createClient(
         SUPABASE_URL,
         SUPABASE_KEY
     );
 
-console.log("BOB Mining: Supabase collegato");
-console.log("BOB Mining: app.js caricato");
+
+console.log(
+    "BOB Mining: app.js caricato correttamente."
+);
+
+
+// -----------------------------------------------------
+// VARIABILI
+// -----------------------------------------------------
+
+let currentUser = null;
+
+let balance = 0;
+
+let minerLevel = 1;
+
+let speedBonus = 0;
+
+let offlineHours = 2;
+
+let miningActive = true;
+
+let lastMiningAt = null;
+
+const BASE_PRODUCTION_PER_MINUTE =
+    0.10;
 
 
 // -----------------------------------------------------
 // ELEMENTI HTML
 // -----------------------------------------------------
 
-const $ = (id) =>
-    document.getElementById(id);
+function $(id) {
+
+    return document.getElementById(id);
+}
+
 
 let loginBox = null;
+
 let miningBox = null;
+
 let emailInput = null;
+
 let passwordInput = null;
-
-
-// -----------------------------------------------------
-// UTENTE
-// -----------------------------------------------------
-
-let currentUser = null;
-
-
-// -----------------------------------------------------
-// DATI MINING
-// -----------------------------------------------------
-
-let balance = 0;
-let minerLevel = 1;
-let miningActive = true;
-let lastMiningAt = null;
-let offlineHours = 2;
-let speedBonus = 0;
-
-
-// -----------------------------------------------------
-// PRODUZIONE BASE
-// -----------------------------------------------------
-
-const BASE_PRODUCTION_PER_MINUTE = 0.10;
-
-
-// -----------------------------------------------------
-// MOSTRA MINING
-// -----------------------------------------------------
-
-function showMining() {
-
-    if (loginBox) {
-        loginBox.style.display = "none";
-    }
-
-    if (miningBox) {
-        miningBox.style.display = "block";
-    }
-}
 
 
 // -----------------------------------------------------
@@ -87,11 +89,55 @@ function showMining() {
 function showLogin() {
 
     if (loginBox) {
-        loginBox.style.display = "block";
+
+        loginBox.style.display =
+            "block";
     }
 
+
     if (miningBox) {
-        miningBox.style.display = "none";
+
+        miningBox.style.display =
+            "none";
+    }
+}
+
+
+// -----------------------------------------------------
+// MOSTRA MINING
+// -----------------------------------------------------
+
+function showMining() {
+
+    if (loginBox) {
+
+        loginBox.style.display =
+            "none";
+    }
+
+
+    if (miningBox) {
+
+        miningBox.style.display =
+            "block";
+    }
+}
+
+
+// -----------------------------------------------------
+// MESSAGGIO
+// -----------------------------------------------------
+
+function showAuthMessage(message) {
+
+    const element =
+        $("authMessage");
+
+
+    if (element) {
+
+        element.textContent =
+            message;
     }
 }
 
@@ -103,10 +149,15 @@ function showLogin() {
 async function register() {
 
     const email =
-        emailInput?.value.trim();
+        emailInput
+            ? emailInput.value.trim()
+            : "";
+
 
     const password =
-        passwordInput?.value;
+        passwordInput
+            ? passwordInput.value
+            : "";
 
 
     if (!email || !password) {
@@ -129,12 +180,19 @@ async function register() {
     }
 
 
+    console.log(
+        "BOB Mining: registrazione..."
+    );
+
+
     const { data, error } =
         await supabaseClient.auth.signUp({
 
-            email: email,
+            email:
+                email,
 
-            password: password,
+            password:
+                password,
 
             options: {
 
@@ -151,6 +209,7 @@ async function register() {
             error
         );
 
+
         alert(
             "Errore registrazione: " +
             error.message
@@ -161,13 +220,13 @@ async function register() {
 
 
     console.log(
-        "Utente registrato:",
-        data.user?.id
+        "Registrazione completata:",
+        data
     );
 
 
     alert(
-        "Registrazione completata.\n\n" +
+        "Registrazione completata!\n\n" +
         "Controlla la tua email e conferma l'account."
     );
 }
@@ -180,10 +239,15 @@ async function register() {
 async function login() {
 
     const email =
-        emailInput?.value.trim();
+        emailInput
+            ? emailInput.value.trim()
+            : "";
+
 
     const password =
-        passwordInput?.value;
+        passwordInput
+            ? passwordInput.value
+            : "";
 
 
     if (!email || !password) {
@@ -196,13 +260,20 @@ async function login() {
     }
 
 
+    console.log(
+        "BOB Mining: accesso..."
+    );
+
+
     const { data, error } =
         await supabaseClient.auth
             .signInWithPassword({
 
-                email: email,
+                email:
+                    email,
 
-                password: password
+                password:
+                    password
             });
 
 
@@ -212,6 +283,7 @@ async function login() {
             "Errore accesso:",
             error
         );
+
 
         alert(
             "Errore accesso: " +
@@ -270,23 +342,24 @@ async function logout() {
     }
 
 
-    currentUser = null;
+    currentUser =
+        null;
 
-    balance = 0;
 
-    miningActive = false;
+    balance =
+        0;
+
+
+    miningActive =
+        false;
+
 
     showLogin();
-
-
-    console.log(
-        "Logout effettuato"
-    );
 }
 
 
 // -----------------------------------------------------
-// CONTROLLO SESSIONE
+// SESSIONE
 // -----------------------------------------------------
 
 async function checkSession() {
@@ -303,6 +376,7 @@ async function checkSession() {
             error
         );
 
+
         showLogin();
 
         return;
@@ -316,8 +390,9 @@ async function checkSession() {
     if (!currentUser) {
 
         console.log(
-            "Nessun utente autenticato"
+            "Nessuna sessione."
         );
+
 
         showLogin();
 
@@ -345,14 +420,14 @@ async function checkSession() {
 supabaseClient.auth.onAuthStateChange(
     (event, session) => {
 
-        currentUser =
-            session?.user || null;
-
-
         console.log(
             "Auth event:",
             event
         );
+
+
+        currentUser =
+            session?.user || null;
 
 
         if (!currentUser) {
@@ -402,7 +477,7 @@ async function loadMiningAccount() {
     if (!data) {
 
         console.log(
-            "Account mining non trovato"
+            "Account mining non trovato."
         );
 
         return;
@@ -441,7 +516,9 @@ async function loadMiningAccount() {
 
     lastMiningAt =
         data.last_mining_at
-            ? new Date(data.last_mining_at)
+            ? new Date(
+                data.last_mining_at
+            )
             : new Date();
 
 
@@ -450,7 +527,7 @@ async function loadMiningAccount() {
 
 
     console.log(
-        "Account mining caricato:",
+        "Account mining:",
         {
             balance,
             minerLevel,
@@ -461,10 +538,6 @@ async function loadMiningAccount() {
         }
     );
 
-
-    // -------------------------------------------------
-    // CALCOLO MINING OFFLINE
-    // -------------------------------------------------
 
     if (miningActive) {
 
@@ -477,7 +550,7 @@ async function loadMiningAccount() {
 
 
 // -----------------------------------------------------
-// SALVA ACCOUNT MINING
+// SALVA ACCOUNT
 // -----------------------------------------------------
 
 async function saveMiningAccount(
@@ -519,7 +592,9 @@ async function saveMiningAccount(
     const { error } =
         await supabaseClient
             .from("mining_accounts")
-            .update(updateData)
+            .update(
+                updateData
+            )
             .eq(
                 "user_id",
                 currentUser.id
@@ -529,7 +604,7 @@ async function saveMiningAccount(
     if (error) {
 
         console.error(
-            "Errore salvataggio mining:",
+            "Errore salvataggio:",
             error
         );
 
@@ -544,24 +619,22 @@ async function saveMiningAccount(
     }
 
 
-    console.log(
-        "Mining salvato:",
-        Number(balance).toFixed(4)
-    );
-
-
     return true;
 }
 
 
 // -----------------------------------------------------
-// PRODUZIONE AL MINUTO
+// PRODUZIONE
 // -----------------------------------------------------
 
 function getProductionPerMinute() {
 
     const bonus =
-        1 + (speedBonus / 100);
+        1 +
+        (
+            speedBonus /
+            100
+        );
 
 
     return (
@@ -576,7 +649,9 @@ function getProductionPerMinute() {
 // AGGIUNGI PRODUZIONE
 // -----------------------------------------------------
 
-function addMiningProduction(minutes) {
+function addMiningProduction(
+    minutes
+) {
 
     if (!miningActive) {
 
@@ -614,7 +689,7 @@ function addMiningProduction(minutes) {
 
 
 // -----------------------------------------------------
-// PRODUZIONE OFFLINE
+// MINING OFFLINE
 // -----------------------------------------------------
 
 async function calculateOfflineMining() {
@@ -668,33 +743,25 @@ async function calculateOfflineMining() {
         );
 
 
-    console.log(
-        "OFFLINE MINING:",
-        {
-            elapsedMinutes:
-                elapsedMinutes.toFixed(2),
-
-            creditedMinutes:
-                creditedMinutes.toFixed(2),
-
-            earned:
-                earned.toFixed(4)
-        }
-    );
-
-
-    // Il periodo è stato contabilizzato.
     lastMiningAt =
         now;
 
 
-    // Salva balance e stato.
-    // Non cambia nuovamente il timestamp.
-
-    await saveMiningAccount(false);
+    await saveMiningAccount(
+        false
+    );
 
 
     updateMiningUI();
+
+
+    console.log(
+        "Mining offline:",
+        creditedMinutes.toFixed(2),
+        "minuti",
+        "guadagnati:",
+        earned.toFixed(4)
+    );
 
 
     return earned;
@@ -702,7 +769,7 @@ async function calculateOfflineMining() {
 
 
 // -----------------------------------------------------
-// AGGIORNA INTERFACCIA
+// INTERFACCIA
 // -----------------------------------------------------
 
 function updateMiningUI() {
@@ -714,7 +781,8 @@ function updateMiningUI() {
     if (balanceElement) {
 
         balanceElement.textContent =
-            Number(balance).toFixed(2);
+            Number(balance)
+                .toFixed(2);
     }
 
 
@@ -736,12 +804,11 @@ function updateMiningUI() {
 
     if (hashrateElement) {
 
-        const hashrate =
-            10 * minerLevel;
-
-
         hashrateElement.textContent =
-            hashrate +
+            (
+                10 *
+                minerLevel
+            ) +
             " GH/s";
     }
 
@@ -774,7 +841,7 @@ function updateMiningUI() {
 
 
 // -----------------------------------------------------
-// AVVIA / FERMA MINING
+// AVVIA / FERMA
 // -----------------------------------------------------
 
 async function toggleMining() {
@@ -789,9 +856,6 @@ async function toggleMining() {
     }
 
 
-    // Se stiamo fermando il mining,
-    // prima salviamo il momento esatto.
-
     if (miningActive) {
 
         await calculateOfflineMining();
@@ -802,23 +866,17 @@ async function toggleMining() {
         !miningActive;
 
 
-    await saveMiningAccount(true);
+    await saveMiningAccount(
+        true
+    );
 
 
     updateMiningUI();
-
-
-    console.log(
-        "Mining:",
-        miningActive
-            ? "ATTIVO"
-            : "FERMO"
-    );
 }
 
 
 // -----------------------------------------------------
-// CLAIM POINTS
+// CLAIM
 // -----------------------------------------------------
 
 async function claimPoints() {
@@ -839,18 +897,21 @@ async function claimPoints() {
     }
 
 
-    await saveMiningAccount(false);
+    await saveMiningAccount(
+        false
+    );
 
 
     alert(
         "BOB Points salvati: " +
-        Number(balance).toFixed(2)
+        Number(balance)
+            .toFixed(2)
     );
 }
 
 
 // -----------------------------------------------------
-// UPGRADE MINER
+// UPGRADE
 // -----------------------------------------------------
 
 async function upgradeMiner() {
@@ -862,12 +923,6 @@ async function upgradeMiner() {
         );
 
         return;
-    }
-
-
-    if (miningActive) {
-
-        await calculateOfflineMining();
     }
 
 
@@ -895,11 +950,9 @@ async function upgradeMiner() {
         1;
 
 
-    window.balance =
-        balance;
-
-
-    await saveMiningAccount(false);
+    await saveMiningAccount(
+        false
+    );
 
 
     updateMiningUI();
@@ -922,7 +975,7 @@ let lastTick =
 
 
 setInterval(
-    async () => {
+    () => {
 
         if (!currentUser) {
 
@@ -967,7 +1020,7 @@ setInterval(
 
 
 // -----------------------------------------------------
-// SALVATAGGIO PERIODICO
+// SALVATAGGIO OGNI 30 SECONDI
 // -----------------------------------------------------
 
 setInterval(
@@ -985,7 +1038,9 @@ setInterval(
         }
 
 
-        await saveMiningAccount(false);
+        await saveMiningAccount(
+            false
+        );
 
     },
     30000
@@ -993,53 +1048,13 @@ setInterval(
 
 
 // -----------------------------------------------------
-// EVENTI PAGINA
+// DOM READY
 // -----------------------------------------------------
 
 document.addEventListener(
     "DOMContentLoaded",
     async () => {
-const togglePassword =
-    $("togglePassword");
 
-if (togglePassword && passwordInput) {
-
-    togglePassword.addEventListener(
-        "click",
-        () => {
-
-            if (
-                passwordInput.type ===
-                "password"
-            ) {
-
-                passwordInput.type =
-                    "text";
-
-                togglePassword.textContent =
-                    "🙈";
-
-                togglePassword.setAttribute(
-                    "aria-label",
-                    "Nascondi password"
-                );
-
-            } else {
-
-                passwordInput.type =
-                    "password";
-
-                togglePassword.textContent =
-                    "👁️";
-
-                togglePassword.setAttribute(
-                    "aria-label",
-                    "Mostra password"
-                );
-            }
-        }
-    );
-}
         loginBox =
             $("authBox");
 
@@ -1056,12 +1071,67 @@ if (togglePassword && passwordInput) {
             $("password");
 
 
+        // ---------------------------------------------
+        // MOSTRA / NASCONDI PASSWORD
+        // ---------------------------------------------
+
+        const togglePassword =
+            $("togglePassword");
+
+
+        if (
+            togglePassword &&
+            passwordInput
+        ) {
+
+            togglePassword.addEventListener(
+                "click",
+                () => {
+
+                    if (
+                        passwordInput.type ===
+                        "password"
+                    ) {
+
+                        passwordInput.type =
+                            "text";
+
+
+                        togglePassword.textContent =
+                            "🙈";
+
+
+                        togglePassword.setAttribute(
+                            "aria-label",
+                            "Nascondi password"
+                        );
+
+                    } else {
+
+                        passwordInput.type =
+                            "password";
+
+
+                        togglePassword.textContent =
+                            "👁️";
+
+
+                        togglePassword.setAttribute(
+                            "aria-label",
+                            "Mostra password"
+                        );
+                    }
+                }
+            );
+        }
+
+
+        // ---------------------------------------------
+        // REGISTRAZIONE
+        // ---------------------------------------------
+
         const signupBtn =
             $("signupBtn");
-
-
-        const loginBtn =
-            $("loginBtn");
 
 
         if (signupBtn) {
@@ -1070,7 +1140,21 @@ if (togglePassword && passwordInput) {
                 "click",
                 register
             );
+
+        } else {
+
+            console.error(
+                "BOB Mining: signupBtn non trovato."
+            );
         }
+
+
+        // ---------------------------------------------
+        // LOGIN
+        // ---------------------------------------------
+
+        const loginBtn =
+            $("loginBtn");
 
 
         if (loginBtn) {
@@ -1079,8 +1163,18 @@ if (togglePassword && passwordInput) {
                 "click",
                 login
             );
+
+        } else {
+
+            console.error(
+                "BOB Mining: loginBtn non trovato."
+            );
         }
 
+
+        // ---------------------------------------------
+        // SESSIONE
+        // ---------------------------------------------
 
         await checkSession();
     }
@@ -1129,4 +1223,5 @@ window.getProductionPerMinute =
 
 window.balance =
     balance;
+
 ```
