@@ -1222,5 +1222,3 @@ window.getProductionPerMinute =
 
 window.balance =
     balance;
-
-```
