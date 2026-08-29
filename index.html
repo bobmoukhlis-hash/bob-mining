@@ -566,41 +566,54 @@ button{
         autocomplete="email"
     >
 
-    <div class="password-wrapper">
+    <div id="authBox">
+
+    <div class="auth-form">
 
         <input
-            id="password"
-            type="password"
-            placeholder="Password"
-            autocomplete="current-password"
+            id="email"
+            type="email"
+            placeholder="Email"
+            autocomplete="email"
         >
+
+        <div class="password-wrapper">
+
+            <input
+                id="password"
+                type="password"
+                placeholder="Password"
+                autocomplete="current-password"
+            >
+
+            <button
+                type="button"
+                id="togglePassword"
+                aria-label="Mostra password"
+            >👁️</button>
+
+        </div>
 
         <button
             type="button"
-            id="togglePassword"
-            aria-label="Mostra password"
-        >👁️</button>
+            id="signupBtn"
+        >Registrati</button>
+
+        <button
+            type="button"
+            id="loginBtn"
+        >Accedi</button>
+
+        <p id="authMessage"></p>
 
     </div>
 
-    <button
-        type="button"
-        id="signupBtn"
-    >Registrati</button>
-
-    <button
-        type="button"
-        id="loginBtn"
-    >Accedi</button>
-
-    <p id="authMessage"></p>
-
 </div>
 
-</div><div id="miningBox">
 
-<div class="app">
+<div id="miningBox">
 
+    <div class="app">
 <!-- ================= HOME ================= -->
 
 <section id="home" class="page active">
