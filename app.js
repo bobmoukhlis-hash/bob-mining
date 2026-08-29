@@ -54,11 +54,14 @@ async function register() {
     }
 
     const { data, error } =
-        await supabaseClient.auth.signUp({
-            email: email,
-            password: password
-        });
-
+    await supabaseClient.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+            emailRedirectTo:
+                "https://bobmoukhlis-hash.github.io/bob-mining/"
+        }
+    });
     if (error) {
         alert("Errore registrazione: " + error.message);
         return;
