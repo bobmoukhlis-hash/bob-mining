@@ -557,40 +557,48 @@ button{
 <body><div id="authBox" class="card">
   <h2>⛏️ BOB Mining</h2>
 
-  <input id="email" type="email" placeholder="Email">
-
   ```html
-<div class="password-wrapper">
+<div class="auth-form">
+
     <input
-        id="password"
-        type="password"
-        placeholder="Password"
-        autocomplete="current-password"
+        id="email"
+        type="email"
+        placeholder="Email"
+        autocomplete="email"
     >
+
+    <div class="password-wrapper">
+
+        <input
+            id="password"
+            type="password"
+            placeholder="Password"
+            autocomplete="current-password"
+        >
+
+        <button
+            type="button"
+            id="togglePassword"
+            aria-label="Mostra password"
+        >👁️</button>
+
+    </div>
 
     <button
         type="button"
-        id="togglePassword"
-    >👁️</button>
+        id="signupBtn"
+    >Registrati</button>
+
+    <button
+        type="button"
+        id="loginBtn"
+    >Accedi</button>
+
+    <p id="authMessage"></p>
+
 </div>
 ```
 
-        autocomplete="current-password"
-    >
-
-    <button
-        type="button"
-        id="togglePassword"
-        aria-label="Mostra password"
-    >
-        👁️
-    </button>
-</div>
-
-  <button id="signupBtn">Registrati</button>
-  <button id="loginBtn">Accedi</button>
-
-  <p id="authMessage"></p>
 </div><div id="miningBox">
 
 <div class="app">
