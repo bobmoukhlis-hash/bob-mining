@@ -2017,68 +2017,22 @@ function resetGame(){
    return;
  }
 
- localStorage.removeItem(
-   "bobBalance"
- );
-
- localStorage.removeItem(
-   "bobMinerLevel"
- );
-
- localStorage.removeItem(
-   "bobSpeedBonus"
- );
-
- localStorage.removeItem(
-   "bobOfflineHours"
- );
-
- localStorage.removeItem(
-   "bobLastUpdate"
- );
-
- location.reload();
-
-}
-
-
-/* ================= START ================= */
-
-calculateOffline();
-
-updateUI();
-
-renderMiners();
-
-
-/* ================= MINING LOOP ================= */
-
-setInterval(()=>{
-
- const miner=
-   miners[minerLevel];
-
- const multiplier=
-   1+(speedBonus/100);
-
- balance+=
-   (miner.production*
-   multiplier)/60;
-
- lastUpdate=
-   Date.now();
-
- save();
-
- updateUI();
-
-},1000);
-
-</script>
+<!-- =====================================================
+     FINE CONTENUTO BOB MINING
+     ===================================================== -->
 
 </div>
 
+<!-- =====================================================
+     SUPABASE
+     ===================================================== -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- =====================================================
+     BOB MINING JAVASCRIPT
+     ===================================================== -->
+
 <script src="app.js"></script>
 
 </body>
