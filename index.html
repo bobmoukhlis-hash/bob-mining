@@ -559,7 +559,22 @@ button{
 
   <input id="email" type="email" placeholder="Email">
 
-  <input id="password" type="password" placeholder="Password">
+  <div class="password-wrapper">
+    <input
+        id="password"
+        type="password"
+        placeholder="Password"
+        autocomplete="current-password"
+    >
+
+    <button
+        type="button"
+        id="togglePassword"
+        aria-label="Mostra password"
+    >
+        👁️
+    </button>
+</div>
 
   <button id="signupBtn">Registrati</button>
   <button id="loginBtn">Accedi</button>
