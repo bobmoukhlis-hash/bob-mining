@@ -113,7 +113,34 @@ async function login() {
         miningBox.style.display = "block";
     }
 }
+// -----------------------------------------------------
+// SALVA ACCOUNT MINING
+// -----------------------------------------------------
 
+async function saveMiningAccount() {
+
+    if (!currentUser) {
+        console.log("Nessun utente autenticato");
+        return;
+    }
+
+    const balance = Number(window.balance || 0);
+
+    const { error } = await supabaseClient
+        .from("mining_accounts")
+        .update({
+            balance_points: balance,
+            last_mining_at: new Date().toISOString()
+        })
+        .eq("user_id", currentUser.id);
+
+    if (error) {
+        console.error("Errore salvataggio mining:", error);
+        return;
+    }
+
+    console.log("✅ Mining salvato:", balance);
+}
 
 // -----------------------------------------------------
 // EVENTI PULSANTI
