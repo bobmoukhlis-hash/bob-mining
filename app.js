@@ -761,20 +761,6 @@ function updateMiningUI() {
                 : "Avvia Mining";
     }
 
-    const userInfo =
-        $("userInfo");
-
-    if (
-        userInfo &&
-        currentUser
-    ) {
-        userInfo.textContent =
-            "Account: " +
-            currentUser.email;
-    }
-}
-
-
 // -----------------------------------------------------
 // TOGGLE MINING
 // -----------------------------------------------------
