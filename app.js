@@ -1,4 +1,3 @@
-```javascript
 // =====================================================
 // BOB MINING - app.js V11
 // Supabase + Autenticazione + Mining
@@ -2050,4 +2049,3 @@ window.balance =
 console.log(
     "✅ BOB Mining V11 inizializzazione completata."
 );
-```
