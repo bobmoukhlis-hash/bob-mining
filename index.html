@@ -1,1210 +1,969 @@
-```html
-<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#080b16">
-<title>BOB Mining</title>
-
-<style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:#070a12;color:#fff;font-family:Arial,sans-serif;padding-bottom:80px}
-.app{max-width:520px;margin:auto;padding:15px}
-.card{background:linear-gradient(145deg,#151e34,#0f1628);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 12px 35px rgba(0,0,0,.3)}
-button{width:100%;padding:14px;border:0;border-radius:14px;font-weight:bold;font-size:15px;margin:5px 0;cursor:pointer}
-button:disabled{opacity:.45;cursor:not-allowed}
-input{width:100%;padding:14px;margin:6px 0;border:0;border-radius:12px;background:#0a1020;color:white;outline:none}
-h2{text-align:center}
-.header{display:flex;justify-content:space-between;align-items:center;padding:10px 3px 15px}
-.brand{display:flex;gap:10px;align-items:center}
-.brand-icon{font-size:28px}
-.brand-title{font-size:20px;font-weight:bold}
-.online{color:#6ee7b7;font-size:11px}
-.balance-card{text-align:center}
-.balance{font-size:40px;font-weight:bold;margin:5px}
-.label,.muted{color:#929caf;font-size:12px}
-.currency,.price{color:#facc15;font-weight:bold}
-.miner{text-align:center}
-.miner-icon{font-size:80px;margin:10px}
-.hashrate{color:#929caf}
-.stats{display:flex;margin-top:15px;background:#0a1020;border-radius:15px;padding:12px}
-.stat{flex:1;text-align:center}
-.stat+.stat{border-left:1px solid #30394c}
-.page{display:none}
-.page.active{display:block}
-.nav{position:fixed;z-index:100;bottom:0;left:50%;transform:translateX(-50%);max-width:520px;width:100%;display:flex;background:#0a0e19;padding:7px 3px}
-.nav button{background:none;color:#778195;font-size:11px;margin:0;padding:6px}
-.nav button.active{color:#facc15}
-.row{display:flex;align-items:center;gap:12px;background:#111a2d;padding:13px;border-radius:14px;margin:8px 0}
-.row-main{flex:1}
-.toast{position:fixed;z-index:200;bottom:90px;left:50%;transform:translateX(-50%);background:#202a40;padding:12px 18px;border-radius:12px;display:none;white-space:nowrap}
-.toast.show{display:block}
-.status{text-align:center;min-height:20px;color:#6ee7b7;font-size:12px;margin:8px}
-</style>
-</head>
-
-<body>
-
-<!-- ================= LOGIN ================= -->
-
-<div id="auth" class="app">
-<div class="card">
-<h2>⛏️ BOB Mining</h2>
-
-<input id="email" type="email" placeholder="Email" autocomplete="email">
-<input id="password" type="password" placeholder="Password" autocomplete="current-password">
-
-<button class="claim" id="loginBtn">🔐 Accedi</button>
-<button class="upgrade" id="signupBtn">📝 Registrati</button>
-
-<p id="authMessage" class="muted"></p>
-</div>
-</div>
-
-<!-- ================= APP ================= -->
-
-<div id="game" class="app" style="display:none">
-
-<!-- HOME -->
-<section id="home" class="page active">
-
-<div class="header">
-<div class="brand">
-<div class="brand-icon">⛏️</div>
-<div>
-<div class="brand-title">BOB Mining</div>
-<div class="online">● Mining online</div>
-</div>
-</div>
-<div>⚡</div>
-</div>
-
-<div class="card balance-card">
-<div class="label">SALDO DISPONIBILE</div>
-<div id="balance" class="balance">0.00</div>
-<div class="currency">BOB Points</div>
-</div>
-
-<div class="card miner">
-
-<div id="level">LIVELLO 1</div>
-<div id="icon" class="miner-icon">👷</div>
-<h2 id="minerName">Rookie</h2>
-<div id="hashrate" class="hashrate">10 GH/s</div>
-
-<div class="stats">
-<div class="stat">
-<small>⚡ PRODUZIONE</small>
-<br>
-<b id="production">0.10/min</b>
-</div>
+```javascript
+// =====================================================
+// BOB MINING - app.js V2
+// Supabase + Autenticazione + Mining
+// =====================================================
 
-<div class="stat">
-<small>⏱️ STATO</small>
-<br>
-<b id="miningStatus">ONLINE</b>
-</div>
-</div>
 
-</div>
+// -----------------------------------------------------
+// SUPABASE
+// -----------------------------------------------------
 
-<button class="claim" id="claimBtn">
-🎁 CLAIM BOB POINTS
-</button>
+const SUPABASE_URL =
+    "https://fxyqeeznykdtmaoywpmm.supabase.co";
 
-<button id="upgradeBtn" class="upgrade">
-⬆️ UPGRADE
-</button>
+const SUPABASE_KEY =
+    "sb_publishable_n6-IZsqob6jeQzL8igv-EA_lSNtURMn";
 
-<div id="status" class="status"></div>
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
 
-</section>
+console.log("✅ Supabase collegato");
+console.log("✅ BOB app.js caricato");
 
-<!-- MINERS -->
-<section id="miners" class="page">
 
-<div class="header">
-<div class="brand-title">⛏️ Minatori</div>
-</div>
+// -----------------------------------------------------
+// ELEMENTI HTML
+// -----------------------------------------------------
 
-<div class="card">
-<h2>Tutti i minatori</h2>
-<div id="minersList"></div>
-</div>
+const $ = (id) =>
+    document.getElementById(id);
 
-</section>
+const loginBox =
+    $("authBox");
 
-<!-- UPGRADES -->
-<section id="upgrades" class="page">
+const miningBox =
+    $("miningBox");
 
-<div class="header">
-<div class="brand-title">⚡ Upgrade</div>
-</div>
+const emailInput =
+    $("email");
 
-<div class="card">
+const passwordInput =
+    $("password");
 
-<h2>Velocità</h2>
 
-<button class="upgrade" data-bonus="10" data-cost="250">
-⚡ +10% — 250 BOB
-</button>
+// -----------------------------------------------------
+// UTENTE
+// -----------------------------------------------------
 
-<button class="upgrade" data-bonus="25" data-cost="750">
-⚡ +25% — 750 BOB
-</button>
+let currentUser = null;
 
-<button class="upgrade" data-bonus="50" data-cost="2000">
-⚡ +50% — 2.000 BOB
-</button>
 
-<button class="upgrade" data-bonus="100" data-cost="6000">
-⚡ +100% — 6.000 BOB
-</button>
+// -----------------------------------------------------
+// DATI MINING
+// -----------------------------------------------------
 
-</div>
+let balance = 0;
 
-<div class="card">
+let minerLevel = 1;
 
-<h2>⏱️ Mining Offline</h2>
+let miningActive = true;
 
-<button class="secondary" onclick="offlineUpgrade(2,0)">
-2 ore — GRATIS
-</button>
+let lastMiningAt = null;
 
-<button class="upgrade" onclick="offlineUpgrade(4,500)">
-4 ore — 500 BOB
-</button>
+let offlineHours = 2;
 
-<button class="upgrade" onclick="offlineUpgrade(8,2000)">
-8 ore — 2.000 BOB
-</button>
+let speedBonus = 0;
 
-<button class="upgrade" onclick="offlineUpgrade(12,8000)">
-12 ore — 8.000 BOB
-</button>
 
-<button class="upgrade" onclick="offlineUpgrade(24,30000)">
-24 ore — 30.000 BOB
-</button>
+// -----------------------------------------------------
+// PRODUZIONE BASE
+// -----------------------------------------------------
 
-</div>
+const BASE_PRODUCTION_PER_MINUTE = 0.10;
 
-</section>
 
-<!-- REWARDS -->
-<section id="rewards" class="page">
+// -----------------------------------------------------
+// MOSTRA MINING
+// -----------------------------------------------------
 
-<div class="header">
-<div class="brand-title">🎁 Rewards</div>
-</div>
+function showMining() {
 
-<div class="card balance-card">
+    if (loginBox) {
+        loginBox.style.display = "none";
+    }
 
-<div class="miner-icon">🎁</div>
-
-<div id="reward" class="balance">0.00</div>
-
-<div class="muted">
-BOB Points disponibili
-</div>
-
-<button class="claim" id="rewardClaimBtn">
-🎁 CLAIM
-</button>
-
-</div>
-
-</section>
-
-<!-- WALLET -->
-<section id="wallet" class="page">
-
-<div class="header">
-<div class="brand-title">💰 Wallet</div>
-</div>
-
-<div class="card balance-card">
-
-<div class="miner-icon">💰</div>
-
-<div id="walletBalance" class="balance">
-0.00
-</div>
-
-<div class="muted">
-BOB Points
-</div>
-
-</div>
-
-<div class="card">
-
-<h2>🔗 Wallet BOB</h2>
-
-<div class="muted">
-Il collegamento al wallet blockchain sarà aggiunto
-nella versione blockchain.
-</div>
-
-<button class="secondary" onclick="showToast('🔗 Wallet blockchain disponibile in futuro')">
-🔗 Collega Wallet
-</button>
-
-</div>
-
-</section>
-
-<!-- PROFILE -->
-<section id="profile" class="page">
-
-<div class="header">
-<div class="brand-title">👤 Profilo</div>
-</div>
-
-<div class="card">
-
-<h2>👤 BOB Miner</h2>
-
-<p class="muted">
-ID: <b id="playerId">---</b>
-</p>
-
-<p>
-Livello:
-<b id="profileLevel">1</b>
-</p>
-
-<p>
-Minatore:
-<b id="profileMiner">Rookie</b>
-</p>
-
-<p>
-Hashrate:
-<b id="profileHashrate">10 GH/s</b>
-</p>
-
-<p>
-BOB Points:
-<b id="profileBalance">0.00</b>
-</p>
-
-<button class="secondary" onclick="resetGame()">
-♻️ Reset demo
-</button>
-
-<button class="secondary" onclick="logout()">
-🚪 Esci
-</button>
-
-</div>
-
-</section>
-
-</div>
-
-<!-- ================= NAV ================= -->
-
-<nav id="nav" class="nav" style="display:none">
-
-<button onclick="showPage('home',this)" class="active">
-🏠<br>Home
-</button>
-
-<button onclick="showPage('miners',this)">
-⛏️<br>Minatori
-</button>
-
-<button onclick="showPage('upgrades',this)">
-⚡<br>Upgrade
-</button>
-
-<button onclick="showPage('rewards',this)">
-🎁<br>Rewards
-</button>
-
-<button onclick="showPage('profile',this)">
-👤<br>Profilo
-</button>
-
-</nav>
-
-<div id="toast" class="toast"></div>
-
-<script>
-
-/* =====================================================
-   CONFIGURAZIONE BACKEND
-   ===================================================== */
-
-const API_URL="https://TUO-BACKEND.onrender.com";
-
-
-/* =====================================================
-   MINATORI
-   ===================================================== */
-
-const miners=[
-{
-name:"Rookie",
-icon:"👷",
-hashrate:"10 GH/s",
-production:0.10,
-cost:0
-},
-{
-name:"Worker",
-icon:"👷",
-hashrate:"25 GH/s",
-production:0.25,
-cost:100
-},
-{
-name:"Pro Miner",
-icon:"👷",
-hashrate:"60 GH/s",
-production:0.60,
-cost:300
-},
-{
-name:"Super Miner",
-icon:"🤖",
-hashrate:"150 GH/s",
-production:1.50,
-cost:1000
-},
-{
-name:"Ultra Miner",
-icon:"🤖",
-hashrate:"400 GH/s",
-production:4,
-cost:3500
-},
-{
-name:"Mini Farm",
-icon:"🏭",
-hashrate:"1 TH/s",
-production:10,
-cost:12000
-},
-{
-name:"Farm",
-icon:"🏭",
-hashrate:"3 TH/s",
-production:30,
-cost:40000
-},
-{
-name:"Mega Farm",
-icon:"⚡",
-hashrate:"10 TH/s",
-production:100,
-cost:150000
-},
-{
-name:"Industrial Farm",
-icon:"🚀",
-hashrate:"30 TH/s",
-production:300,
-cost:600000
-},
-{
-name:"Global Farm",
-icon:"🌍",
-hashrate:"100 TH/s",
-production:1000,
-cost:2500000
+    if (miningBox) {
+        miningBox.style.display = "block";
+    }
 }
-];
 
 
-/* =====================================================
-   STATO
-   ===================================================== */
+// -----------------------------------------------------
+// MOSTRA LOGIN
+// -----------------------------------------------------
 
-let currentUser=null;
+function showLogin() {
 
-let balance=0;
-let minerLevel=0;
-let speedBonus=0;
-let offlineHours=2;
+    if (loginBox) {
+        loginBox.style.display = "block";
+    }
 
-
-/* =====================================================
-   API
-   ===================================================== */
-
-async function api(path,options={}){
-
-const response=await fetch(
-API_URL+path,
-{
-...options,
-headers:{
-"Content-Type":"application/json",
-...(options.headers||{})
+    if (miningBox) {
+        miningBox.style.display = "none";
+    }
 }
+
+
+// -----------------------------------------------------
+// REGISTRAZIONE
+// -----------------------------------------------------
+
+async function register() {
+
+    const email =
+        emailInput?.value.trim();
+
+    const password =
+        passwordInput?.value;
+
+
+    if (!email || !password) {
+
+        alert(
+            "Inserisci email e password."
+        );
+
+        return;
+    }
+
+
+    if (password.length < 6) {
+
+        alert(
+            "La password deve avere almeno 6 caratteri."
+        );
+
+        return;
+    }
+
+
+    const { data, error } =
+        await supabaseClient.auth.signUp({
+
+            email: email,
+
+            password: password,
+
+            options: {
+
+                emailRedirectTo:
+                    "https://bobmoukhlis-hash.github.io/bob-mining/"
+            }
+        });
+
+
+    if (error) {
+
+        console.error(
+            "❌ Errore registrazione:",
+            error
+        );
+
+        alert(
+            "Errore registrazione: " +
+            error.message
+        );
+
+        return;
+    }
+
+
+    console.log(
+        "✅ Utente registrato:",
+        data
+    );
+
+
+    alert(
+        "✅ Registrazione completata!\n\n" +
+        "Controlla la tua email e conferma l'account."
+    );
 }
+
+
+// -----------------------------------------------------
+// LOGIN
+// -----------------------------------------------------
+
+async function login() {
+
+    const email =
+        emailInput?.value.trim();
+
+    const password =
+        passwordInput?.value;
+
+
+    if (!email || !password) {
+
+        alert(
+            "Inserisci email e password."
+        );
+
+        return;
+    }
+
+
+    const { data, error } =
+        await supabaseClient.auth
+            .signInWithPassword({
+
+                email: email,
+
+                password: password
+            });
+
+
+    if (error) {
+
+        console.error(
+            "❌ Errore accesso:",
+            error
+        );
+
+        alert(
+            "Errore accesso: " +
+            error.message
+        );
+
+        return;
+    }
+
+
+    currentUser =
+        data.user;
+
+
+    console.log(
+        "✅ Login riuscito:",
+        currentUser.id
+    );
+
+
+    await loadMiningAccount();
+
+
+    showMining();
+
+
+    alert(
+        "✅ Accesso effettuato!"
+    );
+}
+
+
+// -----------------------------------------------------
+// LOGOUT
+// -----------------------------------------------------
+
+async function logout() {
+
+    const { error } =
+        await supabaseClient.auth.signOut();
+
+
+    if (error) {
+
+        console.error(
+            "❌ Errore logout:",
+            error
+        );
+
+        alert(
+            "Errore logout: " +
+            error.message
+        );
+
+        return;
+    }
+
+
+    currentUser = null;
+
+    balance = 0;
+
+    showLogin();
+
+
+    console.log(
+        "✅ Logout effettuato"
+    );
+}
+
+
+// -----------------------------------------------------
+// CONTROLLO SESSIONE
+// -----------------------------------------------------
+
+async function checkSession() {
+
+    const { data, error } =
+        await supabaseClient.auth
+            .getSession();
+
+
+    if (error) {
+
+        console.error(
+            "❌ Errore sessione:",
+            error
+        );
+
+        showLogin();
+
+        return;
+    }
+
+
+    currentUser =
+        data.session?.user || null;
+
+
+    if (currentUser) {
+
+        console.log(
+            "✅ Sessione trovata:",
+            currentUser.id
+        );
+
+
+        await loadMiningAccount();
+
+
+        showMining();
+
+    } else {
+
+        console.log(
+            "ℹ️ Nessun utente autenticato"
+        );
+
+
+        showLogin();
+    }
+}
+
+
+// -----------------------------------------------------
+// CAMBIO SESSIONE
+// -----------------------------------------------------
+
+supabaseClient.auth.onAuthStateChange(
+    (event, session) => {
+
+        currentUser =
+            session?.user || null;
+
+
+        console.log(
+            "Auth event:",
+            event
+        );
+
+
+        if (!currentUser) {
+
+            showLogin();
+        }
+    }
 );
 
-let data={};
 
-try{
-data=await response.json();
-}catch(e){}
+// -----------------------------------------------------
+// CARICA ACCOUNT MINING
+// -----------------------------------------------------
 
-if(!response.ok){
-throw new Error(
-data.error||"Errore del server"
-);
-}
+async function loadMiningAccount() {
 
-return data;
-}
+    if (!currentUser) {
 
+        console.log(
+            "ℹ️ Nessun utente autenticato"
+        );
 
-/* =====================================================
-   LOGIN
-   ===================================================== */
-
-async function login(){
-
-const email=document.getElementById("email").value.trim();
-const password=document.getElementById("password").value;
-
-if(!email||!password){
-showAuthMessage("Inserisci email e password.");
-return;
-}
-
-showAuthMessage("Accesso in corso...");
-
-try{
-
-const data=await api(
-"/login",
-{
-method:"POST",
-body:JSON.stringify({
-email:email,
-password:password
-})
-}
-);
-
-if(data.token){
-localStorage.setItem(
-"bobToken",
-data.token
-);
-}
-
-currentUser=data.user||data;
-
-await loadMining();
-
-showApp();
-
-showToast("✅ Accesso effettuato");
-
-}catch(error){
-
-showAuthMessage(
-"❌ "+error.message
-);
-
-}
-
-}
+        return;
+    }
 
 
-/* =====================================================
-   REGISTRAZIONE
-   ===================================================== */
+    const { data, error } =
+        await supabaseClient
+            .from("mining_accounts")
+            .select(
+                "balance_points, miner_level, speed_bonus, offline_hours, mining_active, last_mining_at"
+            )
+            .eq(
+                "user_id",
+                currentUser.id
+            )
+            .maybeSingle();
 
-async function signup(){
 
-const email=document.getElementById("email").value.trim();
-const password=document.getElementById("password").value;
+    if (error) {
 
-if(!email||!password){
-showAuthMessage("Inserisci email e password.");
-return;
-}
+        console.error(
+            "❌ Errore caricamento mining:",
+            error
+        );
 
-if(password.length<6){
-showAuthMessage(
-"❌ La password deve avere almeno 6 caratteri."
-);
-return;
-}
+        return;
+    }
 
-showAuthMessage("Registrazione in corso...");
 
-try{
+    if (!data) {
 
-const data=await api(
-"/signup",
-{
-method:"POST",
-body:JSON.stringify({
-email:email,
-password:password
-})
-}
-);
+        console.log(
+            "ℹ️ Account mining non trovato"
+        );
 
-if(data.token){
-localStorage.setItem(
-"bobToken",
-data.token
-);
-}
+        return;
+    }
 
-currentUser=data.user||data;
 
-await loadMining();
+    balance =
+        Number(
+            data.balance_points || 0
+        );
 
-showApp();
 
-showToast("✅ Registrazione completata");
+    minerLevel =
+        Number(
+            data.miner_level || 1
+        );
 
-}catch(error){
 
-showAuthMessage(
-"❌ "+error.message
-);
+    speedBonus =
+        Number(
+            data.speed_bonus || 0
+        );
 
-}
 
+    offlineHours =
+        Number(
+            data.offline_hours || 2
+        );
+
+
+    miningActive =
+        Boolean(
+            data.mining_active
+        );
+
+
+    lastMiningAt =
+        data.last_mining_at
+            ? new Date(data.last_mining_at)
+            : new Date();
+
+
+    window.balance =
+        balance;
+
+
+    console.log(
+        "✅ Account mining caricato:",
+        {
+            balance,
+            minerLevel,
+            miningActive,
+            lastMiningAt
+        }
+    );
+
+
+    updateMiningUI();
 }
 
 
-/* =====================================================
-   CARICA ACCOUNT
-   ===================================================== */
+// -----------------------------------------------------
+// SALVA ACCOUNT MINING
+// -----------------------------------------------------
 
-async function loadMining(){
+async function saveMiningAccount() {
 
-const token=
-localStorage.getItem("bobToken");
+    if (!currentUser) {
 
-if(!token)return;
+        console.log(
+            "ℹ️ Nessun utente autenticato"
+        );
 
-try{
-
-const data=await api(
-"/mining",
-{
-headers:{
-Authorization:"Bearer "+token
-}
-}
-);
-
-if(data.balance!==undefined)
-balance=Number(data.balance)||0;
-
-if(data.minerLevel!==undefined)
-minerLevel=Number(data.minerLevel)||0;
-
-if(data.speedBonus!==undefined)
-speedBonus=Number(data.speedBonus)||0;
-
-if(data.offlineHours!==undefined)
-offlineHours=Number(data.offlineHours)||2;
-
-if(data.user)
-currentUser=data.user;
-
-updateUI();
-
-}catch(error){
-
-console.log(
-"Backend mining non disponibile:",
-error.message
-);
-
-}
-
-}
+        return;
+    }
 
 
-/* =====================================================
-   SALVA MINING
-   ===================================================== */
+    window.balance =
+        Number(balance);
 
-async function saveMining(){
 
-const token=
-localStorage.getItem("bobToken");
+    const { error } =
+        await supabaseClient
+            .from("mining_accounts")
+            .update({
 
-if(!token)return false;
+                balance_points:
+                    Number(balance),
 
-try{
+                miner_level:
+                    Number(minerLevel),
 
-await api(
-"/mining",
-{
-method:"POST",
-headers:{
-Authorization:"Bearer "+token
-},
-body:JSON.stringify({
-balance:balance,
-minerLevel:minerLevel,
-speedBonus:speedBonus,
-offlineHours:offlineHours
-})
-}
-);
+                speed_bonus:
+                    Number(speedBonus),
 
-return true;
+                offline_hours:
+                    Number(offlineHours),
 
-}catch(error){
+                mining_active:
+                    Boolean(miningActive),
 
-console.error(error);
+                last_mining_at:
+                    new Date().toISOString()
+            })
+            .eq(
+                "user_id",
+                currentUser.id
+            );
 
-return false;
 
-}
+    if (error) {
 
+        console.error(
+            "❌ Errore salvataggio mining:",
+            error
+        );
+
+        return;
+    }
+
+
+    lastMiningAt =
+        new Date();
+
+
+    console.log(
+        "✅ Mining salvato:",
+        balance
+    );
 }
 
 
-/* =====================================================
-   APP
-   ===================================================== */
+// -----------------------------------------------------
+// CALCOLO PRODUZIONE
+// -----------------------------------------------------
 
-function showApp(){
+function getProductionPerMinute() {
 
-document.getElementById("auth").style.display="none";
+    const bonus =
+        1 + (speedBonus / 100);
 
-document.getElementById("game").style.display="block";
 
-document.getElementById("nav").style.display="flex";
-
-updateUI();
-
-renderMiners();
-
+    return (
+        BASE_PRODUCTION_PER_MINUTE *
+        minerLevel *
+        bonus
+    );
 }
 
 
-/* =====================================================
-   UI
-   ===================================================== */
+// -----------------------------------------------------
+// AGGIUNGI PRODUZIONE
+// -----------------------------------------------------
 
-function updateUI(){
+function addMiningProduction(minutes) {
 
-const miner=
-miners[Math.min(
-minerLevel,
-miners.length-1
-)];
+    if (!miningActive) {
+        return;
+    }
 
-const production=
-miner.production*
-(1+speedBonus/100);
 
-document.getElementById("balance").textContent=
-balance.toFixed(2);
+    if (!Number.isFinite(minutes)) {
+        return;
+    }
 
-document.getElementById("reward").textContent=
-balance.toFixed(2);
 
-document.getElementById("walletBalance").textContent=
-balance.toFixed(2);
+    if (minutes <= 0) {
+        return;
+    }
 
-document.getElementById("level").textContent=
-"LIVELLO "+(minerLevel+1);
 
-document.getElementById("icon").textContent=
-miner.icon;
+    const production =
+        getProductionPerMinute();
 
-document.getElementById("minerName").textContent=
-miner.name;
 
-document.getElementById("hashrate").textContent=
-miner.hashrate;
+    const earned =
+        production * minutes;
 
-document.getElementById("production").textContent=
-production.toFixed(2)+"/min";
 
-document.getElementById("profileLevel").textContent=
-minerLevel+1;
+    balance += earned;
 
-document.getElementById("profileMiner").textContent=
-miner.name;
 
-document.getElementById("profileHashrate").textContent=
-miner.hashrate;
-
-document.getElementById("profileBalance").textContent=
-balance.toFixed(2);
-
-if(currentUser){
-
-document.getElementById("playerId").textContent=
-currentUser.id||
-currentUser.user_id||
-"BOB-USER";
-
-}
-
-const button=
-document.getElementById("upgradeBtn");
-
-if(minerLevel<miners.length-1){
-
-const next=
-miners[minerLevel+1];
-
-button.textContent=
-"⬆️ UPGRADE — "+
-next.cost.toLocaleString("it-IT")+
-" POINTS";
-
-button.disabled=
-balance<next.cost;
-
-}else{
-
-button.textContent=
-"🏆 LIVELLO MASSIMO";
-
-button.disabled=true;
-
-}
-
+    window.balance =
+        balance;
 }
 
 
-/* =====================================================
-   CLAIM
-   ===================================================== */
+// -----------------------------------------------------
+// PRODUZIONE OFFLINE
+// -----------------------------------------------------
 
-async function claim(){
+function calculateOfflineMining() {
 
-const miner=
-miners[minerLevel];
-
-const reward=
-miner.production*
-(1+speedBonus/100);
-
-balance+=reward;
-
-updateUI();
-
-const saved=
-await saveMining();
-
-if(!saved){
-
-showToast(
-"⚠️ Salvato solo localmente"
-);
-
-return;
-
-}
-
-showToast(
-"🎁 +"+reward.toFixed(2)+" BOB Points"
-);
-
-}
+    if (!miningActive) {
+        return;
+    }
 
 
-/* =====================================================
-   UPGRADE
-   ===================================================== */
+    if (!lastMiningAt) {
+        return;
+    }
 
-async function upgrade(){
 
-if(minerLevel>=miners.length-1)
-return;
+    const now =
+        new Date();
 
-const next=
-miners[minerLevel+1];
 
-if(balance<next.cost){
+    let elapsedMinutes =
+        (now.getTime() -
+            lastMiningAt.getTime()) /
+        60000;
 
-showToast(
-"❌ BOB Points insufficienti"
-);
 
-return;
+    if (elapsedMinutes <= 0) {
+        return;
+    }
 
-}
 
-balance-=next.cost;
-minerLevel++;
+    const maxOfflineMinutes =
+        offlineHours * 60;
 
-updateUI();
 
-const saved=
-await saveMining();
+    elapsedMinutes =
+        Math.min(
+            elapsedMinutes,
+            maxOfflineMinutes
+        );
 
-if(!saved){
 
-showToast(
-"⚠️ Upgrade locale"
-);
+    addMiningProduction(
+        elapsedMinutes
+    );
 
-return;
 
-}
-
-showToast(
-"🚀 Upgrade completato!"
-);
-
+    console.log(
+        "⛏️ Produzione offline:",
+        elapsedMinutes,
+        "minuti"
+    );
 }
 
 
-/* =====================================================
-   SPEED
-   ===================================================== */
+// -----------------------------------------------------
+// AGGIORNA INTERFACCIA
+// -----------------------------------------------------
 
-async function buySpeed(bonus,cost){
+function updateMiningUI() {
 
-if(speedBonus>=bonus){
-
-showToast(
-"⚡ Upgrade già attivo"
-);
-
-return;
-
-}
-
-if(balance<cost){
-
-showToast(
-"❌ BOB Points insufficienti"
-);
-
-return;
-
-}
-
-balance-=cost;
-speedBonus=bonus;
-
-updateUI();
-
-await saveMining();
-
-showToast(
-"⚡ Velocità +"+bonus+"%"
-);
-
-}
+    const balanceElement =
+        $("balance");
 
 
-/* =====================================================
-   OFFLINE
-   ===================================================== */
+    if (balanceElement) {
 
-async function offlineUpgrade(hours,cost){
+        balanceElement.textContent =
+            Number(balance).toFixed(2);
+    }
 
-if(hours<=offlineHours){
 
-showToast(
-"⏱️ Questo livello è già attivo"
-);
+    const levelElement =
+        $("levelBadge");
 
-return;
 
-}
+    if (levelElement) {
 
-if(balance<cost){
+        levelElement.textContent =
+            "LIVELLO " +
+            minerLevel;
+    }
 
-showToast(
-"❌ BOB Points insufficienti"
-);
 
-return;
+    const hashrateElement =
+        $("hashrate");
 
-}
 
-balance-=cost;
-offlineHours=hours;
+    if (hashrateElement) {
 
-updateUI();
+        const hashrate =
+            10 * minerLevel;
 
-await saveMining();
+        hashrateElement.textContent =
+            hashrate +
+            " GH/s";
+    }
 
-showToast(
-"⏱️ Offline "+hours+" ore attivato"
-);
 
+    const productionElement =
+        $("production");
+
+
+    if (productionElement) {
+
+        productionElement.textContent =
+            getProductionPerMinute()
+                .toFixed(2) +
+            "/min";
+    }
+
+
+    const statusElement =
+        $("miningStatus");
+
+
+    if (statusElement) {
+
+        statusElement.textContent =
+            miningActive
+                ? "ONLINE"
+                : "OFFLINE";
+    }
 }
 
 
-/* =====================================================
-   MINATORI
-   ===================================================== */
+// -----------------------------------------------------
+// AVVIA / FERMA MINING
+// -----------------------------------------------------
 
-function renderMiners(){
+async function toggleMining() {
 
-const box=
-document.getElementById("minersList");
+    if (!currentUser) {
 
-box.innerHTML="";
+        alert(
+            "Devi prima effettuare l'accesso."
+        );
 
-miners.forEach((m,i)=>{
+        return;
+    }
 
-const row=
-document.createElement("div");
 
-row.className="row";
+    miningActive =
+        !miningActive;
 
-row.innerHTML=`
 
-<div style="font-size:32px">
-${m.icon}
-</div>
+    await saveMiningAccount();
 
-<div class="row-main">
 
-<b>${i+1}. ${m.name}</b>
+    updateMiningUI();
 
-<br>
 
-<span class="muted">
-${m.hashrate} •
-${m.production.toFixed(2)}
-Points/min
-</span>
-
-</div>
-
-<div class="price">
-
-${
-i===minerLevel
-?"ATTIVO":
-i<minerLevel
-?"✓":
-m.cost.toLocaleString("it-IT")
-}
-
-</div>
-
-`;
-
-box.appendChild(row);
-
-});
-
+    console.log(
+        "Mining:",
+        miningActive
+            ? "ATTIVO"
+            : "FERMO"
+    );
 }
 
 
-/* =====================================================
-   NAVIGAZIONE
-   ===================================================== */
+// -----------------------------------------------------
+// CLAIM POINTS
+// -----------------------------------------------------
 
-function showPage(name,button){
+async function claimPoints() {
 
-document.querySelectorAll(".page")
-.forEach(page=>{
-page.classList.remove("active");
-});
+    if (!currentUser) {
 
-document.getElementById(name)
-.classList.add("active");
+        alert(
+            "Devi prima effettuare l'accesso."
+        );
 
-document.querySelectorAll(".nav button")
-.forEach(btn=>{
-btn.classList.remove("active");
-});
+        return;
+    }
 
-button.classList.add("active");
 
-updateUI();
+    await saveMiningAccount();
 
-renderMiners();
 
-window.scrollTo(0,0);
-
+    alert(
+        "🎁 BOB Points salvati: " +
+        Number(balance).toFixed(2)
+    );
 }
 
 
-/* =====================================================
-   RESET
-   ===================================================== */
+// -----------------------------------------------------
+// UPGRADE MINER
+// -----------------------------------------------------
 
-async function resetGame(){
+async function upgradeMiner() {
 
-if(!confirm(
-"Vuoi cancellare tutto il progresso?"
-))
-return;
+    if (!currentUser) {
 
-balance=0;
-minerLevel=0;
-speedBonus=0;
-offlineHours=2;
+        alert(
+            "Devi prima effettuare l'accesso."
+        );
 
-updateUI();
+        return;
+    }
 
-const saved=
-await saveMining();
 
-if(saved){
+    const upgradeCost =
+        100;
 
-showToast(
-"♻️ Progresso azzerato"
+
+    if (balance < upgradeCost) {
+
+        alert(
+            "❌ Servono " +
+            upgradeCost +
+            " BOB Points."
+        );
+
+        return;
+    }
+
+
+    balance -=
+        upgradeCost;
+
+
+    minerLevel +=
+        1;
+
+
+    window.balance =
+        balance;
+
+
+    await saveMiningAccount();
+
+
+    updateMiningUI();
+
+
+    alert(
+        "⬆️ Upgrade completato!\n\n" +
+        "Nuovo livello: " +
+        minerLevel
+    );
+}
+
+
+// -----------------------------------------------------
+// SALVATAGGIO AUTOMATICO
+// -----------------------------------------------------
+
+setInterval(
+    async () => {
+
+        if (!currentUser) {
+            return;
+        }
+
+
+        if (!miningActive) {
+            return;
+        }
+
+
+        addMiningProduction(
+            1 / 60
+        );
+
+
+        updateMiningUI();
+
+
+        await saveMiningAccount();
+
+    },
+    1000
 );
 
-}else{
 
-showToast(
-"⚠️ Reset locale"
+// -----------------------------------------------------
+// EVENTI PULSANTI
+// -----------------------------------------------------
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+
+        const signupBtn =
+            $("signupBtn");
+
+        const loginBtn =
+            $("loginBtn");
+
+
+        if (signupBtn) {
+
+            signupBtn.addEventListener(
+                "click",
+                register
+            );
+
+            console.log(
+                "✅ Pulsante Registrati collegato"
+            );
+        }
+
+
+        if (loginBtn) {
+
+            loginBtn.addEventListener(
+                "click",
+                login
+            );
+
+            console.log(
+                "✅ Pulsante Accedi collegato"
+            );
+        }
+
+
+        await checkSession();
+    }
 );
 
-}
 
-}
+// -----------------------------------------------------
+// FUNZIONI GLOBALI
+// -----------------------------------------------------
 
+window.register =
+    register;
 
-/* =====================================================
-   LOGOUT
-   ===================================================== */
+window.login =
+    login;
 
-function logout(){
+window.logout =
+    logout;
 
-localStorage.removeItem("bobToken");
+window.checkSession =
+    checkSession;
 
-currentUser=null;
+window.saveMiningAccount =
+    saveMiningAccount;
 
-document.getElementById("game").style.display="none";
-document.getElementById("nav").style.display="none";
-document.getElementById("auth").style.display="block";
+window.loadMiningAccount =
+    loadMiningAccount;
 
-showAuthMessage("");
+window.toggleMining =
+    toggleMining;
 
-}
+window.claimPoints =
+    claimPoints;
 
+window.upgradeMiner =
+    upgradeMiner;
 
-/* =====================================================
-   MESSAGGI
-   ===================================================== */
+window.updateMiningUI =
+    updateMiningUI;
 
-function showAuthMessage(message){
+window.getProductionPerMinute =
+    getProductionPerMinute;
 
-document.getElementById(
-"authMessage"
-).textContent=message;
-
-}
-
-function showToast(message){
-
-const box=
-document.getElementById("toast");
-
-box.textContent=message;
-
-box.classList.add("show");
-
-clearTimeout(window.toastTimer);
-
-window.toastTimer=
-setTimeout(
-()=>{
-box.classList.remove("show");
-},
-2200
-);
-
-}
-
-
-/* =====================================================
-   EVENTI
-   ===================================================== */
-
-document.getElementById("loginBtn")
-.addEventListener(
-"click",
-login
-);
-
-document.getElementById("signupBtn")
-.addEventListener(
-"click",
-signup
-);
-
-document.getElementById("claimBtn")
-.addEventListener(
-"click",
-claim
-);
-
-document.getElementById("rewardClaimBtn")
-.addEventListener(
-"click",
-claim
-);
-
-document.getElementById("upgradeBtn")
-.addEventListener(
-"click",
-upgrade
-);
-
-document.querySelectorAll(
-"#upgrades button[data-bonus]"
-).forEach(button=>{
-
-button.addEventListener(
-"click",
-()=>buySpeed(
-Number(button.dataset.bonus),
-Number(button.dataset.cost)
-)
-);
-
-});
-
-
-/* =====================================================
-   AUTO LOGIN
-   ===================================================== */
-
-(async function(){
-
-const token=
-localStorage.getItem("bobToken");
-
-if(!token)return;
-
-try{
-
-await loadMining();
-
-if(currentUser||token){
-
-showApp();
-
-}
-
-}catch(error){
-
-console.log(error);
-
-}
-
-})();
-
-</script>
-
-</body>
-</html>
+window.balance =
+    balance;
+```
