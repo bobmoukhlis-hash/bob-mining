@@ -1,10 +1,13 @@
+```javascript
 // =====================================================
-// BOB MINING - app.js V11
+// BOB MINING - app.js V12
 // Supabase + Autenticazione + Mining
-// Online + Offline + Claim + Upgrade + Logout
+// Online + Offline + Claim + Upgrade + Rewards
+// Referral + Autosave
 // =====================================================
 
 "use strict";
+
 
 // -----------------------------------------------------
 // SUPABASE
@@ -21,60 +24,135 @@ if (!window.supabase) {
     throw new Error("Supabase non disponibile.");
 }
 
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
 
-window.supabaseClient = supabaseClient;
+window.supabaseClient =
+    supabaseClient;
 
 console.log("✅ Supabase collegato");
-console.log("✅ BOB Mining V11 caricato");
+console.log("🚀 BOB Mining V12 caricato");
+
 
 // -----------------------------------------------------
 // CONFIGURAZIONE
 // -----------------------------------------------------
 
-const BASE_PRODUCTION_PER_MINUTE = 0.10;
-const UPGRADE_COST = 100;
-const DEFAULT_OFFLINE_HOURS = 2;
+const BASE_PRODUCTION_PER_MINUTE =
+    0.10;
 
-const MINING_TICK_INTERVAL = 1000;
-const AUTOSAVE_INTERVAL = 30000;
+const BASE_HASHRATE =
+    10;
+
+const BASE_OFFLINE_HOURS =
+    2;
+
+const BASE_MINING_SPEED =
+    0;
+
+const MINER_UPGRADE_BASE_COST =
+    100;
+
+const HASHRATE_UPGRADE_BASE_COST =
+    100;
+
+const SPEED_UPGRADE_BASE_COST =
+    150;
+
+const OFFLINE_UPGRADE_BASE_COST =
+    200;
+
+const DAILY_BONUS_AMOUNT =
+    1;
+
+const REFERRAL_BONUS_AMOUNT =
+    5;
+
+const MINING_TICK_INTERVAL =
+    1000;
+
+const AUTOSAVE_INTERVAL =
+    30000;
+
 
 // -----------------------------------------------------
 // STATO
 // -----------------------------------------------------
 
-let currentUser = null;
+let currentUser =
+    null;
 
-let balance = 0;
-let minerLevel = 1;
-let speedBonus = 0;
-let offlineHours = DEFAULT_OFFLINE_HOURS;
+let balance =
+    0;
 
-let miningActive = false;
+let minerLevel =
+    1;
 
-let lastMiningAt = null;
+let speedBonus =
+    0;
 
-let lastTick = Date.now();
+let offlineHours =
+    BASE_OFFLINE_HOURS;
 
-let isLoading = false;
-let isSaving = false;
-let isProcessingAction = false;
-let offlineProcessing = false;
+let hashrate =
+    BASE_HASHRATE;
 
-let domReady = false;
+let miningSpeed =
+    BASE_MINING_SPEED;
+
+let dailyBonus =
+    0;
+
+let referralCode =
+    "";
+
+let referralCount =
+    0;
+
+let miningActive =
+    false;
+
+let lastMiningAt =
+    null;
+
+let lastTick =
+    Date.now();
+
+let isLoading =
+    false;
+
+let isSaving =
+    false;
+
+let domReady =
+    false;
+
+let offlineProcessing =
+    false;
+
+let dailyBonusClaimed =
+    false;
+
 
 // -----------------------------------------------------
 // ELEMENTI HTML
 // -----------------------------------------------------
 
-let loginBox = null;
-let miningBox = null;
+let loginBox =
+    null;
 
-let emailInput = null;
-let passwordInput = null;
+let miningBox =
+    null;
+
+let emailInput =
+    null;
+
+let passwordInput =
+    null;
+
 
 // -----------------------------------------------------
 // HELPER
@@ -84,53 +162,58 @@ function $(id) {
     return document.getElementById(id);
 }
 
-function safeNumber(value, fallback = 0) {
-    const number = Number(value);
-
-    return Number.isFinite(number)
-        ? number
-        : fallback;
-}
-
-function getNow() {
-    return new Date();
-}
 
 // -----------------------------------------------------
 // MESSAGGI
 // -----------------------------------------------------
 
-function showAuthMessage(message, type = "") {
+function showAuthMessage(
+    message,
+    type = ""
+) {
 
-    const element = $("authMessage");
+    const element =
+        $("authMessage");
 
     if (!element) {
         return;
     }
 
-    element.textContent = message;
-    element.className = "message";
+    element.textContent =
+        message;
+
+    element.className =
+        "message";
 
     if (type) {
         element.classList.add(type);
     }
 }
 
-function showMiningMessage(message, type = "") {
 
-    const element = $("miningMessage");
+function showMiningMessage(
+    message,
+    type = ""
+) {
+
+    const element =
+        $("miningMessage");
 
     if (!element) {
         return;
     }
 
-    element.textContent = message;
-    element.className = "message";
+    element.textContent =
+        message;
+
+    element.className =
+        "message";
 
     if (type) {
         element.classList.add(type);
     }
 }
+
 
 // -----------------------------------------------------
 // RESET
@@ -138,60 +221,193 @@ function showMiningMessage(message, type = "") {
 
 function resetMiningData() {
 
-    balance = 0;
-    minerLevel = 1;
-    speedBonus = 0;
+    balance =
+        0;
 
-    offlineHours = DEFAULT_OFFLINE_HOURS;
+    minerLevel =
+        1;
 
-    miningActive = false;
+    speedBonus =
+        0;
 
-    lastMiningAt = null;
+    offlineHours =
+        BASE_OFFLINE_HOURS;
 
-    lastTick = Date.now();
+    hashrate =
+        BASE_HASHRATE;
 
-    offlineProcessing = false;
+    miningSpeed =
+        BASE_MINING_SPEED;
 
-    window.balance = balance;
+    dailyBonus =
+        0;
+
+    referralCode =
+        "";
+
+    referralCount =
+        0;
+
+    miningActive =
+        false;
+
+    lastMiningAt =
+        null;
+
+    dailyBonusClaimed =
+        false;
+
+    lastTick =
+        Date.now();
+
+    offlineProcessing =
+        false;
+
+    window.balance =
+        balance;
 
     updateMiningUI();
 }
 
+
 // -----------------------------------------------------
-// UI LOGIN
+// MOSTRA LOGIN
 // -----------------------------------------------------
 
 function showLogin() {
 
     if (loginBox) {
-        loginBox.classList.remove("hidden");
-        loginBox.style.display = "";
+
+        loginBox.classList.remove(
+            "hidden"
+        );
+
+        loginBox.style.display =
+            "";
     }
 
     if (miningBox) {
-        miningBox.classList.add("hidden");
-        miningBox.style.display = "";
+
+        miningBox.classList.add(
+            "hidden"
+        );
+
+        miningBox.style.display =
+            "";
     }
 }
 
+
 // -----------------------------------------------------
-// UI MINING
+// MOSTRA MINING
 // -----------------------------------------------------
 
 function showMining() {
 
     if (loginBox) {
-        loginBox.classList.add("hidden");
-        loginBox.style.display = "";
+
+        loginBox.classList.add(
+            "hidden"
+        );
+
+        loginBox.style.display =
+            "";
     }
 
     if (miningBox) {
-        miningBox.classList.remove("hidden");
-        miningBox.style.display = "";
+
+        miningBox.classList.remove(
+            "hidden"
+        );
+
+        miningBox.style.display =
+            "";
     }
 
     updateMiningUI();
 }
+
+
+// -----------------------------------------------------
+// COSTI UPGRADE
+// -----------------------------------------------------
+
+function getMinerUpgradeCost() {
+
+    return Math.round(
+        MINER_UPGRADE_BASE_COST *
+        Math.pow(
+            1.5,
+            Math.max(
+                0,
+                minerLevel - 1
+            )
+        )
+    );
+}
+
+
+function getHashrateUpgradeCost() {
+
+    const upgradeLevel =
+        Math.max(
+            0,
+            Math.round(
+                (hashrate - BASE_HASHRATE) /
+                BASE_HASHRATE
+            )
+        );
+
+    return Math.round(
+        HASHRATE_UPGRADE_BASE_COST *
+        Math.pow(
+            1.5,
+            upgradeLevel
+        )
+    );
+}
+
+
+function getSpeedUpgradeCost() {
+
+    const upgradeLevel =
+        Math.max(
+            0,
+            Math.round(
+                miningSpeed / 10
+            )
+        );
+
+    return Math.round(
+        SPEED_UPGRADE_BASE_COST *
+        Math.pow(
+            1.5,
+            upgradeLevel
+        )
+    );
+}
+
+
+function getOfflineUpgradeCost() {
+
+    const upgradeLevel =
+        Math.max(
+            0,
+            Math.round(
+                (offlineHours - BASE_OFFLINE_HOURS) /
+                BASE_OFFLINE_HOURS
+            )
+        );
+
+    return Math.round(
+        OFFLINE_UPGRADE_BASE_COST *
+        Math.pow(
+            1.5,
+            upgradeLevel
+        )
+    );
+}
+
 
 // -----------------------------------------------------
 // PRODUZIONE
@@ -199,43 +415,42 @@ function showMining() {
 
 function getProductionPerMinute() {
 
-    const level = Math.max(
-        1,
-        Math.floor(
-            safeNumber(minerLevel, 1)
-        )
-    );
+    const level =
+        Math.max(
+            1,
+            Number(minerLevel) || 1
+        );
 
-    const bonus = Math.max(
-        0,
-        safeNumber(speedBonus, 0)
-    );
+    const bonus =
+        Number(speedBonus) || 0;
+
+    const speed =
+        Number(miningSpeed) || 0;
 
     return (
         BASE_PRODUCTION_PER_MINUTE *
         level *
-        (1 + bonus / 100)
+        (1 + bonus / 100) *
+        (1 + speed / 100)
     );
 }
 
+
 // -----------------------------------------------------
-// AGGIUNGI PRODUZIONE
+// PRODUZIONE MINING
 // -----------------------------------------------------
 
-function addMiningProduction(minutes) {
+function addMiningProduction(
+    minutes
+) {
 
     if (!miningActive) {
         return 0;
     }
 
-    const validMinutes = safeNumber(
-        minutes,
-        0
-    );
-
     if (
-        validMinutes <= 0 ||
-        validMinutes > 1440
+        !Number.isFinite(minutes) ||
+        minutes <= 0
     ) {
         return 0;
     }
@@ -244,7 +459,8 @@ function addMiningProduction(minutes) {
         getProductionPerMinute();
 
     const earned =
-        production * validMinutes;
+        production *
+        minutes;
 
     if (
         !Number.isFinite(earned) ||
@@ -253,16 +469,15 @@ function addMiningProduction(minutes) {
         return 0;
     }
 
-    balance += earned;
+    balance +=
+        earned;
 
-    if (!Number.isFinite(balance) || balance < 0) {
-        balance = 0;
-    }
-
-    window.balance = balance;
+    window.balance =
+        balance;
 
     return earned;
 }
+
 
 // -----------------------------------------------------
 // APPLICA ACCOUNT
@@ -270,70 +485,196 @@ function addMiningProduction(minutes) {
 
 function applyMiningAccount(data) {
 
-    balance = safeNumber(
-        data?.balance_points,
-        0
-    );
+    balance =
+        Number(
+            data?.balance_points ?? 0
+        );
 
-    if (balance < 0) {
+    if (
+        !Number.isFinite(balance) ||
+        balance < 0
+    ) {
         balance = 0;
     }
 
-    minerLevel = Math.max(
-        1,
-        Math.floor(
-            safeNumber(
-                data?.miner_level,
-                1
+
+    minerLevel =
+        Math.max(
+            1,
+            Number(
+                data?.miner_level ?? 1
             )
-        )
-    );
+        );
 
-    speedBonus = Math.max(
-        0,
-        safeNumber(
-            data?.speed_bonus,
-            0
-        )
-    );
 
-    offlineHours = Math.max(
-        0,
-        safeNumber(
-            data?.offline_hours,
-            DEFAULT_OFFLINE_HOURS
-        )
-    );
+    speedBonus =
+        Number(
+            data?.speed_bonus ?? 0
+        );
+
+    if (
+        !Number.isFinite(speedBonus)
+    ) {
+        speedBonus = 0;
+    }
+
+
+    offlineHours =
+        Math.max(
+            0,
+            Number(
+                data?.offline_hours ??
+                BASE_OFFLINE_HOURS
+            )
+        );
+
+    if (
+        !Number.isFinite(offlineHours)
+    ) {
+        offlineHours =
+            BASE_OFFLINE_HOURS;
+    }
+
+
+    hashrate =
+        Math.max(
+            BASE_HASHRATE,
+            Number(
+                data?.hashrate ??
+                BASE_HASHRATE
+            )
+        );
+
+    if (
+        !Number.isFinite(hashrate)
+    ) {
+        hashrate =
+            BASE_HASHRATE;
+    }
+
+
+    miningSpeed =
+        Math.max(
+            0,
+            Number(
+                data?.mining_speed ??
+                BASE_MINING_SPEED
+            )
+        );
+
+    if (
+        !Number.isFinite(miningSpeed)
+    ) {
+        miningSpeed =
+            BASE_MINING_SPEED;
+    }
+
+
+    dailyBonus =
+        Number(
+            data?.daily_bonus ?? 0
+        );
+
+    if (
+        !Number.isFinite(dailyBonus)
+    ) {
+        dailyBonus = 0;
+    }
+
+
+    referralCode =
+        String(
+            data?.referral_code ?? ""
+        );
+
+
+    referralCount =
+        Math.max(
+            0,
+            Number(
+                data?.referral_count ?? 0
+            )
+        );
+
+    if (
+        !Number.isFinite(referralCount)
+    ) {
+        referralCount = 0;
+    }
+
 
     miningActive =
         data?.mining_active === true;
 
-    if (data?.last_mining_at) {
 
-        const parsedDate =
-            new Date(data.last_mining_at);
+    if (
+        data?.last_mining_at
+    ) {
+
+        const date =
+            new Date(
+                data.last_mining_at
+            );
 
         if (
             !Number.isNaN(
-                parsedDate.getTime()
+                date.getTime()
             )
         ) {
-            lastMiningAt = parsedDate;
+
+            lastMiningAt =
+                date;
+
         } else {
-            lastMiningAt = getNow();
+
+            lastMiningAt =
+                new Date();
         }
 
     } else {
 
-        lastMiningAt = getNow();
+        lastMiningAt =
+            new Date();
     }
 
-    window.balance = balance;
 
-    lastTick = Date.now();
+    window.balance =
+        balance;
+
+    lastTick =
+        Date.now();
 
     updateMiningUI();
 }
+
+
+// -----------------------------------------------------
+// CREA CODICE REFERRAL
+// -----------------------------------------------------
+
+function generateReferralCode() {
+
+    if (!currentUser) {
+        return "";
+    }
+
+    const id =
+        String(
+            currentUser.id
+        ).replace(
+            /-/g,
+            ""
+        );
+
+    return (
+        "BOB-" +
+        id.substring(
+            0,
+            8
+        ).toUpperCase()
+    );
+}
+
 
 // -----------------------------------------------------
 // CREA ACCOUNT
@@ -346,76 +687,93 @@ async function createMiningAccount() {
     }
 
     const now =
-        getNow().toISOString();
+        new Date().toISOString();
+
+    const newReferralCode =
+        generateReferralCode();
 
     const account = {
 
-        user_id: currentUser.id,
+        user_id:
+            currentUser.id,
 
-        balance_points: 0,
+        balance_points:
+            0,
 
-        miner_level: 1,
+        miner_level:
+            1,
 
-        speed_bonus: 0,
+        speed_bonus:
+            0,
 
         offline_hours:
-            DEFAULT_OFFLINE_HOURS,
+            BASE_OFFLINE_HOURS,
 
-        mining_active: true,
+        mining_active:
+            true,
 
-        last_mining_at: now
+        last_mining_at:
+            now,
+
+        hashrate:
+            BASE_HASHRATE,
+
+        mining_speed:
+            BASE_MINING_SPEED,
+
+        daily_bonus:
+            0,
+
+        referral_code:
+            newReferralCode,
+
+        referral_count:
+            0
     };
 
-    try {
 
-        const { data, error } =
-            await supabaseClient
-                .from("mining_accounts")
-                .insert(account)
-                .select(
-                    "balance_points, miner_level, speed_bonus, offline_hours, mining_active, last_mining_at"
-                )
-                .single();
+    const { data, error } =
+        await supabaseClient
+            .from(
+                "mining_accounts"
+            )
+            .insert(
+                account
+            )
+            .select(
+                "balance_points, miner_level, speed_bonus, offline_hours, mining_active, last_mining_at, hashrate, mining_speed, daily_bonus, referral_code, referral_count"
+            )
+            .single();
 
-        if (error) {
 
-            console.error(
-                "❌ Errore creazione account:",
-                error
-            );
-
-            showMiningMessage(
-                "Errore creazione account: " +
-                error.message,
-                "error"
-            );
-
-            return false;
-        }
-
-        applyMiningAccount(data);
-
-        console.log(
-            "✅ Account mining creato."
-        );
-
-        return true;
-
-    } catch (error) {
+    if (error) {
 
         console.error(
-            "❌ Errore createMiningAccount:",
+            "❌ Errore creazione account:",
             error
         );
 
         showMiningMessage(
-            "Errore creazione account.",
+            "Errore creazione account: " +
+            error.message,
             "error"
         );
 
         return false;
     }
+
+
+    applyMiningAccount(
+        data
+    );
+
+    console.log(
+        "✅ Account mining creato."
+    );
+
+    return true;
 }
+
 
 // -----------------------------------------------------
 // CARICA ACCOUNT
@@ -431,21 +789,25 @@ async function loadMiningAccount() {
         return false;
     }
 
-    isLoading = true;
+    isLoading =
+        true;
 
     try {
 
         const { data, error } =
             await supabaseClient
-                .from("mining_accounts")
+                .from(
+                    "mining_accounts"
+                )
                 .select(
-                    "balance_points, miner_level, speed_bonus, offline_hours, mining_active, last_mining_at"
+                    "balance_points, miner_level, speed_bonus, offline_hours, mining_active, last_mining_at, hashrate, mining_speed, daily_bonus, referral_code, referral_count"
                 )
                 .eq(
                     "user_id",
                     currentUser.id
                 )
                 .maybeSingle();
+
 
         if (error) {
 
@@ -463,6 +825,7 @@ async function loadMiningAccount() {
             return false;
         }
 
+
         if (!data) {
 
             console.log(
@@ -472,21 +835,30 @@ async function loadMiningAccount() {
             return await createMiningAccount();
         }
 
-        applyMiningAccount(data);
+
+        applyMiningAccount(
+            data
+        );
+
 
         console.log(
             "✅ Account mining caricato."
         );
 
+
         if (miningActive) {
+
             await calculateOfflineMining();
         }
 
-        lastTick = Date.now();
+
+        lastTick =
+            Date.now();
 
         updateMiningUI();
 
         return true;
+
 
     } catch (error) {
 
@@ -502,11 +874,14 @@ async function loadMiningAccount() {
 
         return false;
 
+
     } finally {
 
-        isLoading = false;
+        isLoading =
+            false;
     }
 }
+
 
 // -----------------------------------------------------
 // SALVA ACCOUNT
@@ -524,53 +899,67 @@ async function saveMiningAccount(
         return false;
     }
 
-    isSaving = true;
+    isSaving =
+        true;
 
     try {
 
         const updateData = {
 
             balance_points:
-                Number(
-                    Math.max(0, balance)
-                ),
+                Number(balance),
 
             miner_level:
-                Number(
-                    Math.max(
-                        1,
-                        Math.floor(minerLevel)
-                    )
-                ),
+                Number(minerLevel),
 
             speed_bonus:
-                Number(
-                    Math.max(0, speedBonus)
-                ),
+                Number(speedBonus),
 
             offline_hours:
-                Number(
-                    Math.max(0, offlineHours)
-                ),
+                Number(offlineHours),
 
             mining_active:
-                Boolean(miningActive)
+                Boolean(miningActive),
+
+            hashrate:
+                Number(hashrate),
+
+            mining_speed:
+                Number(miningSpeed),
+
+            daily_bonus:
+                Number(dailyBonus),
+
+            referral_code:
+                referralCode || generateReferralCode(),
+
+            referral_count:
+                Number(referralCount)
         };
 
-        if (updateTimestamp) {
+
+        if (
+            updateTimestamp
+        ) {
 
             updateData.last_mining_at =
-                getNow().toISOString();
+                new Date().toISOString();
         }
+
 
         const { error } =
             await supabaseClient
-                .from("mining_accounts")
-                .update(updateData)
+                .from(
+                    "mining_accounts"
+                )
+                .update(
+                    updateData
+                )
                 .eq(
                     "user_id",
                     currentUser.id
                 );
+
 
         if (error) {
 
@@ -582,16 +971,24 @@ async function saveMiningAccount(
             return false;
         }
 
-        if (updateTimestamp) {
 
-            lastMiningAt = getNow();
+        if (
+            updateTimestamp
+        ) {
 
-            lastTick = Date.now();
+            lastMiningAt =
+                new Date();
+
+            lastTick =
+                Date.now();
         }
 
-        window.balance = balance;
+
+        window.balance =
+            balance;
 
         return true;
+
 
     } catch (error) {
 
@@ -602,14 +999,17 @@ async function saveMiningAccount(
 
         return false;
 
+
     } finally {
 
-        isSaving = false;
+        isSaving =
+            false;
     }
 }
 
+
 // -----------------------------------------------------
-// CALCOLO MINING OFFLINE
+// MINING OFFLINE
 // -----------------------------------------------------
 
 async function calculateOfflineMining() {
@@ -628,52 +1028,75 @@ async function calculateOfflineMining() {
 
     if (!lastMiningAt) {
 
-        lastMiningAt = getNow();
+        lastMiningAt =
+            new Date();
 
         return 0;
     }
 
-    offlineProcessing = true;
+
+    offlineProcessing =
+        true;
 
     try {
 
-        const now = getNow();
+        const now =
+            new Date();
 
         const lastTime =
             lastMiningAt.getTime();
 
-        if (Number.isNaN(lastTime)) {
 
-            lastMiningAt = now;
+        if (
+            Number.isNaN(lastTime)
+        ) {
+
+            lastMiningAt =
+                now;
+
+            return 0;
+        }
+
+
+        const elapsedMinutes =
+            Math.max(
+                0,
+                (
+                    now.getTime() -
+                    lastTime
+                ) / 60000
+            );
+
+
+        if (
+            elapsedMinutes <= 0
+        ) {
+            return 0;
+        }
+
+
+        const maxMinutes =
+            Math.max(
+                0,
+                Number(offlineHours) *
+                60
+            );
+
+
+        if (
+            maxMinutes <= 0
+        ) {
+
+            lastMiningAt =
+                now;
+
+            await saveMiningAccount(
+                true
+            );
 
             return 0;
         }
 
-        const elapsedMinutes = Math.max(
-            0,
-            (
-                now.getTime() -
-                lastTime
-            ) / 60000
-        );
-
-        if (elapsedMinutes <= 0) {
-            return 0;
-        }
-
-        const maxMinutes = Math.max(
-            0,
-            offlineHours * 60
-        );
-
-        if (maxMinutes <= 0) {
-
-            lastMiningAt = now;
-
-            await saveMiningAccount(false);
-
-            return 0;
-        }
 
         const creditedMinutes =
             Math.min(
@@ -681,37 +1104,37 @@ async function calculateOfflineMining() {
                 maxMinutes
             );
 
+
         const earned =
             addMiningProduction(
                 creditedMinutes
             );
 
-        /*
-         * Il timestamp viene portato a "adesso".
-         *
-         * In questo modo il periodo già elaborato
-         * non viene pagato nuovamente.
-         */
 
-        lastMiningAt = now;
+        lastMiningAt =
+            now;
+
 
         const saved =
-            await saveMiningAccount(false);
-
-        if (!saved) {
-
-            console.error(
-                "❌ Salvataggio mining offline fallito."
+            await saveMiningAccount(
+                false
             );
 
+
+        if (!saved) {
             return 0;
         }
 
-        lastTick = Date.now();
+
+        lastTick =
+            Date.now();
 
         updateMiningUI();
 
-        if (earned > 0) {
+
+        if (
+            earned > 0
+        ) {
 
             console.log(
                 "⛏️ Mining offline:",
@@ -722,145 +1145,23 @@ async function calculateOfflineMining() {
             );
         }
 
+
         return earned;
 
-    } catch (error) {
-
-        console.error(
-            "❌ Errore calculateOfflineMining:",
-            error
-        );
-
-        return 0;
 
     } finally {
 
-        offlineProcessing = false;
+        offlineProcessing =
+            false;
     }
 }
 
-// -----------------------------------------------------
-// UI
-// -----------------------------------------------------
-
-function updateMiningUI() {
-
-    const balanceElement =
-        $("balance");
-
-    if (balanceElement) {
-
-        balanceElement.textContent =
-            Number(balance).toFixed(2);
-    }
-
-    const levelElement =
-        $("levelBadge");
-
-    if (levelElement) {
-
-        levelElement.textContent =
-            "LIVELLO " +
-            minerLevel;
-    }
-
-    const hashrateElement =
-        $("hashrate");
-
-    if (hashrateElement) {
-
-        hashrateElement.textContent =
-            (
-                10 *
-                minerLevel
-            ) +
-            " GH/s";
-    }
-
-    const productionElement =
-        $("production");
-
-    if (productionElement) {
-
-        productionElement.textContent =
-            getProductionPerMinute()
-                .toFixed(2) +
-            "/min";
-    }
-
-    const statusElement =
-        $("miningStatus");
-
-    if (statusElement) {
-
-        statusElement.textContent =
-            miningActive
-                ? "ONLINE"
-                : "OFFLINE";
-
-        statusElement.classList.remove(
-            "status-online",
-            "status-offline"
-        );
-
-        statusElement.classList.add(
-            miningActive
-                ? "status-online"
-                : "status-offline"
-        );
-    }
-
-    const toggleButton =
-        $("toggleMiningBtn");
-
-    if (toggleButton) {
-
-        toggleButton.textContent =
-            miningActive
-                ? "Ferma Mining"
-                : "Avvia Mining";
-    }
-
-    const upgradeButton =
-        $("upgradeBtn");
-
-    if (upgradeButton) {
-
-        upgradeButton.textContent =
-            "⬆️ Upgrade Miner — " +
-            UPGRADE_COST +
-            " BOB";
-    }
-}
 
 // -----------------------------------------------------
-// BLOCCA/SBLOCCA AZIONI
+// DAILY BONUS
 // -----------------------------------------------------
 
-function setActionButtonsDisabled(disabled) {
-
-    const ids = [
-        "toggleMiningBtn",
-        "claimBtn",
-        "upgradeBtn",
-        "logoutBtn"
-    ];
-
-    ids.forEach((id) => {
-
-        const button = $(id);
-
-        if (button) {
-            button.disabled = disabled;
-        }
-    });
-}
-
-// -----------------------------------------------------
-// TOGGLE MINING
-// -----------------------------------------------------
-
-async function toggleMining() {
+async function claimDailyBonus() {
 
     if (!currentUser) {
 
@@ -871,120 +1172,459 @@ async function toggleMining() {
         return;
     }
 
-    if (isProcessingAction) {
+
+    const today =
+        new Date()
+            .toISOString()
+            .slice(
+                0,
+                10
+            );
+
+
+    const storageKey =
+        "bob_daily_bonus_" +
+        currentUser.id;
+
+
+    const lastClaim =
+        localStorage.getItem(
+            storageKey
+        );
+
+
+    if (
+        lastClaim === today
+    ) {
+
+        alert(
+            "🎁 Bonus giornaliero già ricevuto oggi."
+        );
+
         return;
     }
 
-    isProcessingAction = true;
 
-    setActionButtonsDisabled(true);
+    balance +=
+        DAILY_BONUS_AMOUNT;
 
-    try {
+    dailyBonus +=
+        DAILY_BONUS_AMOUNT;
 
-        if (miningActive) {
 
-            const now = getNow();
+    const saved =
+        await saveMiningAccount(
+            false
+        );
 
-            /*
-             * Prima di fermare il mining
-             * accreditiamo il tempo maturato.
-             */
 
-            if (lastMiningAt) {
+    if (!saved) {
 
-                const elapsedMinutes =
-                    Math.max(
-                        0,
-                        (
-                            now.getTime() -
-                            lastMiningAt.getTime()
-                        ) / 60000
-                    );
+        balance -=
+            DAILY_BONUS_AMOUNT;
 
-                if (elapsedMinutes > 0) {
+        dailyBonus -=
+            DAILY_BONUS_AMOUNT;
 
-                    const maxMinutes =
-                        Math.max(
-                            0,
-                            offlineHours * 60
-                        );
+        alert(
+            "❌ Impossibile salvare il bonus."
+        );
 
-                    const creditedMinutes =
-                        Math.min(
-                            elapsedMinutes,
-                            maxMinutes
-                        );
+        return;
+    }
 
-                    addMiningProduction(
-                        creditedMinutes
-                    );
-                }
-            }
 
-            miningActive = false;
+    localStorage.setItem(
+        storageKey,
+        today
+    );
 
-            lastMiningAt = now;
 
-            const saved =
-                await saveMiningAccount(true);
+    dailyBonusClaimed =
+        true;
 
-            if (!saved) {
 
-                miningActive = true;
+    updateMiningUI();
 
-                updateMiningUI();
 
-                alert(
-                    "❌ Impossibile salvare il mining."
-                );
+    showMiningMessage(
+        "🎁 Bonus giornaliero +"
+        + DAILY_BONUS_AMOUNT
+        + " BOB Points",
+        "success"
+    );
+}
 
-                return;
-            }
 
-            showMiningMessage(
-                "Mining fermato.",
-                "success"
-            );
+// -----------------------------------------------------
+// UPGRADE MINER
+// -----------------------------------------------------
 
-        } else {
+async function upgradeMiner() {
 
-            miningActive = true;
+    if (!currentUser) {
 
-            lastMiningAt = getNow();
+        alert(
+            "Devi prima effettuare l'accesso."
+        );
 
-            lastTick = Date.now();
+        return;
+    }
 
-            const saved =
-                await saveMiningAccount(true);
 
-            if (!saved) {
+    if (miningActive) {
 
-                miningActive = false;
+        await calculateOfflineMining();
+    }
 
-                updateMiningUI();
 
-                alert(
-                    "❌ Impossibile avviare il mining."
-                );
+    const cost =
+        getMinerUpgradeCost();
 
-                return;
-            }
 
-            showMiningMessage(
-                "Mining avviato.",
-                "success"
-            );
-        }
+    if (
+        balance <
+        cost
+    ) {
+
+        alert(
+            "❌ Servono " +
+            cost +
+            " BOB Points."
+        );
+
+        return;
+    }
+
+
+    const oldBalance =
+        balance;
+
+    const oldLevel =
+        minerLevel;
+
+
+    balance -=
+        cost;
+
+    minerLevel +=
+        1;
+
+
+    updateMiningUI();
+
+
+    const saved =
+        await saveMiningAccount(
+            false
+        );
+
+
+    if (!saved) {
+
+        balance =
+            oldBalance;
+
+        minerLevel =
+            oldLevel;
 
         updateMiningUI();
 
-    } finally {
+        alert(
+            "❌ Errore salvataggio upgrade."
+        );
 
-        isProcessingAction = false;
-
-        setActionButtonsDisabled(false);
+        return;
     }
+
+
+    showMiningMessage(
+        "⬆️ Miner aggiornato a livello " +
+        minerLevel,
+        "success"
+    );
+
+
+    alert(
+        "⬆️ Upgrade completato!\n\n" +
+        "Livello: " +
+        minerLevel
+    );
 }
+
+
+// -----------------------------------------------------
+// UPGRADE HASHRATE
+// -----------------------------------------------------
+
+async function upgradeHashrate() {
+
+    if (!currentUser) {
+
+        alert(
+            "Devi prima effettuare l'accesso."
+        );
+
+        return;
+    }
+
+
+    if (miningActive) {
+
+        await calculateOfflineMining();
+    }
+
+
+    const cost =
+        getHashrateUpgradeCost();
+
+
+    if (
+        balance <
+        cost
+    ) {
+
+        alert(
+            "❌ Servono " +
+            cost +
+            " BOB Points."
+        );
+
+        return;
+    }
+
+
+    const oldBalance =
+        balance;
+
+    const oldHashrate =
+        hashrate;
+
+
+    balance -=
+        cost;
+
+    hashrate +=
+        BASE_HASHRATE;
+
+
+    updateMiningUI();
+
+
+    const saved =
+        await saveMiningAccount(
+            false
+        );
+
+
+    if (!saved) {
+
+        balance =
+            oldBalance;
+
+        hashrate =
+            oldHashrate;
+
+        updateMiningUI();
+
+        alert(
+            "❌ Errore salvataggio Hashrate."
+        );
+
+        return;
+    }
+
+
+    showMiningMessage(
+        "⚡ Hashrate aumentato a " +
+        hashrate +
+        " GH/s",
+        "success"
+    );
+}
+
+
+// -----------------------------------------------------
+// UPGRADE SPEED
+// -----------------------------------------------------
+
+async function upgradeMiningSpeed() {
+
+    if (!currentUser) {
+
+        alert(
+            "Devi prima effettuare l'accesso."
+        );
+
+        return;
+    }
+
+
+    if (miningActive) {
+
+        await calculateOfflineMining();
+    }
+
+
+    const cost =
+        getSpeedUpgradeCost();
+
+
+    if (
+        balance <
+        cost
+    ) {
+
+        alert(
+            "❌ Servono " +
+            cost +
+            " BOB Points."
+        );
+
+        return;
+    }
+
+
+    const oldBalance =
+        balance;
+
+    const oldSpeed =
+        miningSpeed;
+
+
+    balance -=
+        cost;
+
+    miningSpeed +=
+        10;
+
+
+    updateMiningUI();
+
+
+    const saved =
+        await saveMiningAccount(
+            false
+        );
+
+
+    if (!saved) {
+
+        balance =
+            oldBalance;
+
+        miningSpeed =
+            oldSpeed;
+
+        updateMiningUI();
+
+        alert(
+            "❌ Errore salvataggio Speed."
+        );
+
+        return;
+    }
+
+
+    showMiningMessage(
+        "🚀 Mining Speed +" +
+        miningSpeed +
+        "%",
+        "success"
+    );
+}
+
+
+// -----------------------------------------------------
+// UPGRADE OFFLINE
+// -----------------------------------------------------
+
+async function upgradeOfflineMining() {
+
+    if (!currentUser) {
+
+        alert(
+            "Devi prima effettuare l'accesso."
+        );
+
+        return;
+    }
+
+
+    if (miningActive) {
+
+        await calculateOfflineMining();
+    }
+
+
+    const cost =
+        getOfflineUpgradeCost();
+
+
+    if (
+        balance <
+        cost
+    ) {
+
+        alert(
+            "❌ Servono " +
+            cost +
+            " BOB Points."
+        );
+
+        return;
+    }
+
+
+    const oldBalance =
+        balance;
+
+    const oldHours =
+        offlineHours;
+
+
+    balance -=
+        cost;
+
+    offlineHours +=
+        BASE_OFFLINE_HOURS;
+
+
+    updateMiningUI();
+
+
+    const saved =
+        await saveMiningAccount(
+            false
+        );
+
+
+    if (!saved) {
+
+        balance =
+            oldBalance;
+
+        offlineHours =
+            oldHours;
+
+        updateMiningUI();
+
+        alert(
+            "❌ Errore salvataggio Offline Mining."
+        );
+
+        return;
+    }
+
+
+    showMiningMessage(
+        "💾 Mining offline: " +
+        offlineHours +
+        " ore",
+        "success"
+    );
+}
+
 
 // -----------------------------------------------------
 // CLAIM POINTS
@@ -1001,62 +1641,51 @@ async function claimPoints() {
         return;
     }
 
-    if (isProcessingAction) {
+
+    if (miningActive) {
+
+        await calculateOfflineMining();
+    }
+
+
+    const saved =
+        await saveMiningAccount(
+            false
+        );
+
+
+    if (!saved) {
+
+        alert(
+            "❌ Impossibile salvare i Points."
+        );
+
         return;
     }
 
-    isProcessingAction = true;
 
-    setActionButtonsDisabled(true);
+    updateMiningUI();
 
-    try {
 
-        if (miningActive) {
+    showMiningMessage(
+        "Points salvati: " +
+        Number(balance).toFixed(2),
+        "success"
+    );
 
-            await calculateOfflineMining();
-        }
 
-        const saved =
-            await saveMiningAccount(false);
-
-        if (!saved) {
-
-            alert(
-                "❌ Impossibile salvare i Points."
-            );
-
-            return;
-        }
-
-        updateMiningUI();
-
-        const amount =
-            Number(balance).toFixed(2);
-
-        showMiningMessage(
-            "Points salvati: " +
-            amount,
-            "success"
-        );
-
-        alert(
-            "🎁 BOB Points salvati:\n\n" +
-            amount
-        );
-
-    } finally {
-
-        isProcessingAction = false;
-
-        setActionButtonsDisabled(false);
-    }
+    alert(
+        "🎁 BOB Points salvati:\n\n" +
+        Number(balance).toFixed(2)
+    );
 }
 
+
 // -----------------------------------------------------
-// UPGRADE
+// TOGGLE MINING
 // -----------------------------------------------------
 
-async function upgradeMiner() {
+async function toggleMining() {
 
     if (!currentUser) {
 
@@ -1067,83 +1696,116 @@ async function upgradeMiner() {
         return;
     }
 
-    if (isProcessingAction) {
-        return;
-    }
 
-    isProcessingAction = true;
+    if (miningActive) {
 
-    setActionButtonsDisabled(true);
+        const now =
+            new Date();
 
-    try {
 
-        if (miningActive) {
+        if (lastMiningAt) {
 
-            await calculateOfflineMining();
+            const elapsedMinutes =
+                Math.max(
+                    0,
+                    (
+                        now.getTime() -
+                        lastMiningAt.getTime()
+                    ) / 60000
+                );
+
+
+            if (
+                elapsedMinutes > 0
+            ) {
+
+                addMiningProduction(
+                    Math.min(
+                        elapsedMinutes,
+                        offlineHours * 60
+                    )
+                );
+            }
         }
 
-        if (balance < UPGRADE_COST) {
 
-            alert(
-                "❌ Servono " +
-                UPGRADE_COST +
-                " BOB Points."
-            );
+        miningActive =
+            false;
 
-            return;
-        }
+        lastMiningAt =
+            now;
 
-        const oldBalance =
-            balance;
-
-        const oldLevel =
-            minerLevel;
-
-        balance -= UPGRADE_COST;
-
-        minerLevel += 1;
-
-        updateMiningUI();
 
         const saved =
-            await saveMiningAccount(false);
+            await saveMiningAccount(
+                true
+            );
+
 
         if (!saved) {
 
-            balance =
-                oldBalance;
-
-            minerLevel =
-                oldLevel;
+            miningActive =
+                true;
 
             updateMiningUI();
 
             alert(
-                "❌ Errore salvataggio upgrade."
+                "❌ Impossibile salvare il mining."
             );
 
             return;
         }
 
+
         showMiningMessage(
-            "Upgrade completato. Livello " +
-            minerLevel,
+            "Mining fermato.",
             "success"
         );
 
-        alert(
-            "⬆️ Upgrade completato!\n\n" +
-            "Nuovo livello: " +
-            minerLevel
+
+    } else {
+
+        miningActive =
+            true;
+
+        lastMiningAt =
+            new Date();
+
+        lastTick =
+            Date.now();
+
+
+        const saved =
+            await saveMiningAccount(
+                true
+            );
+
+
+        if (!saved) {
+
+            miningActive =
+                false;
+
+            updateMiningUI();
+
+            alert(
+                "❌ Impossibile avviare il mining."
+            );
+
+            return;
+        }
+
+
+        showMiningMessage(
+            "Mining avviato.",
+            "success"
         );
-
-    } finally {
-
-        isProcessingAction = false;
-
-        setActionButtonsDisabled(false);
     }
+
+
+    updateMiningUI();
 }
+
 
 // -----------------------------------------------------
 // LOGOUT
@@ -1151,82 +1813,55 @@ async function upgradeMiner() {
 
 async function logout() {
 
-    if (!currentUser) {
+    if (currentUser) {
+
+        await saveMiningAccount(
+            true
+        );
+    }
+
+
+    const { error } =
+        await supabaseClient
+            .auth
+            .signOut();
+
+
+    if (error) {
+
+        console.error(
+            "❌ Errore logout:",
+            error
+        );
+
+        alert(
+            "Errore logout:\n" +
+            error.message
+        );
+
         return;
     }
 
-    if (isProcessingAction) {
-        return;
-    }
 
-    isProcessingAction = true;
+    currentUser =
+        null;
 
-    setActionButtonsDisabled(true);
+    resetMiningData();
 
-    try {
+    showLogin();
 
-        /*
-         * Prima del logout contabilizziamo
-         * il mining maturato.
-         */
 
-        if (miningActive) {
+    showAuthMessage(
+        "Disconnesso.",
+        "success"
+    );
 
-            await calculateOfflineMining();
-        }
 
-        const saved =
-            await saveMiningAccount(false);
-
-        if (!saved) {
-
-            alert(
-                "❌ Impossibile salvare i dati prima del logout."
-            );
-
-            return;
-        }
-
-        const { error } =
-            await supabaseClient.auth.signOut();
-
-        if (error) {
-
-            console.error(
-                "❌ Errore logout:",
-                error
-            );
-
-            alert(
-                "Errore logout:\n" +
-                error.message
-            );
-
-            return;
-        }
-
-        currentUser = null;
-
-        resetMiningData();
-
-        showLogin();
-
-        showAuthMessage(
-            "Disconnesso.",
-            "success"
-        );
-
-        console.log(
-            "✅ Logout effettuato."
-        );
-
-    } finally {
-
-        isProcessingAction = false;
-
-        setActionButtonsDisabled(false);
-    }
+    console.log(
+        "✅ Logout effettuato."
+    );
 }
+
 
 // -----------------------------------------------------
 // LOGIN
@@ -1239,12 +1874,17 @@ async function login() {
             ? emailInput.value.trim()
             : "";
 
+
     const password =
         passwordInput
             ? passwordInput.value
             : "";
 
-    if (!email || !password) {
+
+    if (
+        !email ||
+        !password
+    ) {
 
         alert(
             "Inserisci email e password."
@@ -1253,88 +1893,70 @@ async function login() {
         return;
     }
 
+
     showAuthMessage(
         "Accesso in corso..."
     );
 
-    const loginButton =
-        $("loginBtn");
 
-    const signupButton =
-        $("signupBtn");
+    const { data, error } =
+        await supabaseClient
+            .auth
+            .signInWithPassword({
 
-    if (loginButton) {
-        loginButton.disabled = true;
-    }
+                email,
+                password
+            });
 
-    if (signupButton) {
-        signupButton.disabled = true;
-    }
 
-    try {
+    if (error) {
 
-        const { data, error } =
-            await supabaseClient.auth
-                .signInWithPassword({
-
-                    email,
-                    password
-                });
-
-        if (error) {
-
-            console.error(
-                "❌ Errore login:",
-                error
-            );
-
-            showAuthMessage(
-                "Errore: " +
-                error.message,
-                "error"
-            );
-
-            return;
-        }
-
-        currentUser =
-            data.user;
-
-        const loaded =
-            await loadMiningAccount();
-
-        if (!loaded) {
-
-            currentUser = null;
-
-            showLogin();
-
-            return;
-        }
-
-        showMining();
+        console.error(
+            "❌ Errore login:",
+            error
+        );
 
         showAuthMessage(
-            "Accesso effettuato.",
-            "success"
+            "Errore: " +
+            error.message,
+            "error"
         );
 
-        console.log(
-            "✅ Login riuscito:",
-            currentUser.id
-        );
-
-    } finally {
-
-        if (loginButton) {
-            loginButton.disabled = false;
-        }
-
-        if (signupButton) {
-            signupButton.disabled = false;
-        }
+        return;
     }
+
+
+    currentUser =
+        data.user;
+
+
+    const loaded =
+        await loadMiningAccount();
+
+
+    if (!loaded) {
+
+        showLogin();
+
+        return;
+    }
+
+
+    showMining();
+
+
+    showAuthMessage(
+        "Accesso effettuato.",
+        "success"
+    );
+
+
+    console.log(
+        "✅ Login riuscito:",
+        currentUser.id
+    );
 }
+
 
 // -----------------------------------------------------
 // REGISTRAZIONE
@@ -1347,12 +1969,17 @@ async function register() {
             ? emailInput.value.trim()
             : "";
 
+
     const password =
         passwordInput
             ? passwordInput.value
             : "";
 
-    if (!email || !password) {
+
+    if (
+        !email ||
+        !password
+    ) {
 
         alert(
             "Inserisci email e password."
@@ -1361,7 +1988,10 @@ async function register() {
         return;
     }
 
-    if (password.length < 6) {
+
+    if (
+        password.length < 6
+    ) {
 
         alert(
             "La password deve avere almeno 6 caratteri."
@@ -1370,109 +2000,95 @@ async function register() {
         return;
     }
 
+
     showAuthMessage(
         "Registrazione in corso..."
     );
 
-    const loginButton =
-        $("loginBtn");
 
-    const signupButton =
-        $("signupBtn");
+    const { data, error } =
+        await supabaseClient
+            .auth
+            .signUp({
 
-    if (loginButton) {
-        loginButton.disabled = true;
+                email,
+                password,
+
+                options: {
+
+                    emailRedirectTo:
+                        "https://bobmoukhlis-hash.github.io/bob-mining/"
+                }
+            });
+
+
+    if (error) {
+
+        console.error(
+            "❌ Errore registrazione:",
+            error
+        );
+
+        showAuthMessage(
+            "Errore: " +
+            error.message,
+            "error"
+        );
+
+        return;
     }
 
-    if (signupButton) {
-        signupButton.disabled = true;
-    }
 
-    try {
+    console.log(
+        "✅ Registrazione completata:",
+        data
+    );
 
-        const { data, error } =
-            await supabaseClient.auth
-                .signUp({
 
-                    email,
-                    password,
+    if (
+        data.session &&
+        data.user
+    ) {
 
-                    options: {
+        currentUser =
+            data.user;
 
-                        emailRedirectTo:
-                            "https://bobmoukhlis-hash.github.io/bob-mining/"
-                    }
-                });
 
-        if (error) {
+        const loaded =
+            await loadMiningAccount();
 
-            console.error(
-                "❌ Errore registrazione:",
-                error
-            );
+
+        if (loaded) {
+
+            showMining();
+
 
             showAuthMessage(
-                "Errore: " +
-                error.message,
-                "error"
+                "Account creato.",
+                "success"
             );
+
 
             return;
         }
-
-        console.log(
-            "✅ Registrazione completata:",
-            data
-        );
-
-        if (
-            data.session &&
-            data.user
-        ) {
-
-            currentUser =
-                data.user;
-
-            const loaded =
-                await loadMiningAccount();
-
-            if (loaded) {
-
-                showMining();
-
-                showAuthMessage(
-                    "Account creato.",
-                    "success"
-                );
-
-                return;
-            }
-        }
-
-        showAuthMessage(
-            "Registrazione completata. Controlla la tua email.",
-            "success"
-        );
-
-        alert(
-            "✅ Registrazione completata!\n\n" +
-            "Controlla la tua email e conferma l'account."
-        );
-
-    } finally {
-
-        if (loginButton) {
-            loginButton.disabled = false;
-        }
-
-        if (signupButton) {
-            signupButton.disabled = false;
-        }
     }
+
+
+    showAuthMessage(
+        "Registrazione completata. Controlla la tua email.",
+        "success"
+    );
+
+
+    alert(
+        "✅ Registrazione completata!\n\n" +
+        "Controlla la tua email e conferma l'account."
+    );
 }
 
+
 // -----------------------------------------------------
-// CONTROLLO SESSIONE
+// SESSIONE
 // -----------------------------------------------------
 
 async function checkSession() {
@@ -1481,72 +2097,22 @@ async function checkSession() {
         return false;
     }
 
-    try {
 
-        const { data, error } =
-            await supabaseClient.auth
-                .getSession();
+    const { data, error } =
+        await supabaseClient
+            .auth
+            .getSession();
 
-        if (error) {
 
-            console.error(
-                "❌ Errore sessione:",
-                error
-            );
-
-            currentUser = null;
-
-            resetMiningData();
-
-            showLogin();
-
-            return false;
-        }
-
-        currentUser =
-            data.session?.user ||
-            null;
-
-        if (!currentUser) {
-
-            resetMiningData();
-
-            showLogin();
-
-            console.log(
-                "ℹ️ Nessuna sessione."
-            );
-
-            return false;
-        }
-
-        console.log(
-            "✅ Sessione trovata:",
-            currentUser.id
-        );
-
-        const loaded =
-            await loadMiningAccount();
-
-        if (!loaded) {
-
-            showLogin();
-
-            return false;
-        }
-
-        showMining();
-
-        return true;
-
-    } catch (error) {
+    if (error) {
 
         console.error(
-            "❌ Errore checkSession:",
+            "❌ Errore sessione:",
             error
         );
 
-        currentUser = null;
+        currentUser =
+            null;
 
         resetMiningData();
 
@@ -1554,27 +2120,76 @@ async function checkSession() {
 
         return false;
     }
+
+
+    currentUser =
+        data.session?.user ||
+        null;
+
+
+    if (!currentUser) {
+
+        resetMiningData();
+
+        showLogin();
+
+        console.log(
+            "ℹ️ Nessuna sessione."
+        );
+
+        return false;
+    }
+
+
+    console.log(
+        "✅ Sessione trovata:",
+        currentUser.id
+    );
+
+
+    const loaded =
+        await loadMiningAccount();
+
+
+    if (!loaded) {
+
+        showLogin();
+
+        return false;
+    }
+
+
+    showMining();
+
+    return true;
 }
 
+
 // -----------------------------------------------------
-// CAMBIO SESSIONE SUPABASE
+// CAMBIO SESSIONE
 // -----------------------------------------------------
 
 supabaseClient.auth.onAuthStateChange(
-    (event, session) => {
+    (
+        event,
+        session
+    ) => {
 
         console.log(
             "Auth event:",
             event
         );
 
+
         currentUser =
             session?.user ||
             null;
 
+
         if (!currentUser) {
 
             resetMiningData();
+
 
             if (domReady) {
                 showLogin();
@@ -1582,6 +2197,7 @@ supabaseClient.auth.onAuthStateChange(
         }
     }
 );
+
 
 // -----------------------------------------------------
 // MINING ONLINE
@@ -1593,35 +2209,36 @@ setInterval(
         const now =
             Date.now();
 
+
         if (!currentUser) {
 
-            lastTick = now;
+            lastTick =
+                now;
 
             return;
         }
+
 
         if (!miningActive) {
 
-            lastTick = now;
+            lastTick =
+                now;
 
             return;
         }
 
-        /*
-         * Quando la pagina non è visibile,
-         * lasciamo che calculateOfflineMining()
-         * gestisca il periodo trascorso.
-         */
 
         if (
             document.visibilityState !==
             "visible"
         ) {
 
-            lastTick = now;
+            lastTick =
+                now;
 
             return;
         }
+
 
         const elapsedMinutes =
             Math.max(
@@ -1632,32 +2249,26 @@ setInterval(
                 ) / 60000
             );
 
-        lastTick = now;
+
+        lastTick =
+            now;
+
 
         if (
-            elapsedMinutes <= 0
+            elapsedMinutes > 0
         ) {
-            return;
-        }
 
-        /*
-         * Siccome il timer è online,
-         * accreditiamo solo il tempo reale
-         * trascorso dall'ultimo tick.
-         */
-
-        const earned =
             addMiningProduction(
                 elapsedMinutes
             );
 
-        if (earned > 0) {
             updateMiningUI();
         }
 
     },
     MINING_TICK_INTERVAL
 );
+
 
 // -----------------------------------------------------
 // AUTOSAVE
@@ -1670,22 +2281,22 @@ setInterval(
             return;
         }
 
-        if (isSaving) {
+
+        if (!miningActive) {
+
+            await saveMiningAccount(
+                true
+            );
+
             return;
         }
 
-        /*
-         * Prima contabilizziamo il tempo online
-         * dall'ultimo timestamp.
-         */
 
-        if (
-            miningActive &&
-            lastMiningAt
-        ) {
+        if (lastMiningAt) {
 
             const now =
-                getNow();
+                new Date();
+
 
             const elapsedMinutes =
                 Math.max(
@@ -1696,14 +2307,10 @@ setInterval(
                     ) / 60000
                 );
 
+
             if (
                 elapsedMinutes > 0
             ) {
-
-                /*
-                 * Durante il mining online non applichiamo
-                 * il limite offline.
-                 */
 
                 addMiningProduction(
                     elapsedMinutes
@@ -1714,13 +2321,15 @@ setInterval(
             }
         }
 
-        await saveMiningAccount(false);
 
-        updateMiningUI();
+        await saveMiningAccount(
+            false
+        );
 
     },
     AUTOSAVE_INTERVAL
 );
+
 
 // -----------------------------------------------------
 // VISIBILITY
@@ -1730,70 +2339,264 @@ document.addEventListener(
     "visibilitychange",
     async () => {
 
-        if (!currentUser) {
-            return;
-        }
-
         if (
             document.visibilityState ===
             "visible"
         ) {
 
-            if (miningActive) {
+            if (currentUser) {
 
                 await calculateOfflineMining();
+
+                lastTick =
+                    Date.now();
+
+                updateMiningUI();
             }
-
-            lastTick =
-                Date.now();
-
-            updateMiningUI();
 
             return;
         }
 
-        /*
-         * Quando la pagina viene nascosta,
-         * contabilizziamo immediatamente
-         * il tempo online maturato.
-         */
 
-        if (
-            miningActive &&
-            lastMiningAt
-        ) {
+        if (currentUser) {
 
-            const now =
-                getNow();
+            if (miningActive) {
 
-            const elapsedMinutes =
-                Math.max(
-                    0,
-                    (
-                        now.getTime() -
-                        lastMiningAt.getTime()
-                    ) / 60000
-                );
+                const now =
+                    new Date();
 
-            if (
-                elapsedMinutes > 0
-            ) {
 
-                addMiningProduction(
-                    elapsedMinutes
-                );
+                if (lastMiningAt) {
 
-                lastMiningAt =
-                    now;
+                    const elapsedMinutes =
+                        Math.max(
+                            0,
+                            (
+                                now.getTime() -
+                                lastMiningAt.getTime()
+                            ) / 60000
+                        );
+
+
+                    if (
+                        elapsedMinutes > 0
+                    ) {
+
+                        addMiningProduction(
+                            Math.min(
+                                elapsedMinutes,
+                                offlineHours * 60
+                            )
+                        );
+
+                        lastMiningAt =
+                            now;
+                    }
+                }
             }
+
+
+            await saveMiningAccount(
+                false
+            );
         }
 
-        await saveMiningAccount(false);
 
         lastTick =
             Date.now();
     }
 );
+
+
+// -----------------------------------------------------
+// UI
+// -----------------------------------------------------
+
+function updateMiningUI() {
+
+    const balanceElement =
+        $("balance");
+
+    if (balanceElement) {
+
+        balanceElement.textContent =
+            Number(balance).toFixed(2);
+    }
+
+
+    const levelElement =
+        $("levelBadge");
+
+    if (levelElement) {
+
+        levelElement.textContent =
+            "LIVELLO " +
+            minerLevel;
+    }
+
+
+    const hashrateElement =
+        $("hashrate");
+
+    if (hashrateElement) {
+
+        hashrateElement.textContent =
+            Number(hashrate).toFixed(0) +
+            " GH/s";
+    }
+
+
+    const productionElement =
+        $("production");
+
+    if (productionElement) {
+
+        productionElement.textContent =
+            getProductionPerMinute()
+                .toFixed(2) +
+            "/min";
+    }
+
+
+    const statusElement =
+        $("miningStatus");
+
+    if (statusElement) {
+
+        statusElement.textContent =
+            miningActive
+                ? "ONLINE"
+                : "OFFLINE";
+
+
+        statusElement.classList.remove(
+            "status-online",
+            "status-offline"
+        );
+
+
+        statusElement.classList.add(
+            miningActive
+                ? "status-online"
+                : "status-offline"
+        );
+    }
+
+
+    const toggleButton =
+        $("toggleMiningBtn");
+
+    if (toggleButton) {
+
+        toggleButton.textContent =
+            miningActive
+                ? "Ferma Mining"
+                : "Avvia Mining";
+    }
+
+
+    const upgradeButton =
+        $("upgradeBtn");
+
+    if (upgradeButton) {
+
+        upgradeButton.textContent =
+            "⬆️ Upgrade Miner — " +
+            getMinerUpgradeCost() +
+            " BOB";
+    }
+
+
+    const hashUpgradeButton =
+        $("upgradeHashrateBtn");
+
+    if (hashUpgradeButton) {
+
+        hashUpgradeButton.textContent =
+            "⚡ Upgrade Hashrate — " +
+            getHashrateUpgradeCost() +
+            " Points";
+    }
+
+
+    const speedUpgradeButton =
+        $("upgradeSpeedBtn");
+
+    if (speedUpgradeButton) {
+
+        speedUpgradeButton.textContent =
+            "🚀 Upgrade Speed — " +
+            getSpeedUpgradeCost() +
+            " Points";
+    }
+
+
+    const offlineUpgradeButton =
+        $("upgradeOfflineBtn");
+
+    if (offlineUpgradeButton) {
+
+        offlineUpgradeButton.textContent =
+            "💾 Upgrade Offline — " +
+            getOfflineUpgradeCost() +
+            " Points";
+    }
+
+
+    const miningSpeedElement =
+        $("miningSpeed");
+
+    if (miningSpeedElement) {
+
+        miningSpeedElement.textContent =
+            "+" +
+            Number(miningSpeed).toFixed(0) +
+            "%";
+    }
+
+
+    const offlineHoursElement =
+        $("offlineHours");
+
+    if (offlineHoursElement) {
+
+        offlineHoursElement.textContent =
+            Number(offlineHours).toFixed(0) +
+            " h";
+    }
+
+
+    const referralCodeElement =
+        $("referralCode");
+
+    if (referralCodeElement) {
+
+        referralCodeElement.textContent =
+            referralCode ||
+            generateReferralCode();
+    }
+
+
+    const referralCountElement =
+        $("referralCount");
+
+    if (referralCountElement) {
+
+        referralCountElement.textContent =
+            Number(referralCount);
+    }
+
+
+    const dailyBonusElement =
+        $("dailyBonus");
+
+    if (dailyBonusElement) {
+
+        dailyBonusElement.textContent =
+            Number(dailyBonus).toFixed(2);
+    }
+}
+
 
 // -----------------------------------------------------
 // DOM READY
@@ -1815,14 +2618,13 @@ document.addEventListener(
         passwordInput =
             $("password");
 
-        domReady = true;
+        domReady =
+            true;
 
-        // ---------------------------------------------
-        // MOSTRA/NASCONDI PASSWORD
-        // ---------------------------------------------
 
         const togglePassword =
             $("togglePassword");
+
 
         if (
             togglePassword &&
@@ -1837,32 +2639,25 @@ document.addEventListener(
                         passwordInput.type ===
                         "text";
 
+
                     passwordInput.type =
                         visible
                             ? "password"
                             : "text";
 
+
                     togglePassword.textContent =
                         visible
                             ? "👁️"
                             : "🙈";
-
-                    togglePassword.setAttribute(
-                        "aria-label",
-                        visible
-                            ? "Mostra password"
-                            : "Nascondi password"
-                    );
                 }
             );
         }
 
-        // ---------------------------------------------
-        // REGISTRAZIONE
-        // ---------------------------------------------
 
         const signupBtn =
             $("signupBtn");
+
 
         if (signupBtn) {
 
@@ -1870,18 +2665,12 @@ document.addEventListener(
                 "click",
                 register
             );
-
-            console.log(
-                "✅ Pulsante Registrati collegato"
-            );
         }
 
-        // ---------------------------------------------
-        // LOGIN
-        // ---------------------------------------------
 
         const loginBtn =
             $("loginBtn");
+
 
         if (loginBtn) {
 
@@ -1889,18 +2678,12 @@ document.addEventListener(
                 "click",
                 login
             );
-
-            console.log(
-                "✅ Pulsante Accedi collegato"
-            );
         }
 
-        // ---------------------------------------------
-        // LOGOUT
-        // ---------------------------------------------
 
         const logoutBtn =
             $("logoutBtn");
+
 
         if (logoutBtn) {
 
@@ -1908,18 +2691,12 @@ document.addEventListener(
                 "click",
                 logout
             );
-
-            console.log(
-                "✅ Pulsante Logout collegato"
-            );
         }
 
-        // ---------------------------------------------
-        // TOGGLE MINING
-        // ---------------------------------------------
 
         const toggleMiningBtn =
             $("toggleMiningBtn");
+
 
         if (toggleMiningBtn) {
 
@@ -1927,18 +2704,12 @@ document.addEventListener(
                 "click",
                 toggleMining
             );
-
-            console.log(
-                "✅ Pulsante Mining collegato"
-            );
         }
 
-        // ---------------------------------------------
-        // CLAIM
-        // ---------------------------------------------
 
         const claimBtn =
             $("claimBtn");
+
 
         if (claimBtn) {
 
@@ -1946,18 +2717,12 @@ document.addEventListener(
                 "click",
                 claimPoints
             );
-
-            console.log(
-                "✅ Pulsante Claim collegato"
-            );
         }
 
-        // ---------------------------------------------
-        // UPGRADE
-        // ---------------------------------------------
 
         const upgradeBtn =
             $("upgradeBtn");
+
 
         if (upgradeBtn) {
 
@@ -1965,31 +2730,74 @@ document.addEventListener(
                 "click",
                 upgradeMiner
             );
+        }
 
-            console.log(
-                "✅ Pulsante Upgrade collegato"
+
+        const upgradeHashrateBtn =
+            $("upgradeHashrateBtn");
+
+
+        if (upgradeHashrateBtn) {
+
+            upgradeHashrateBtn.addEventListener(
+                "click",
+                upgradeHashrate
             );
         }
 
-        // ---------------------------------------------
-        // STATO INIZIALE
-        // ---------------------------------------------
+
+        const upgradeSpeedBtn =
+            $("upgradeSpeedBtn");
+
+
+        if (upgradeSpeedBtn) {
+
+            upgradeSpeedBtn.addEventListener(
+                "click",
+                upgradeMiningSpeed
+            );
+        }
+
+
+        const upgradeOfflineBtn =
+            $("upgradeOfflineBtn");
+
+
+        if (upgradeOfflineBtn) {
+
+            upgradeOfflineBtn.addEventListener(
+                "click",
+                upgradeOfflineMining
+            );
+        }
+
+
+        const dailyBonusBtn =
+            $("dailyBonusBtn");
+
+
+        if (dailyBonusBtn) {
+
+            dailyBonusBtn.addEventListener(
+                "click",
+                claimDailyBonus
+            );
+        }
+
 
         showLogin();
 
         updateMiningUI();
 
-        // ---------------------------------------------
-        // SESSIONE
-        // ---------------------------------------------
-
         await checkSession();
 
+
         console.log(
-            "🚀 BOB Mining V11 pronto."
+            "🚀 BOB Mining V12 pronto."
         );
     }
 );
+
 
 // -----------------------------------------------------
 // FUNZIONI GLOBALI
@@ -2025,8 +2833,20 @@ window.toggleMining =
 window.claimPoints =
     claimPoints;
 
+window.claimDailyBonus =
+    claimDailyBonus;
+
 window.upgradeMiner =
     upgradeMiner;
+
+window.upgradeHashrate =
+    upgradeHashrate;
+
+window.upgradeMiningSpeed =
+    upgradeMiningSpeed;
+
+window.upgradeOfflineMining =
+    upgradeOfflineMining;
 
 window.updateMiningUI =
     updateMiningUI;
@@ -2046,6 +2866,8 @@ window.showMining =
 window.balance =
     balance;
 
+
 console.log(
-    "✅ BOB Mining V11 inizializzazione completata."
+    "✅ BOB Mining V12 inizializzazione completata."
 );
+```
