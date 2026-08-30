@@ -1855,4 +1855,3 @@ window.showMining = showMining;
 console.log(
     "BOB Mining V12 inizializzazione completata."
 );
-```
