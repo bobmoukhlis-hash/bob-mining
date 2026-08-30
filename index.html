@@ -1,8 +1,10 @@
+```html
 <!-- index.html -->
 <!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -12,7 +14,7 @@
 
     <meta
         name="description"
-        content="BOB Mining - BOB Points Mining"
+        content="BOB Mining - Mine BOB Points"
     >
 
     <style>
@@ -23,16 +25,16 @@
         html,
         body {
             margin: 0;
-            padding: 0;
             min-height: 100%;
         }
 
         body {
+            min-height: 100vh;
             font-family:
                 Arial,
                 Helvetica,
                 sans-serif;
-
+            color: #ffffff;
             background:
                 linear-gradient(
                     135deg,
@@ -40,8 +42,6 @@
                     #0d1b2a,
                     #102a43
                 );
-
-            color: #ffffff;
         }
 
         button,
@@ -49,8 +49,11 @@
             font: inherit;
         }
 
+        button {
+            cursor: pointer;
+        }
+
         .app {
-            width: 100%;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -70,28 +73,32 @@
 
         .logo h1 {
             margin: 0;
-            font-size: 42px;
+            font-size: 40px;
             font-weight: 800;
             letter-spacing: 2px;
         }
 
         .logo p {
             margin: 8px 0 0;
-            color: #9fb3c8;
+            color: #91a7bc;
             font-size: 14px;
         }
 
         .card {
             width: 100%;
-            background: rgba(14, 28, 45, 0.96);
+            padding: 24px;
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 20px;
-            padding: 24px;
+            background: rgba(14, 28, 45, 0.97);
             box-shadow:
                 0 20px 60px rgba(0, 0, 0, 0.35);
         }
 
-        .card h2 {
+        .hidden {
+            display: none !important;
+        }
+
+        h2 {
             margin: 0 0 20px;
             font-size: 24px;
         }
@@ -119,7 +126,7 @@
         }
 
         .form-group input:focus {
-            border-color: #4da3ff;
+            border-color: #1683ff;
         }
 
         .button-row {
@@ -131,10 +138,9 @@
 
         button {
             min-height: 46px;
+            padding: 0 16px;
             border: 0;
             border-radius: 10px;
-            padding: 0 16px;
-            cursor: pointer;
             font-weight: 700;
             transition:
                 transform 0.15s ease,
@@ -142,12 +148,14 @@
         }
 
         button:hover {
+            opacity: 0.9;
             transform: translateY(-1px);
-            opacity: 0.92;
         }
 
-        button:active {
-            transform: translateY(0);
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+            transform: none;
         }
 
         .primary {
@@ -167,8 +175,8 @@
 
         .mining-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             gap: 12px;
             margin-bottom: 20px;
         }
@@ -190,26 +198,26 @@
         }
 
         .balance-card {
-            text-align: center;
-            padding: 24px 16px;
             margin-bottom: 16px;
+            padding: 24px 16px;
+            border: 1px solid #1c344b;
             border-radius: 16px;
             background: #091522;
-            border: 1px solid #1c344b;
+            text-align: center;
         }
 
         .balance-label {
             color: #8fa5ba;
             font-size: 13px;
-            text-transform: uppercase;
             letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         #balance {
             margin-top: 8px;
             font-size: 42px;
             font-weight: 800;
-            word-break: break-word;
+            overflow-wrap: anywhere;
         }
 
         .points {
@@ -227,15 +235,15 @@
 
         .stat {
             padding: 16px;
+            border: 1px solid #1c344b;
             border-radius: 12px;
             background: #091522;
-            border: 1px solid #1c344b;
         }
 
         .stat-label {
+            margin-bottom: 6px;
             color: #8fa5ba;
             font-size: 12px;
-            margin-bottom: 6px;
         }
 
         .stat-value {
@@ -247,11 +255,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 15px;
             margin-bottom: 16px;
+            padding: 15px;
+            border: 1px solid #1c344b;
             border-radius: 12px;
             background: #091522;
-            border: 1px solid #1c344b;
         }
 
         #miningStatus {
@@ -277,15 +285,37 @@
             margin-top: 10px;
         }
 
-        .hidden {
-            display: none !important;
+        .message {
+            min-height: 20px;
+            margin-top: 14px;
+            color: #91a7bc;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .message.error {
+            color: #ff7777;
+        }
+
+        .message.success {
+            color: #45e58b;
+        }
+
+        .user-info {
+            margin-bottom: 16px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #091522;
+            color: #8fa5ba;
+            font-size: 12px;
+            overflow-wrap: anywhere;
         }
 
         .footer {
             margin-top: 18px;
-            text-align: center;
             color: #71879c;
             font-size: 12px;
+            text-align: center;
         }
 
         @media (max-width: 420px) {
@@ -325,15 +355,10 @@
             </header>
 
 
-            <!-- =========================
-                 LOGIN / REGISTRAZIONE
-            ========================== -->
-
             <section
                 id="authBox"
                 class="card"
             >
-
                 <h2>Accedi</h2>
 
                 <div class="form-group">
@@ -365,7 +390,6 @@
 
 
                 <div class="button-row">
-
                     <button
                         id="loginBtn"
                         type="button"
@@ -381,34 +405,37 @@
                     >
                         Registrati
                     </button>
-
                 </div>
 
+
+                <div
+                    id="authMessage"
+                    class="message"
+                    aria-live="polite"
+                ></div>
             </section>
 
-
-            <!-- =========================
-                 MINING
-            ========================== -->
 
             <section
                 id="miningBox"
                 class="card hidden"
             >
-
                 <div class="mining-header">
-
                     <h2>Mining</h2>
 
                     <span id="levelBadge">
                         LIVELLO 1
                     </span>
-
                 </div>
 
 
-                <div class="balance-card">
+                <div
+                    id="userInfo"
+                    class="user-info"
+                ></div>
 
+
+                <div class="balance-card">
                     <div class="balance-label">
                         BOB Balance
                     </div>
@@ -420,14 +447,11 @@
                     <div class="points">
                         BOB Points
                     </div>
-
                 </div>
 
 
                 <div class="stats">
-
                     <div class="stat">
-
                         <div class="stat-label">
                             Hashrate
                         </div>
@@ -438,12 +462,10 @@
                         >
                             10 GH/s
                         </div>
-
                     </div>
 
 
                     <div class="stat">
-
                         <div class="stat-label">
                             Produzione
                         </div>
@@ -454,14 +476,11 @@
                         >
                             0.10/min
                         </div>
-
                     </div>
-
                 </div>
 
 
                 <div class="status">
-
                     <span>
                         Mining status
                     </span>
@@ -469,48 +488,51 @@
                     <span id="miningStatus">
                         ONLINE
                     </span>
-
                 </div>
 
 
                 <div class="mining-buttons">
-
                     <button
+                        id="toggleMiningBtn"
                         type="button"
                         class="primary"
-                        onclick="toggleMining()"
                     >
-                        Avvia / Ferma
+                        Ferma Mining
                     </button>
 
                     <button
+                        id="claimBtn"
                         type="button"
                         class="secondary"
-                        onclick="claimPoints()"
                     >
                         Claim Points
                     </button>
-
                 </div>
 
 
                 <button
+                    id="upgradeBtn"
                     type="button"
                     class="primary full-button"
-                    onclick="upgradeMiner()"
                 >
                     ⬆️ Upgrade Miner — 100 BOB
                 </button>
 
 
                 <button
+                    id="logoutBtn"
                     type="button"
                     class="danger full-button"
-                    onclick="logout()"
                 >
                     Logout
                 </button>
 
+
+                <div
+                    id="miningMessage"
+                    class="message"
+                    aria-live="polite"
+                ></div>
             </section>
 
 
@@ -522,14 +544,12 @@
     </main>
 
 
-    <!-- Supabase JS -->
     <script
         src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
     ></script>
 
-
-    <!-- La tua applicazione -->
     <script src="./app.js"></script>
 
 </body>
 </html>
+```
