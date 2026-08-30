@@ -1,4 +1,3 @@
-```javascript
 // =====================================================
 // BOB MINING - app.js V12
 // Supabase + Autenticazione + Mining
@@ -35,7 +34,6 @@ window.supabaseClient =
 
 console.log("✅ Supabase collegato");
 console.log("🚀 BOB Mining V12 caricato");
-
 
 // -----------------------------------------------------
 // CONFIGURAZIONE
@@ -2870,4 +2868,3 @@ window.balance =
 console.log(
     "✅ BOB Mining V12 inizializzazione completata."
 );
-```
