@@ -1,6 +1,6 @@
 // app.js
 // =====================================================
-// BOB MINING - app.js V8
+// BOB MINING - app.js V9
 // Supabase + Login + Registrazione + Mining
 // Online + Offline + Upgrade + Claim + Logout
 // =====================================================
@@ -324,6 +324,12 @@ async function createMiningAccount() {
             error
         );
 
+        showMiningMessage(
+            "Errore creazione account: " +
+            error.message,
+            "error"
+        );
+
         return false;
     }
 
@@ -437,9 +443,8 @@ async function loadMiningAccount() {
                 error
             );
 
-            showMiningMessage(
-                "Errore caricamento: " +
-                error.message,
+            showAuthMessage(
+                "Errore caricamento account.",
                 "error"
             );
 
@@ -485,7 +490,7 @@ async function loadMiningAccount() {
             error
         );
 
-        showMiningMessage(
+        showAuthMessage(
             "Errore caricamento account.",
             "error"
         );
@@ -760,6 +765,27 @@ function updateMiningUI() {
                 ? "Ferma Mining"
                 : "Avvia Mining";
     }
+
+    const upgradeButton =
+        $("upgradeBtn");
+
+    if (upgradeButton) {
+        upgradeButton.textContent =
+            "⬆️ Upgrade Miner — " +
+            UPGRADE_COST +
+            " BOB";
+    }
+
+    // L'email dell'utente non viene mai inserita nella UI.
+    const userInfo =
+        $("userInfo");
+
+    if (userInfo) {
+        userInfo.textContent = "";
+        userInfo.style.display = "none";
+    }
+}
+
 
 // -----------------------------------------------------
 // TOGGLE MINING
@@ -1106,8 +1132,7 @@ async function login() {
     );
 
     console.log(
-        "✅ Login riuscito:",
-        currentUser.id
+        "✅ Login riuscito."
     );
 }
 
@@ -1174,11 +1199,10 @@ async function register() {
     }
 
     console.log(
-        "✅ Registrazione completata:",
-        data
+        "✅ Registrazione completata."
     );
 
-    if (data.session) {
+    if (data.session && data.user) {
         currentUser =
             data.user;
 
@@ -1252,8 +1276,7 @@ async function checkSession() {
     }
 
     console.log(
-        "✅ Sessione trovata:",
-        currentUser.id
+        "✅ Sessione trovata."
     );
 
     const loaded =
@@ -1506,7 +1529,7 @@ document.addEventListener(
         await checkSession();
 
         console.log(
-            "✅ BOB Mining V8 pronto."
+            "✅ BOB Mining V9 pronto."
         );
     }
 );
@@ -1562,5 +1585,5 @@ window.balance =
     balance;
 
 console.log(
-    "✅ BOB Mining V8 inizializzazione completata."
+    "✅ BOB Mining V9 inizializzazione completata."
 );
