@@ -1090,9 +1090,25 @@ async function saveMiningAccount(
         if (result.error) {
 
     console.error(
-        "❌ SALVATAGGIO ACCOUNT:",
-        result.error
-    );
+    "❌ SALVATAGGIO ACCOUNT:",
+    JSON.stringify(
+        result.error,
+        null,
+        2
+    )
+);
+
+alert(
+    "ERRORE SUPABASE:\n\n" +
+    "Code: " +
+    (result.error.code || "—") +
+    "\n\nMessage:\n" +
+    (result.error.message || "—") +
+    "\n\nDetails:\n" +
+    (result.error.details || "—") +
+    "\n\nHint:\n" +
+    (result.error.hint || "—")
+);
 
     alert(
         "ERRORE SUPABASE:\n\n" +
