@@ -1089,13 +1089,25 @@ async function saveMiningAccount(
 
         if (result.error) {
 
-            console.error(
-                "❌ Salvataggio account:",
-                result.error
-            );
+    console.error(
+        "❌ SALVATAGGIO ACCOUNT:",
+        result.error
+    );
 
-            return false;
-        }
+    alert(
+        "ERRORE SUPABASE:\n\n" +
+        "Code: " +
+        (result.error.code || "—") +
+        "\n\nMessage:\n" +
+        (result.error.message || "—") +
+        "\n\nDetails:\n" +
+        (result.error.details || "—") +
+        "\n\nHint:\n" +
+        (result.error.hint || "—")
+    );
+
+    return false;
+}
 
         if (
             updateTimestamp
