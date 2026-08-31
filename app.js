@@ -1,22 +1,22 @@
 "use strict";
 
 /* =====================================================
-   BOB MINING V15
+   BOB MINING V16
    Compatibile con index.html V14
 
    Supabase + Login + Registrazione
    Mining online
    Mining offline
-   Upgrade Miner
-   Daily Bonus 24h
-   Reward Miner
+   Upgrade Miner tramite RPC
+   Daily Bonus 24h tramite RPC
+   Reward Miner tramite RPC
    Referral
    Logout sicuro
    Autosave
    Protezione doppio accredito
    ===================================================== */
 
-console.log("BOB Mining V15 app.js caricato.");
+console.log("BOB Mining V16 app.js caricato.");
 
 
 /* =====================================================
@@ -451,12 +451,6 @@ function addMiningProduction(
         return 0;
     }
 
-    /*
-     * Limite di sicurezza.
-     * Evita accrediti enormi causati da
-     * timestamp corrotti o manipolati.
-     */
-
     const maxSafeMinutes =
         MAX_OFFLINE_HOURS * 60;
 
@@ -711,7 +705,10 @@ async function createMiningAccount() {
             code,
 
         referral_count:
-            0
+            0,
+
+        last_reward_level:
+            1
     };
 
 
@@ -738,7 +735,8 @@ async function createMiningAccount() {
                     daily_bonus,
                     daily_bonus_claimed_at,
                     referral_code,
-                    referral_count
+                    referral_count,
+                    last_reward_level
                     `
                 )
                 .single();
@@ -827,7 +825,8 @@ async function loadMiningAccount() {
                     daily_bonus,
                     daily_bonus_claimed_at,
                     referral_code,
-                    referral_count
+                    referral_count,
+                    last_reward_level
                     `
                 )
                 .eq(
@@ -864,11 +863,6 @@ async function loadMiningAccount() {
             result.data
         );
 
-
-        /*
-         * Se il mining era attivo,
-         * calcoliamo il periodo trascorso.
-         */
 
         if (miningActive) {
 
@@ -1161,11 +1155,6 @@ function creditElapsedMining() {
     }
 
 
-    /*
-     * Il mining offline è limitato
-     * al numero di ore configurato.
-     */
-
     const maxMinutes =
         Math.max(
             0,
@@ -1185,13 +1174,6 @@ function creditElapsedMining() {
             creditedMinutes
         );
 
-
-    /*
-     * IMPORTANTISSIMO:
-     * aggiorniamo SEMPRE il timestamp.
-     * In questo modo lo stesso intervallo
-     * non viene conteggiato nuovamente.
-     */
 
     lastMiningAt =
         now;
@@ -1244,10 +1226,6 @@ async function calculateOfflineMining() {
             creditElapsedMining();
 
 
-        /*
-         * Salviamo subito saldo + timestamp.
-         */
-
         const saved =
             await saveMiningAccount(
                 false
@@ -1296,7 +1274,7 @@ async function calculateOfflineMining() {
 
 
 /* =====================================================
-   DAILY BONUS
+   DAILY BONUS - RPC SICURO
    ===================================================== */
 
 async function claimDailyBonus() {
@@ -1344,67 +1322,60 @@ async function claimDailyBonus() {
         true;
 
 
-    const oldBalance =
-        balance;
-
-    const oldBonus =
-        dailyBonus;
-
-    const oldClaimedAt =
-        dailyBonusClaimedAt;
-
-
     try {
 
-        balance +=
-            DAILY_BONUS_AMOUNT;
+        /*
+         * Il database decide se il bonus
+         * è realmente disponibile.
+         */
 
-        dailyBonus =
-            DAILY_BONUS_AMOUNT;
-
-        dailyBonusClaimedAt =
-            new Date().toISOString();
-
-
-        updateMiningUI();
+        const result =
+            await supabaseClient
+                .rpc(
+                    "claim_daily_bonus"
+                );
 
 
-        const saved =
-            await saveMiningAccount(
-                false
+        if (result.error) {
+
+            console.error(
+                "Errore Daily Bonus RPC:",
+                result.error
             );
 
-
-        if (!saved) {
-
-            balance =
-                oldBalance;
-
-            dailyBonus =
-                oldBonus;
-
-            dailyBonusClaimedAt =
-                oldClaimedAt;
-
-            updateMiningUI();
-
-            alert(
-                "Errore salvataggio Daily Bonus."
+            showMiningMessage(
+                result.error.message ||
+                "Daily Bonus non disponibile.",
+                "error"
             );
+
+            await loadMiningAccount();
 
             return;
         }
 
 
+        const reward =
+            safeNumber(
+                result.data,
+                DAILY_BONUS_AMOUNT
+            );
+
+
+        /*
+         * Ricarichiamo il saldo dal database.
+         */
+
+        await loadMiningAccount();
+
+
         showMiningMessage(
             "Daily Bonus: +" +
-            DAILY_BONUS_AMOUNT.toFixed(2) +
+            reward.toFixed(2) +
             " BOB Points",
             "success"
         );
 
-
-        updateMiningUI();
 
     } catch (error) {
 
@@ -1413,19 +1384,9 @@ async function claimDailyBonus() {
             error
         );
 
-        balance =
-            oldBalance;
-
-        dailyBonus =
-            oldBonus;
-
-        dailyBonusClaimedAt =
-            oldClaimedAt;
-
-        updateMiningUI();
-
-        alert(
-            "Errore durante il Daily Bonus."
+        showMiningMessage(
+            "Errore durante il Daily Bonus.",
+            "error"
         );
 
     } finally {
@@ -1437,7 +1398,7 @@ async function claimDailyBonus() {
 
 
 /* =====================================================
-   REWARD MINER
+   REWARD MINER - RPC SICURO
    ===================================================== */
 
 async function claimMinerReward() {
@@ -1475,42 +1436,42 @@ async function claimMinerReward() {
         true;
 
 
-    const reward =
-        minerLevel;
-
-
-    const oldBalance =
-        balance;
-
-
     try {
 
-        balance +=
-            reward;
+        const result =
+            await supabaseClient
+                .rpc(
+                    "claim_miner_reward"
+                );
 
 
-        updateMiningUI();
+        if (result.error) {
 
-
-        const saved =
-            await saveMiningAccount(
-                false
+            console.error(
+                "Errore Reward RPC:",
+                result.error
             );
 
-
-        if (!saved) {
-
-            balance =
-                oldBalance;
-
-            updateMiningUI();
-
-            alert(
-                "Errore salvataggio Reward."
+            showMiningMessage(
+                result.error.message ||
+                "Reward non disponibile.",
+                "error"
             );
+
+            await loadMiningAccount();
 
             return;
         }
+
+
+        const reward =
+            safeNumber(
+                result.data,
+                minerLevel
+            );
+
+
+        await loadMiningAccount();
 
 
         showMiningMessage(
@@ -1521,8 +1482,6 @@ async function claimMinerReward() {
         );
 
 
-        updateMiningUI();
-
     } catch (error) {
 
         console.error(
@@ -1530,13 +1489,9 @@ async function claimMinerReward() {
             error
         );
 
-        balance =
-            oldBalance;
-
-        updateMiningUI();
-
-        alert(
-            "Errore durante il Reward."
+        showMiningMessage(
+            "Errore durante il Reward.",
+            "error"
         );
 
     } finally {
@@ -1548,7 +1503,7 @@ async function claimMinerReward() {
 
 
 /* =====================================================
-   UPGRADE MINER
+   UPGRADE MINER - RPC SICURO
    ===================================================== */
 
 async function upgradeMiner() {
@@ -1570,85 +1525,54 @@ async function upgradeMiner() {
     }
 
 
-    const cost =
-        getUpgradeCost();
-
-
-    if (
-        balance < cost
-    ) {
-
-        alert(
-            "Servono " +
-            cost.toFixed(2) +
-            " BOB Points."
-        );
-
-        return;
-    }
-
-
     processingUpgrade =
         true;
 
 
-    const oldBalance =
-        balance;
-
-    const oldLevel =
-        minerLevel;
-
-
     try {
 
-        balance -=
-            cost;
-
-        minerLevel +=
-            1;
-
-        hashrate =
-            calculateHashrate();
+        const result =
+            await supabaseClient
+                .rpc(
+                    "upgrade_miner"
+                );
 
 
-        updateMiningUI();
+        if (result.error) {
 
-
-        const saved =
-            await saveMiningAccount(
-                false
+            console.error(
+                "Errore Upgrade RPC:",
+                result.error
             );
 
-
-        if (!saved) {
-
-            balance =
-                oldBalance;
-
-            minerLevel =
-                oldLevel;
-
-            hashrate =
-                calculateHashrate();
-
-            updateMiningUI();
-
-            alert(
-                "Errore salvataggio upgrade."
+            showMiningMessage(
+                result.error.message ||
+                "Upgrade non disponibile.",
+                "error"
             );
+
+            await loadMiningAccount();
 
             return;
         }
 
 
+        const newLevel =
+            safeInteger(
+                result.data,
+                minerLevel + 1
+            );
+
+
+        await loadMiningAccount();
+
+
         showMiningMessage(
             "Upgrade completato! Livello " +
-            minerLevel,
+            newLevel,
             "success"
         );
 
-
-        updateMiningUI();
 
     } catch (error) {
 
@@ -1657,19 +1581,9 @@ async function upgradeMiner() {
             error
         );
 
-        balance =
-            oldBalance;
-
-        minerLevel =
-            oldLevel;
-
-        hashrate =
-            calculateHashrate();
-
-        updateMiningUI();
-
-        alert(
-            "Errore durante l'upgrade."
+        showMiningMessage(
+            "Errore durante l'upgrade.",
+            "error"
         );
 
     } finally {
@@ -1702,11 +1616,6 @@ async function toggleMining() {
 
 
     if (miningActive) {
-
-        /*
-         * Accredita il tempo fino al momento
-         * in cui l'utente ferma il mining.
-         */
 
         creditElapsedMining();
 
@@ -1743,10 +1652,6 @@ async function toggleMining() {
 
 
     } else {
-
-        /*
-         * Avvia un nuovo intervallo.
-         */
 
         miningActive =
             true;
@@ -1818,11 +1723,6 @@ async function claimPoints() {
 
 
     try {
-
-        /*
-         * Prima del salvataggio accreditiamo
-         * il tempo trascorso.
-         */
 
         if (miningActive) {
 
@@ -2129,7 +2029,8 @@ function updateMiningUI() {
     if (dailyBonusButton) {
 
         dailyBonusButton.disabled =
-            !dailyAvailable;
+            !dailyAvailable ||
+            processingDailyBonus;
 
 
         dailyBonusButton.textContent =
@@ -2163,7 +2064,8 @@ function updateMiningUI() {
     if (minerRewardButton) {
 
         minerRewardButton.disabled =
-            minerLevel < 2;
+            minerLevel < 2 ||
+            processingClaim;
     }
 
 
@@ -2424,11 +2326,6 @@ async function logout() {
 
 
     try {
-
-        /*
-         * Salviamo prima l'ultimo periodo
-         * di mining.
-         */
 
         if (
             currentUser &&
@@ -2948,12 +2845,6 @@ setInterval(
         }
 
 
-        /*
-         * Quando la pagina è nascosta,
-         * non facciamo mining dal timer.
-         * Il tempo sarà calcolato al ritorno.
-         */
-
         if (
             document.visibilityState !==
             "visible"
@@ -3103,11 +2994,6 @@ document.addEventListener(
             return;
         }
 
-
-        /*
-         * Prima di andare in background
-         * accreditiamo il tempo già trascorso.
-         */
 
         if (
             currentUser &&
@@ -3423,7 +3309,7 @@ document.addEventListener(
 
 
         console.log(
-            "BOB Mining V15 inizializzazione completata."
+            "BOB Mining V16 inizializzazione completata."
         );
     }
 );
@@ -3498,5 +3384,5 @@ window.balance =
 
 
 console.log(
-    "BOB Mining V15 app.js caricato correttamente."
+    "BOB Mining V16 app.js caricato correttamente."
 );
