@@ -1,7 +1,7 @@
 "use strict";
 
 /* =====================================================
-   BOB MINING V14
+   BOB MINING V15
    Compatibile con index.html V14
 
    Supabase + Login + Registrazione
@@ -12,9 +12,11 @@
    Reward Miner
    Referral
    Logout sicuro
+   Autosave
+   Protezione doppio accredito
    ===================================================== */
 
-console.log("BOB Mining V14 app.js caricato.");
+console.log("BOB Mining V15 app.js caricato.");
 
 
 /* =====================================================
@@ -108,7 +110,7 @@ let loggingOut = false;
 
 
 /* =====================================================
-   ELEMENTI
+   ELEMENTI DOM
    ===================================================== */
 
 let loginBox = null;
@@ -126,19 +128,37 @@ let passwordInput = null;
    ===================================================== */
 
 function $(id) {
+
     return document.getElementById(id);
 }
 
 
 function safeNumber(value, fallback = 0) {
 
-    const number = Number(value);
+    const number =
+        Number(value);
 
     if (!Number.isFinite(number)) {
         return fallback;
     }
 
     return number;
+}
+
+
+function safeInteger(
+    value,
+    fallback = 0
+) {
+
+    const number =
+        Number(value);
+
+    if (!Number.isFinite(number)) {
+        return fallback;
+    }
+
+    return Math.floor(number);
 }
 
 
@@ -215,11 +235,9 @@ function getUpgradeCost() {
     const level =
         Math.max(
             1,
-            Math.floor(
-                safeNumber(
-                    minerLevel,
-                    1
-                )
+            safeInteger(
+                minerLevel,
+                1
             )
         );
 
@@ -257,7 +275,10 @@ function getProductionPerMinute() {
     return (
         BASE_PRODUCTION_PER_MINUTE *
         level *
-        (1 + bonus / 100)
+        (
+            1 +
+            bonus / 100
+        )
     );
 }
 
@@ -271,11 +292,9 @@ function calculateHashrate() {
     const level =
         Math.max(
             1,
-            Math.floor(
-                safeNumber(
-                    minerLevel,
-                    1
-                )
+            safeInteger(
+                minerLevel,
+                1
             )
         );
 
@@ -306,8 +325,9 @@ function getDailyBonusAvailable() {
     }
 
     return (
-        Date.now() - claimedTime
-        >= DAILY_BONUS_COOLDOWN
+        Date.now() -
+        claimedTime >=
+        DAILY_BONUS_COOLDOWN
     );
 }
 
@@ -374,65 +394,6 @@ function formatRemainingTime(ms) {
 
 
 /* =====================================================
-   MINING
-   ===================================================== */
-
-function addMiningProduction(
-    minutes
-) {
-
-    if (!miningActive) {
-        return 0;
-    }
-
-    const safeMinutes =
-        safeNumber(
-            minutes,
-            0
-        );
-
-    if (
-        safeMinutes <= 0
-    ) {
-        return 0;
-    }
-
-    const production =
-        getProductionPerMinute();
-
-    const earned =
-        production *
-        safeMinutes;
-
-    if (
-        !Number.isFinite(
-            earned
-        ) ||
-        earned <= 0
-    ) {
-        return 0;
-    }
-
-    balance +=
-        earned;
-
-    if (
-        !Number.isFinite(
-            balance
-        ) ||
-        balance < 0
-    ) {
-        balance = 0;
-    }
-
-    window.balance =
-        balance;
-
-    return earned;
-}
-
-
-/* =====================================================
    REFERRAL
    ===================================================== */
 
@@ -467,6 +428,80 @@ function generateReferralCode() {
 
 
 /* =====================================================
+   PRODUZIONE MINING
+   ===================================================== */
+
+function addMiningProduction(
+    minutes
+) {
+
+    if (!miningActive) {
+        return 0;
+    }
+
+    const safeMinutes =
+        safeNumber(
+            minutes,
+            0
+        );
+
+    if (
+        safeMinutes <= 0
+    ) {
+        return 0;
+    }
+
+    /*
+     * Limite di sicurezza.
+     * Evita accrediti enormi causati da
+     * timestamp corrotti o manipolati.
+     */
+
+    const maxSafeMinutes =
+        MAX_OFFLINE_HOURS * 60;
+
+    const limitedMinutes =
+        Math.min(
+            safeMinutes,
+            maxSafeMinutes
+        );
+
+    const production =
+        getProductionPerMinute();
+
+    const earned =
+        production *
+        limitedMinutes;
+
+    if (
+        !Number.isFinite(
+            earned
+        ) ||
+        earned <= 0
+    ) {
+        return 0;
+    }
+
+    balance +=
+        earned;
+
+    if (
+        !Number.isFinite(
+            balance
+        ) ||
+        balance < 0
+    ) {
+        balance = 0;
+    }
+
+    window.balance =
+        balance;
+
+    return earned;
+}
+
+
+/* =====================================================
    APPLICA ACCOUNT
    ===================================================== */
 
@@ -491,11 +526,9 @@ function applyMiningAccount(
     minerLevel =
         Math.max(
             1,
-            Math.floor(
-                safeNumber(
-                    account.miner_level,
-                    1
-                )
+            safeInteger(
+                account.miner_level,
+                1
             )
         );
 
@@ -515,7 +548,7 @@ function applyMiningAccount(
             0,
             Math.min(
                 MAX_OFFLINE_HOURS,
-                safeNumber(
+                safeInteger(
                     account.offline_hours,
                     DEFAULT_OFFLINE_HOURS
                 )
@@ -567,11 +600,9 @@ function applyMiningAccount(
     referralCount =
         Math.max(
             0,
-            Math.floor(
-                safeNumber(
-                    account.referral_count,
-                    0
-                )
+            safeInteger(
+                account.referral_count,
+                0
             )
         );
 
@@ -632,11 +663,14 @@ async function createMiningAccount() {
         return false;
     }
 
+
     const now =
         new Date().toISOString();
 
+
     const code =
         generateReferralCode();
+
 
     const account = {
 
@@ -763,12 +797,15 @@ async function loadMiningAccount() {
         return false;
     }
 
+
     if (loadingAccount) {
         return false;
     }
 
+
     loadingAccount =
         true;
+
 
     try {
 
@@ -807,13 +844,6 @@ async function loadMiningAccount() {
                 result.error
             );
 
-            /*
-             * Se l'errore è dovuto alla colonna
-             * daily_bonus_claimed_at mancante,
-             * la soluzione corretta è aggiungerla
-             * in Supabase.
-             */
-
             showAuthMessage(
                 "Errore caricamento account: " +
                 result.error.message,
@@ -836,8 +866,8 @@ async function loadMiningAccount() {
 
 
         /*
-         * Calcola l'eventuale mining accumulato
-         * durante l'assenza.
+         * Se il mining era attivo,
+         * calcoliamo il periodo trascorso.
          */
 
         if (miningActive) {
@@ -887,12 +917,15 @@ async function saveMiningAccount(
         return false;
     }
 
+
     if (savingAccount) {
         return false;
     }
 
+
     savingAccount =
         true;
+
 
     try {
 
@@ -921,11 +954,9 @@ async function saveMiningAccount(
             miner_level:
                 Math.max(
                     1,
-                    Math.floor(
-                        safeNumber(
-                            minerLevel,
-                            1
-                        )
+                    safeInteger(
+                        minerLevel,
+                        1
                     )
                 ),
 
@@ -943,7 +974,7 @@ async function saveMiningAccount(
                     0,
                     Math.min(
                         MAX_OFFLINE_HOURS,
-                        safeNumber(
+                        safeInteger(
                             offlineHours,
                             DEFAULT_OFFLINE_HOURS
                         )
@@ -991,11 +1022,9 @@ async function saveMiningAccount(
             referral_count:
                 Math.max(
                     0,
-                    Math.floor(
-                        safeNumber(
-                            referralCount,
-                            0
-                        )
+                    safeInteger(
+                        referralCount,
+                        0
                     )
                 )
         };
@@ -1060,6 +1089,7 @@ async function saveMiningAccount(
         window.balance =
             balance;
 
+
         return true;
 
     } catch (error) {
@@ -1080,7 +1110,7 @@ async function saveMiningAccount(
 
 
 /* =====================================================
-   ACCREDITA TEMPO MINING
+   ACCREDITA TEMPO TRASCORSO
    ===================================================== */
 
 function creditElapsedMining() {
@@ -1131,6 +1161,11 @@ function creditElapsedMining() {
     }
 
 
+    /*
+     * Il mining offline è limitato
+     * al numero di ore configurato.
+     */
+
     const maxMinutes =
         Math.max(
             0,
@@ -1152,10 +1187,10 @@ function creditElapsedMining() {
 
 
     /*
-     * IMPORTANTE:
-     * il timestamp viene aggiornato al momento attuale.
-     * Così lo stesso intervallo non viene conteggiato
-     * una seconda volta.
+     * IMPORTANTISSIMO:
+     * aggiorniamo SEMPRE il timestamp.
+     * In questo modo lo stesso intervallo
+     * non viene conteggiato nuovamente.
      */
 
     lastMiningAt =
@@ -1179,13 +1214,16 @@ async function calculateOfflineMining() {
         return 0;
     }
 
+
     if (!miningActive) {
         return 0;
     }
 
+
     if (processingOffline) {
         return 0;
     }
+
 
     if (!lastMiningAt) {
 
@@ -1207,8 +1245,7 @@ async function calculateOfflineMining() {
 
 
         /*
-         * Salviamo immediatamente il nuovo
-         * timestamp e il nuovo saldo.
+         * Salviamo subito saldo + timestamp.
          */
 
         const saved =
@@ -1319,10 +1356,6 @@ async function claimDailyBonus() {
 
     try {
 
-        /*
-         * Aggiornamento locale immediato.
-         */
-
         balance +=
             DAILY_BONUS_AMOUNT;
 
@@ -1335,11 +1368,6 @@ async function claimDailyBonus() {
 
         updateMiningUI();
 
-
-        /*
-         * Salvataggio atomico del nuovo stato
-         * tramite update dell'account.
-         */
 
         const saved =
             await saveMiningAccount(
@@ -1520,7 +1548,7 @@ async function claimMinerReward() {
 
 
 /* =====================================================
-   UPGRADE
+   UPGRADE MINER
    ===================================================== */
 
 async function upgradeMiner() {
@@ -1676,8 +1704,8 @@ async function toggleMining() {
     if (miningActive) {
 
         /*
-         * Prima accreditiamo tutto il tempo
-         * trascorso dall'ultimo timestamp.
+         * Accredita il tempo fino al momento
+         * in cui l'utente ferma il mining.
          */
 
         creditElapsedMining();
@@ -1715,6 +1743,10 @@ async function toggleMining() {
 
 
     } else {
+
+        /*
+         * Avvia un nuovo intervallo.
+         */
 
         miningActive =
             true;
@@ -1940,11 +1972,9 @@ function updateMiningUI() {
             "LIVELLO " +
             Math.max(
                 1,
-                Math.floor(
-                    safeNumber(
-                        minerLevel,
-                        1
-                    )
+                safeInteger(
+                    minerLevel,
+                    1
                 )
             );
     }
@@ -2043,8 +2073,8 @@ function updateMiningUI() {
 
         toggleButton.textContent =
             miningActive
-                ? "Ferma Mining"
-                : "Avvia Mining";
+                ? "⏹️ Ferma Mining"
+                : "▶️ Avvia Mining";
     }
 
 
@@ -2310,32 +2340,41 @@ function showMining() {
 
 function resetMiningData() {
 
-    balance = 0;
+    balance =
+        0;
 
-    minerLevel = 1;
+    minerLevel =
+        1;
 
-    speedBonus = 0;
+    speedBonus =
+        0;
 
     offlineHours =
         DEFAULT_OFFLINE_HOURS;
 
-    miningActive = false;
+    miningActive =
+        false;
 
     hashrate =
         BASE_HASHRATE;
 
-    miningSpeed = 0;
+    miningSpeed =
+        0;
 
-    dailyBonus = 0;
+    dailyBonus =
+        0;
 
     dailyBonusClaimedAt =
         null;
 
-    referralCode = "";
+    referralCode =
+        "";
 
-    referralCount = 0;
+    referralCount =
+        0;
 
-    lastMiningAt = null;
+    lastMiningAt =
+        null;
 
     lastTick =
         Date.now();
@@ -2387,9 +2426,8 @@ async function logout() {
     try {
 
         /*
-         * IMPORTANTE:
-         * se il mining è attivo, prima accreditiamo
-         * il tempo trascorso dall'ultimo timestamp.
+         * Salviamo prima l'ultimo periodo
+         * di mining.
          */
 
         if (
@@ -2399,20 +2437,10 @@ async function logout() {
 
             creditElapsedMining();
 
-            /*
-             * Fermiamo il mining prima del logout.
-             * Così il vecchio account non rimane
-             * accidentalmente ONLINE.
-             */
-
             miningActive =
                 false;
         }
 
-
-        /*
-         * Salviamo l'ultimo stato.
-         */
 
         if (currentUser) {
 
@@ -2423,11 +2451,6 @@ async function logout() {
 
 
             if (!saved) {
-
-                /*
-                 * Non usciamo se il saldo non è
-                 * stato salvato correttamente.
-                 */
 
                 miningActive =
                     true;
@@ -2440,10 +2463,6 @@ async function logout() {
             }
         }
 
-
-        /*
-         * Logout Supabase.
-         */
 
         const result =
             await supabaseClient
@@ -2879,11 +2898,6 @@ function setupAuthListener() {
             );
 
 
-            /*
-             * Durante il logout gestiamo noi
-             * lo stato per evitare race condition.
-             */
-
             if (loggingOut) {
                 return;
             }
@@ -2936,8 +2950,8 @@ setInterval(
 
         /*
          * Quando la pagina è nascosta,
-         * il tempo viene gestito da
-         * calculateOfflineMining().
+         * non facciamo mining dal timer.
+         * Il tempo sarà calcolato al ritorno.
          */
 
         if (
@@ -2973,21 +2987,13 @@ setInterval(
         }
 
 
-        /*
-         * Online mining.
-         */
-
-        addMiningProduction(
-            elapsedMinutes
-        );
+        const earned =
+            addMiningProduction(
+                elapsedMinutes
+            );
 
 
-        /*
-         * Aggiorniamo anche il timestamp
-         * del mining realmente accreditato.
-         */
-
-        if (miningActive) {
+        if (earned > 0) {
 
             lastMiningAt =
                 new Date();
@@ -3017,13 +3023,6 @@ setInterval(
         }
 
 
-        /*
-         * Prima di salvare, se la pagina è visibile,
-         * accreditiamo il piccolo intervallo dall'ultimo
-         * tick. Questo evita di perdere il tempo tra
-         * un tick e l'autosave.
-         */
-
         if (
             miningActive &&
             document.visibilityState ===
@@ -3048,17 +3047,21 @@ setInterval(
                 elapsedMinutes > 0
             ) {
 
-                addMiningProduction(
-                    elapsedMinutes
-                );
+                const earned =
+                    addMiningProduction(
+                        elapsedMinutes
+                    );
+
+                if (earned > 0) {
+
+                    lastMiningAt =
+                        new Date();
+                }
+
 
                 lastTick =
                     now;
             }
-
-
-            lastMiningAt =
-                new Date();
         }
 
 
@@ -3102,11 +3105,8 @@ document.addEventListener(
 
 
         /*
-         * Quando la pagina viene nascosta,
-         * NON accreditiamo subito il tempo.
-         *
-         * Salviamo il timestamp dell'ultimo
-         * punto già accreditato.
+         * Prima di andare in background
+         * accreditiamo il tempo già trascorso.
          */
 
         if (
@@ -3114,13 +3114,7 @@ document.addEventListener(
             miningActive
         ) {
 
-            /*
-             * Accredita il tempo fino adesso
-             * prima di passare in background.
-             */
-
             creditElapsedMining();
-
 
             await saveMiningAccount(
                 false
@@ -3429,7 +3423,7 @@ document.addEventListener(
 
 
         console.log(
-            "BOB Mining V14 inizializzazione completata."
+            "BOB Mining V15 inizializzazione completata."
         );
     }
 );
@@ -3504,5 +3498,5 @@ window.balance =
 
 
 console.log(
-    "BOB Mining V14 app.js caricato correttamente."
+    "BOB Mining V15 app.js caricato correttamente."
 );
