@@ -1,820 +1,1266 @@
 <!-- =====================================================
-     BOB MINING - index.html V14
-     Grafica mobile compatta + alta visibilità
-     Compatibile con app.js V12
+     BOB MINING - index.html V15
+     Interfaccia completa
+     Compatibile con app.js V17
+     
+     Mining V17:
+     - Avvia / Ferma
+     - Claim Points
+     - Upgrade Miner
+     - Daily Bonus
+     - Reward Miner
+     - Referral
+     - Logout
+
+     Nuove sezioni UI:
+     - Potenziamenti
+     - Pagamento Carta
+     - Pagamento Crypto
+     
+     NOTA:
+     I pagamenti Carta/Crypto sono predisposti
+     ma NON effettuano ancora transazioni reali.
      ===================================================== -->
 
 <!DOCTYPE html>
 
 <html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>BOB Mining V14</title>
+<head>
+
+```
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>BOB Mining V15</title>
 
 <meta
     name="description"
     content="BOB Mining - Mine BOB Points"
 >
 
-<meta name="theme-color" content="#08111f">
+<meta
+    name="theme-color"
+    content="#08111f"
+>
+```
 
 <style>
 
-    /* =================================================
-       RESET
-       ================================================= */
+/* =====================================================
+   RESET
+   ===================================================== */
 
-    * {
-        box-sizing: border-box;
-    }
+* {
+    box-sizing: border-box;
+}
 
-    html,
-    body {
-        margin: 0;
-        padding: 0;
-        min-height: 100%;
-    }
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
 
-    body {
-        min-height: 100vh;
+body {
 
-        font-family:
-            Arial,
-            Helvetica,
-            sans-serif;
+    min-height: 100vh;
 
-        color: #ffffff;
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
 
-        background:
-            radial-gradient(
-                circle at top,
-                #17365c 0%,
-                #0b1d32 35%,
-                #050b14 100%
-            );
+    color: #ffffff;
 
-        background-attachment: fixed;
-    }
+    background:
+        radial-gradient(
+            circle at top,
+            #17365c 0%,
+            #0b1d32 35%,
+            #050b14 100%
+        );
 
-    button,
-    input {
-        font: inherit;
-    }
+    background-attachment: fixed;
+}
 
-    button {
-        cursor: pointer;
-    }
+button,
+input {
 
-    /* =================================================
-       APP
-       ================================================= */
+    font: inherit;
+}
+
+button {
+
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   APP
+   ===================================================== */
+
+.app {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: flex-start;
+
+    padding:
+        18px
+        12px
+        25px;
+}
+
+.container {
+
+    width: 100%;
+
+    max-width: 560px;
+}
+
+
+/* =====================================================
+   LOGO
+   ===================================================== */
+
+.logo {
+
+    text-align: center;
+
+    margin-bottom: 16px;
+}
+
+.logo h1 {
+
+    margin: 0;
+
+    font-size: 36px;
+
+    line-height: 1;
+
+    font-weight: 900;
+
+    letter-spacing: 2px;
+
+    color: #ffffff;
+
+    text-shadow:
+        0 0 12px rgba(52, 170, 255, 0.45),
+        0 0 30px rgba(52, 170, 255, 0.20);
+}
+
+.logo p {
+
+    margin:
+        7px
+        0
+        0;
+
+    color: #b8cce0;
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   CARD
+   ===================================================== */
+
+.card {
+
+    width: 100%;
+
+    margin-bottom: 12px;
+
+    padding: 18px;
+
+    border:
+        1px solid
+        rgba(116, 180, 255, 0.18);
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(19, 40, 64, 0.98),
+            rgba(8, 20, 34, 0.98)
+        );
+
+    box-shadow:
+        0 14px 40px
+        rgba(0, 0, 0, 0.40),
+
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.04);
+}
+
+.hidden {
+
+    display: none !important;
+}
+
+h2 {
+
+    margin:
+        0
+        0
+        14px;
+
+    color: #ffffff;
+
+    font-size: 22px;
+
+    font-weight: 800;
+}
+
+
+/* =====================================================
+   LOGIN
+   ===================================================== */
+
+.form-group {
+
+    margin-bottom: 12px;
+}
+
+.form-group label {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #d1dfed;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+.form-group input {
+
+    width: 100%;
+
+    height: 46px;
+
+    padding:
+        0
+        13px;
+
+    border:
+        1px solid
+        #35516d;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: #061321;
+
+    color: #ffffff;
+
+    font-size: 14px;
+}
+
+.form-group input::placeholder {
+
+    color: #7890a7;
+}
+
+.form-group input:focus {
+
+    border-color: #28a5ff;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(40, 165, 255, 0.13);
+}
+
+.password-wrapper {
+
+    position: relative;
+}
+
+.password-wrapper input {
+
+    padding-right: 52px;
+}
+
+.password-toggle {
+
+    position: absolute;
+
+    top: 0;
+
+    right: 0;
+
+    width: 48px;
+
+    height: 46px;
+
+    min-height: 46px;
+
+    padding: 0;
+
+    border: 0;
+
+    border-radius:
+        0
+        10px
+        10px
+        0;
+
+    background: transparent;
+
+    color: #c3d6e8;
+
+    font-size: 18px;
+}
+
+
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+
+.button-row {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        1fr;
+
+    gap: 9px;
+
+    margin-top: 15px;
+}
+
+button {
+
+    min-height: 45px;
+
+    padding:
+        0
+        14px;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+    color: #ffffff;
+
+    transition:
+        transform 0.15s ease,
+        filter 0.15s ease,
+        opacity 0.15s ease;
+}
+
+button:hover {
+
+    transform:
+        translateY(-1px);
+
+    filter:
+        brightness(1.08);
+}
+
+button:active {
+
+    transform:
+        translateY(0);
+}
+
+button:disabled {
+
+    cursor:
+        not-allowed;
+
+    opacity:
+        0.5;
+
+    transform:
+        none;
+
+    filter:
+        none;
+}
+
+.primary {
+
+    background:
+        linear-gradient(
+            135deg,
+            #168cff,
+            #0066d6
+        );
+
+    box-shadow:
+        0 7px 18px
+        rgba(0, 115, 230, 0.22);
+}
+
+.secondary {
+
+    background:
+        linear-gradient(
+            135deg,
+            #344b63,
+            #26394d
+        );
+}
+
+.success {
+
+    background:
+        linear-gradient(
+            135deg,
+            #12a968,
+            #087f4d
+        );
+}
+
+.danger {
+
+    background:
+        linear-gradient(
+            135deg,
+            #e04444,
+            #b92e2e
+        );
+}
+
+.crypto {
+
+    background:
+        linear-gradient(
+            135deg,
+            #7b55e8,
+            #5230b8
+        );
+}
+
+.card-pay {
+
+    background:
+        linear-gradient(
+            135deg,
+            #0ca5a5,
+            #087878
+        );
+}
+
+.boost {
+
+    background:
+        linear-gradient(
+            135deg,
+            #e68b21,
+            #b9610b
+        );
+}
+
+.full-button {
+
+    width: 100%;
+
+    margin-top: 9px;
+}
+
+
+/* =====================================================
+   MINING HEADER
+   ===================================================== */
+
+.mining-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 13px;
+}
+
+.mining-header h2 {
+
+    margin: 0;
+}
+
+#levelBadge {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 30px;
+
+    padding:
+        0
+        11px;
+
+    border-radius: 999px;
+
+    background: #123c61;
+
+    border:
+        1px solid
+        #286a9d;
+
+    color: #79c5ff;
+
+    font-size: 11px;
+
+    font-weight: 900;
+
+    letter-spacing: 0.4px;
+}
+
+
+/* =====================================================
+   BALANCE
+   ===================================================== */
+
+.balance-card {
+
+    margin-bottom: 12px;
+
+    padding:
+        20px
+        12px;
+
+    border:
+        1px solid
+        rgba(58, 154, 224, 0.32);
+
+    border-radius: 15px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #102d49,
+            #071421
+        );
+
+    text-align: center;
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.04),
+
+        0 8px 25px
+        rgba(0, 0, 0, 0.20);
+}
+
+.balance-label {
+
+    color: #a9bed2;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 1.4px;
+
+    text-transform:
+        uppercase;
+}
+
+#balance {
+
+    margin-top: 5px;
+
+    color: #ffffff;
+
+    font-size: 42px;
+
+    line-height: 1.05;
+
+    font-weight: 900;
+
+    overflow-wrap: anywhere;
+
+    text-shadow:
+        0 0 15px
+        rgba(74, 181, 255, 0.30);
+}
+
+.points {
+
+    margin-top: 5px;
+
+    color: #58b8ff;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   STATS
+   ===================================================== */
+
+.stats {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        1fr;
+
+    gap: 8px;
+
+    margin-bottom: 12px;
+}
+
+.stat {
+
+    min-height: 70px;
+
+    padding: 11px;
+
+    border:
+        1px solid
+        rgba(91, 143, 185, 0.22);
+
+    border-radius: 11px;
+
+    background: #071523;
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.025);
+}
+
+.stat-label {
+
+    margin-bottom: 5px;
+
+    color: #93abc0;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.2px;
+}
+
+.stat-value {
+
+    color: #ffffff;
+
+    font-size: 17px;
+
+    font-weight: 900;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* =====================================================
+   STATUS
+   ===================================================== */
+
+.status {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 11px;
+
+    padding:
+        11px
+        13px;
+
+    border:
+        1px solid
+        rgba(91, 143, 185, 0.22);
+
+    border-radius: 11px;
+
+    background: #071523;
+
+    color: #c9d8e6;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+#miningStatus {
+
+    font-weight: 900;
+
+    letter-spacing: 0.5px;
+}
+
+.status-online {
+
+    color: #43f09a;
+
+    text-shadow:
+        0 0 10px
+        rgba(67, 240, 154, 0.30);
+}
+
+.status-offline {
+
+    color: #ff6f6f;
+}
+
+
+/* =====================================================
+   MINING BUTTONS
+   ===================================================== */
+
+.mining-buttons {
+
+    display: grid;
+
+    grid-template-columns:
+        1.25fr
+        1fr;
+
+    gap: 8px;
+}
+
+#toggleMiningBtn {
+
+    min-height: 49px;
+
+    font-size: 15px;
+}
+
+#claimBtn {
+
+    min-height: 49px;
+}
+
+#upgradeBtn {
+
+    min-height: 46px;
+}
+
+
+/* =====================================================
+   SECTION TITLE
+   ===================================================== */
+
+.section-title {
+
+    margin:
+        0
+        0
+        12px;
+
+    color: #ffffff;
+
+    font-size: 20px;
+
+    font-weight: 900;
+}
+
+
+/* =====================================================
+   REWARD BOX
+   ===================================================== */
+
+.reward-box {
+
+    margin-bottom: 8px;
+
+    padding: 12px;
+
+    border:
+        1px solid
+        rgba(91, 143, 185, 0.22);
+
+    border-radius: 11px;
+
+    background: #071523;
+}
+
+.reward-box:last-child {
+
+    margin-bottom: 0;
+}
+
+.reward-row {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+.reward-name {
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    font-weight: 800;
+}
+
+.reward-info {
+
+    margin-top: 4px;
+
+    color: #9bb0c3;
+
+    font-size: 11px;
+
+    line-height: 1.4;
+}
+
+.reward-row button {
+
+    flex-shrink: 0;
+
+    min-height: 40px;
+
+    padding:
+        0
+        14px;
+}
+
+
+/* =====================================================
+   BOOSTS
+   ===================================================== */
+
+.boost-box {
+
+    margin-bottom: 9px;
+
+    padding: 13px;
+
+    border:
+        1px solid
+        rgba(91, 143, 185, 0.22);
+
+    border-radius: 12px;
+
+    background: #071523;
+}
+
+.boost-box:last-child {
+
+    margin-bottom: 0;
+}
+
+.boost-top {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+.boost-name {
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    font-weight: 900;
+}
+
+.boost-current {
+
+    margin-top: 4px;
+
+    color: #65bcff;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.boost-description {
+
+    margin-top: 5px;
+
+    color: #8fa5b9;
+
+    font-size: 11px;
+
+    line-height: 1.4;
+}
+
+.boost-price {
+
+    margin-top: 8px;
+
+    color: #ffffff;
+
+    font-size: 12px;
+
+    font-weight: 800;
+}
+
+.boost-actions {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        1fr;
+
+    gap: 7px;
+
+    margin-top: 9px;
+}
+
+.boost-actions button {
+
+    min-height: 40px;
+
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   PAYMENTS
+   ===================================================== */
+
+.payment-box {
+
+    margin-bottom: 9px;
+
+    padding: 14px;
+
+    border:
+        1px solid
+        rgba(91, 143, 185, 0.22);
+
+    border-radius: 12px;
+
+    background: #071523;
+}
+
+.payment-box:last-child {
+
+    margin-bottom: 0;
+}
+
+.payment-name {
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    font-weight: 900;
+}
+
+.payment-info {
+
+    margin-top: 5px;
+
+    color: #9bb0c3;
+
+    font-size: 11px;
+
+    line-height: 1.4;
+}
+
+.payment-actions {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        1fr;
+
+    gap: 8px;
+
+    margin-top: 10px;
+}
+
+.payment-actions button {
+
+    min-height: 43px;
+}
+
+
+/* =====================================================
+   REFERRAL
+   ===================================================== */
+
+.referral-code {
+
+    margin:
+        7px
+        0
+        9px;
+
+    padding: 12px;
+
+    border:
+        1px solid
+        rgba(63, 153, 219, 0.30);
+
+    border-radius: 10px;
+
+    background: #061321;
+
+    color: #64bcff;
+
+    text-align: center;
+
+    font-size: 15px;
+
+    font-weight: 900;
+
+    letter-spacing: 2px;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* =====================================================
+   MESSAGES
+   ===================================================== */
+
+.message {
+
+    min-height: 18px;
+
+    margin-top: 10px;
+
+    color: #a5b9cc;
+
+    font-size: 12px;
+
+    line-height: 1.4;
+
+    text-align: center;
+}
+
+.message.error {
+
+    color: #ff7777;
+}
+
+.message.success {
+
+    color: #4bef9a;
+}
+
+
+/* =====================================================
+   ACCOUNT
+   ===================================================== */
+
+.user-info {
+
+    margin-bottom: 11px;
+
+    padding: 11px;
+
+    border:
+        1px solid
+        rgba(91, 143, 185, 0.18);
+
+    border-radius: 9px;
+
+    background: #071523;
+
+    color: #9eb3c7;
+
+    font-size: 11px;
+
+    line-height: 1.4;
+
+    overflow-wrap: anywhere;
+}
+
+.user-info strong {
+
+    color: #ffffff;
+}
+
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+
+.footer {
+
+    margin-top: 12px;
+
+    color: #71899f;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    text-align: center;
+}
+
+
+/* =====================================================
+   MOBILE
+   ===================================================== */
+
+@media (max-width: 480px) {
 
     .app {
-        min-height: 100vh;
 
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-
-        padding: 18px 12px 25px;
+        padding:
+            14px
+            10px
+            20px;
     }
-
-    .container {
-        width: 100%;
-        max-width: 560px;
-    }
-
-    /* =================================================
-       LOGO
-       ================================================= */
 
     .logo {
-        text-align: center;
-        margin-bottom: 16px;
-    }
-
-    .logo h1 {
-        margin: 0;
-
-        font-size: 36px;
-        line-height: 1;
-
-        font-weight: 900;
-        letter-spacing: 2px;
-
-        color: #ffffff;
-
-        text-shadow:
-            0 0 12px rgba(52, 170, 255, 0.45),
-            0 0 30px rgba(52, 170, 255, 0.20);
-    }
-
-    .logo p {
-        margin: 7px 0 0;
-
-        color: #b8cce0;
-
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    /* =================================================
-       CARD
-       ================================================= */
-
-    .card {
-        width: 100%;
-
-        margin-bottom: 12px;
-        padding: 18px;
-
-        border: 1px solid rgba(116, 180, 255, 0.18);
-        border-radius: 17px;
-
-        background:
-            linear-gradient(
-                145deg,
-                rgba(19, 40, 64, 0.98),
-                rgba(8, 20, 34, 0.98)
-            );
-
-        box-shadow:
-            0 14px 40px rgba(0, 0, 0, 0.40),
-            inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    }
-
-    .hidden {
-        display: none !important;
-    }
-
-    h2 {
-        margin: 0 0 14px;
-
-        color: #ffffff;
-
-        font-size: 22px;
-        font-weight: 800;
-    }
-
-    /* =================================================
-       LOGIN
-       ================================================= */
-
-    .form-group {
-        margin-bottom: 12px;
-    }
-
-    .form-group label {
-        display: block;
-
-        margin-bottom: 6px;
-
-        color: #d1dfed;
-
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    .form-group input {
-        width: 100%;
-        height: 46px;
-
-        padding: 0 13px;
-
-        border: 1px solid #35516d;
-        border-radius: 10px;
-
-        outline: none;
-
-        background: #061321;
-        color: #ffffff;
-
-        font-size: 14px;
-    }
-
-    .form-group input::placeholder {
-        color: #7890a7;
-    }
-
-    .form-group input:focus {
-        border-color: #28a5ff;
-
-        box-shadow:
-            0 0 0 3px rgba(40, 165, 255, 0.13);
-    }
-
-    .password-wrapper {
-        position: relative;
-    }
-
-    .password-wrapper input {
-        padding-right: 52px;
-    }
-
-    .password-toggle {
-        position: absolute;
-
-        top: 0;
-        right: 0;
-
-        width: 48px;
-        height: 46px;
-
-        min-height: 46px;
-
-        padding: 0;
-
-        border: 0;
-
-        border-radius:
-            0 10px 10px 0;
-
-        background: transparent;
-
-        color: #c3d6e8;
-
-        font-size: 18px;
-    }
-
-    /* =================================================
-       BUTTONS
-       ================================================= */
-
-    .button-row {
-        display: grid;
-
-        grid-template-columns: 1fr 1fr;
-
-        gap: 9px;
-
-        margin-top: 15px;
-    }
-
-    button {
-        min-height: 45px;
-
-        padding: 0 14px;
-
-        border: 0;
-        border-radius: 10px;
-
-        font-size: 14px;
-        font-weight: 800;
-
-        color: #ffffff;
-
-        transition:
-            transform 0.15s ease,
-            filter 0.15s ease,
-            opacity 0.15s ease;
-    }
-
-    button:hover {
-        transform: translateY(-1px);
-        filter: brightness(1.08);
-    }
-
-    button:active {
-        transform: translateY(0);
-    }
-
-    button:disabled {
-        cursor: not-allowed;
-
-        opacity: 0.5;
-
-        transform: none;
-        filter: none;
-    }
-
-    .primary {
-        background:
-            linear-gradient(
-                135deg,
-                #168cff,
-                #0066d6
-            );
-
-        box-shadow:
-            0 7px 18px rgba(0, 115, 230, 0.22);
-    }
-
-    .secondary {
-        background:
-            linear-gradient(
-                135deg,
-                #344b63,
-                #26394d
-            );
-    }
-
-    .success {
-        background:
-            linear-gradient(
-                135deg,
-                #12a968,
-                #087f4d
-            );
-    }
-
-    .danger {
-        background:
-            linear-gradient(
-                135deg,
-                #e04444,
-                #b92e2e
-            );
-    }
-
-    /* =================================================
-       MINING HEADER
-       ================================================= */
-
-    .mining-header {
-        display: flex;
-
-        align-items: center;
-        justify-content: space-between;
-
-        gap: 10px;
 
         margin-bottom: 13px;
     }
 
-    .mining-header h2 {
-        margin: 0;
+    .logo h1 {
+
+        font-size: 32px;
+
+        letter-spacing: 2px;
     }
 
-    #levelBadge {
-        display: inline-flex;
+    .logo p {
 
-        align-items: center;
-        justify-content: center;
-
-        min-height: 30px;
-
-        padding: 0 11px;
-
-        border-radius: 999px;
-
-        background: #123c61;
-
-        border: 1px solid #286a9d;
-
-        color: #79c5ff;
-
-        font-size: 11px;
-        font-weight: 900;
-
-        letter-spacing: 0.4px;
+        font-size: 12px;
     }
 
-    /* =================================================
-       BALANCE
-       ================================================= */
+    .card {
 
-    .balance-card {
-        margin-bottom: 12px;
-        padding: 20px 12px;
-
-        border:
-            1px solid rgba(58, 154, 224, 0.32);
+        padding: 15px;
 
         border-radius: 15px;
-
-        background:
-            radial-gradient(
-                circle at center,
-                #102d49,
-                #071421
-            );
-
-        text-align: center;
-
-        box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.04),
-            0 8px 25px rgba(0, 0, 0, 0.20);
     }
 
-    .balance-label {
-        color: #a9bed2;
+    h2 {
 
-        font-size: 11px;
-        font-weight: 700;
-
-        letter-spacing: 1.4px;
-
-        text-transform: uppercase;
+        font-size: 20px;
     }
 
     #balance {
-        margin-top: 5px;
 
-        color: #ffffff;
-
-        font-size: 42px;
-        line-height: 1.05;
-
-        font-weight: 900;
-
-        overflow-wrap: anywhere;
-
-        text-shadow:
-            0 0 15px rgba(74, 181, 255, 0.30);
+        font-size: 38px;
     }
-
-    .points {
-        margin-top: 5px;
-
-        color: #58b8ff;
-
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    /* =================================================
-       STATS
-       ================================================= */
 
     .stats {
-        display: grid;
 
-        grid-template-columns: 1fr 1fr;
-
-        gap: 8px;
-
-        margin-bottom: 12px;
+        gap: 7px;
     }
 
     .stat {
-        min-height: 70px;
 
-        padding: 11px;
+        min-height: 66px;
 
-        border:
-            1px solid rgba(91, 143, 185, 0.22);
-
-        border-radius: 11px;
-
-        background: #071523;
-
-        box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.025);
-    }
-
-    .stat-label {
-        margin-bottom: 5px;
-
-        color: #93abc0;
-
-        font-size: 11px;
-        font-weight: 700;
-
-        letter-spacing: 0.2px;
+        padding: 10px;
     }
 
     .stat-value {
-        color: #ffffff;
 
-        font-size: 17px;
-        font-weight: 900;
+        font-size: 16px;
+    }
+}
 
-        overflow-wrap: anywhere;
+
+/* =====================================================
+   SMALL PHONES
+   ===================================================== */
+
+@media (max-width: 380px) {
+
+    .app {
+
+        padding-left: 8px;
+
+        padding-right: 8px;
     }
 
-    /* =================================================
-       STATUS
-       ================================================= */
+    .card {
 
-    .status {
-        display: flex;
-
-        align-items: center;
-        justify-content: space-between;
-
-        gap: 10px;
-
-        margin-bottom: 11px;
-        padding: 11px 13px;
-
-        border:
-            1px solid rgba(91, 143, 185, 0.22);
-
-        border-radius: 11px;
-
-        background: #071523;
-
-        color: #c9d8e6;
-
-        font-size: 12px;
-        font-weight: 700;
+        padding: 13px;
     }
 
-    #miningStatus {
-        font-weight: 900;
+    .logo h1 {
 
-        letter-spacing: 0.5px;
+        font-size: 29px;
     }
 
-    .status-online {
-        color: #43f09a;
+    #balance {
 
-        text-shadow:
-            0 0 10px rgba(67, 240, 154, 0.30);
+        font-size: 34px;
     }
 
-    .status-offline {
-        color: #ff6f6f;
-    }
+    .button-row,
+    .mining-buttons,
+    .boost-actions,
+    .payment-actions {
 
-    /* =================================================
-       MINING BUTTONS
-       ================================================= */
-
-    .mining-buttons {
-        display: grid;
-
-        grid-template-columns: 1.25fr 1fr;
-
-        gap: 8px;
-    }
-
-    #toggleMiningBtn {
-        min-height: 49px;
-
-        font-size: 15px;
-    }
-
-    #claimBtn {
-        min-height: 49px;
-    }
-
-    .full-button {
-        width: 100%;
-        margin-top: 9px;
-    }
-
-    #upgradeBtn {
-        min-height: 46px;
-    }
-
-    /* =================================================
-       REWARDS
-       ================================================= */
-
-    .section-title {
-        margin: 0 0 12px;
-
-        color: #ffffff;
-
-        font-size: 20px;
-        font-weight: 900;
-    }
-
-    .reward-box {
-        margin-bottom: 8px;
-        padding: 12px;
-
-        border:
-            1px solid rgba(91, 143, 185, 0.22);
-
-        border-radius: 11px;
-
-        background: #071523;
-    }
-
-    .reward-box:last-child {
-        margin-bottom: 0;
+        grid-template-columns:
+            1fr;
     }
 
     .reward-row {
-        display: flex;
 
-        align-items: center;
-        justify-content: space-between;
+        align-items: stretch;
 
-        gap: 12px;
-    }
-
-    .reward-name {
-        color: #ffffff;
-
-        font-size: 14px;
-        font-weight: 800;
-    }
-
-    .reward-info {
-        margin-top: 4px;
-
-        color: #9bb0c3;
-
-        font-size: 11px;
-        line-height: 1.4;
+        flex-direction: column;
     }
 
     .reward-row button {
-        flex-shrink: 0;
 
-        min-height: 40px;
-        padding: 0 14px;
+        width: 100%;
     }
+}
 
-    /* =================================================
-       REFERRAL
-       ================================================= */
 
-    .referral-code {
-        margin: 7px 0 9px;
-        padding: 12px;
+/* =====================================================
+   ACCESSIBILITY
+   ===================================================== */
 
-        border:
-            1px solid rgba(63, 153, 219, 0.30);
+button:focus-visible,
+input:focus-visible {
 
-        border-radius: 10px;
+    outline:
+        3px solid
+        rgba(70, 180, 255, 0.45);
 
-        background: #061321;
-
-        color: #64bcff;
-
-        text-align: center;
-
-        font-size: 15px;
-        font-weight: 900;
-
-        letter-spacing: 2px;
-
-        overflow-wrap: anywhere;
-    }
-
-    /* =================================================
-       MESSAGES
-       ================================================= */
-
-    .message {
-        min-height: 18px;
-
-        margin-top: 10px;
-
-        color: #a5b9cc;
-
-        font-size: 12px;
-        line-height: 1.4;
-
-        text-align: center;
-    }
-
-    .message.error {
-        color: #ff7777;
-    }
-
-    .message.success {
-        color: #4bef9a;
-    }
-
-    /* =================================================
-       ACCOUNT
-       ================================================= */
-
-    .user-info {
-        margin-bottom: 11px;
-        padding: 11px;
-
-        border:
-            1px solid rgba(91, 143, 185, 0.18);
-
-        border-radius: 9px;
-
-        background: #071523;
-
-        color: #9eb3c7;
-
-        font-size: 11px;
-        line-height: 1.4;
-
-        overflow-wrap: anywhere;
-    }
-
-    .user-info strong {
-        color: #ffffff;
-    }
-
-    /* =================================================
-       FOOTER
-       ================================================= */
-
-    .footer {
-        margin-top: 12px;
-
-        color: #71899f;
-
-        font-size: 10px;
-        font-weight: 600;
-
-        text-align: center;
-    }
-
-    /* =================================================
-       MOBILE
-       ================================================= */
-
-    @media (max-width: 480px) {
-
-        .app {
-            padding:
-                14px
-                10px
-                20px;
-        }
-
-        .logo {
-            margin-bottom: 13px;
-        }
-
-        .logo h1 {
-            font-size: 32px;
-            letter-spacing: 2px;
-        }
-
-        .logo p {
-            font-size: 12px;
-        }
-
-        .card {
-            padding: 15px;
-            border-radius: 15px;
-        }
-
-        h2 {
-            font-size: 20px;
-        }
-
-        #balance {
-            font-size: 38px;
-        }
-
-        .stats {
-            gap: 7px;
-        }
-
-        .stat {
-            min-height: 66px;
-            padding: 10px;
-        }
-
-        .stat-value {
-            font-size: 16px;
-        }
-    }
-
-    /* =================================================
-       SMALL PHONES
-       ================================================= */
-
-    @media (max-width: 380px) {
-
-        .app {
-            padding-left: 8px;
-            padding-right: 8px;
-        }
-
-        .card {
-            padding: 13px;
-        }
-
-        .logo h1 {
-            font-size: 29px;
-        }
-
-        #balance {
-            font-size: 34px;
-        }
-
-        .button-row,
-        .mining-buttons {
-            grid-template-columns: 1fr;
-        }
-
-        .reward-row {
-            align-items: stretch;
-            flex-direction: column;
-        }
-
-        .reward-row button {
-            width: 100%;
-        }
-    }
-
-    /* =================================================
-       ACCESSIBILITY
-       ================================================= */
-
-     button:focus-visible,
-    input:focus-visible {
-        outline: 3px solid rgba(70, 180, 255, 0.45);
-        outline-offset: 2px;
-    }
+    outline-offset: 2px;
+}
 
 </style>
 
@@ -824,483 +1270,751 @@
 
 <main class="app">
 
-    <div class="container">
-        <!-- =================================================
-             LOGO
-             ================================================= -->
+<div class="container">
 
-        <header class="logo">
-            <h1>BOB MINING</h1>
-            <p>Mine BOB Points</p>
-        </header>
+<!-- =====================================================
+     LOGO
+     ===================================================== -->
+
+<header class="logo">
+
+```
+<h1>BOB MINING</h1>
+
+<p>
+    Mine BOB Points
+</p>
+```
+
+</header>
+
+<!-- =====================================================
+     LOGIN
+     ===================================================== -->
+
+<section
+    id="authBox"
+    class="card"
+>
+
+```
+<h2>
+    Accedi
+</h2>
+
+<div class="form-group">
+
+    <label for="email">
+        Email
+    </label>
+
+    <input
+        id="email"
+        type="email"
+        autocomplete="email"
+        placeholder="La tua email"
+    >
+
+</div>
 
 
-        <!-- =================================================
-             LOGIN
-             ================================================= -->
+<div class="form-group">
 
-        <section
-            id="authBox"
-            class="card"
+    <label for="password">
+        Password
+    </label>
+
+    <div class="password-wrapper">
+
+        <input
+            id="password"
+            type="password"
+            autocomplete="current-password"
+            placeholder="La tua password"
         >
 
-            <h2>Accedi</h2>
-
-            <div class="form-group">
-
-                <label for="email">
-                    Email
-                </label>
-
-                <input
-                    id="email"
-                    type="email"
-                    autocomplete="email"
-                    placeholder="La tua email"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="password">
-                    Password
-                </label>
-
-                <div class="password-wrapper">
-
-                    <input
-                        id="password"
-                        type="password"
-                        autocomplete="current-password"
-                        placeholder="La tua password"
-                    >
-
-                    <button
-                        id="togglePassword"
-                        type="button"
-                        class="password-toggle"
-                        aria-label="Mostra password"
-                    >
-                        👁️
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <div class="button-row">
-
-                <button
-                    id="loginBtn"
-                    type="button"
-                    class="primary"
-                >
-                    Accedi
-                </button>
-
-                <button
-                    id="signupBtn"
-                    type="button"
-                    class="secondary"
-                >
-                    Registrati
-                </button>
-
-            </div>
-
-
-            <div
-                id="authMessage"
-                class="message"
-                aria-live="polite"
-            ></div>
-
-        </section>
-
-
-        <!-- =================================================
-             MINING
-             ================================================= -->
-
-        <section
-            id="miningBox"
-            class="card hidden"
+        <button
+            id="togglePassword"
+            type="button"
+            class="password-toggle"
+            aria-label="Mostra password"
         >
-
-            <div class="mining-header">
-
-                <h2>
-                    ⛏️ Mining
-                </h2>
-
-                <span id="levelBadge">
-                    LIVELLO 1
-                </span>
-
-            </div>
-
-
-            <!-- BALANCE -->
-
-            <div class="balance-card">
-
-                <div class="balance-label">
-                    BOB Balance
-                </div>
-
-                <div id="balance">
-                    0.00
-                </div>
-
-                <div class="points">
-                    BOB Points
-                </div>
-
-            </div>
-
-
-            <!-- STATS -->
-
-            <div class="stats">
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Hashrate
-                    </div>
-
-                    <div
-                        id="hashrate"
-                        class="stat-value"
-                    >
-                        10 GH/s
-                    </div>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Produzione
-                    </div>
-
-                    <div
-                        id="production"
-                        class="stat-value"
-                    >
-                        0.10/min
-                    </div>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Bonus velocità
-                    </div>
-
-                    <div
-                        id="speedBonus"
-                        class="stat-value"
-                    >
-                        0%
-                    </div>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Mining offline
-                    </div>
-
-                    <div
-                        id="offlineLimit"
-                        class="stat-value"
-                    >
-                        2 ore
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- STATUS -->
-
-            <div class="status">
-
-                <span>
-                    Mining status
-                </span>
-
-                <span
-                    id="miningStatus"
-                    class="status-offline"
-                >
-                    OFFLINE
-                </span>
-
-            </div>
-
-
-            <!-- BUTTONS -->
-
-            <div class="mining-buttons">
-
-                <button
-                    id="toggleMiningBtn"
-                    type="button"
-                    class="primary"
-                >
-                    ▶️ Avvia Mining
-                </button>
-
-                <button
-                    id="claimBtn"
-                    type="button"
-                    class="secondary"
-                >
-                    💰 Claim Points
-                </button>
-
-            </div>
-
-
-            <button
-                id="upgradeBtn"
-                type="button"
-                class="primary full-button"
-            >
-                ⬆️ Upgrade Miner — 100 BOB
-            </button>
-
-
-            <div
-                id="miningMessage"
-                class="message"
-                aria-live="polite"
-            ></div>
-
-        </section>
-
-
-        <!-- =================================================
-             REWARDS
-             ================================================= -->
-
-        <section
-            id="rewardsBox"
-            class="card hidden"
-        >
-
-            <h2 class="section-title">
-                🎁 Rewards
-            </h2>
-
-
-            <!-- DAILY BONUS -->
-
-            <div class="reward-box">
-
-                <div class="reward-row">
-
-                    <div>
-
-                        <div class="reward-name">
-                            Daily Bonus
-                        </div>
-
-                        <div
-                            id="dailyBonusInfo"
-                            class="reward-info"
-                        >
-                            Bonus giornaliero disponibile
-                        </div>
-
-                    </div>
-
-
-                    <button
-                        id="dailyBonusBtn"
-                        type="button"
-                        class="success"
-                    >
-                        Claim
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <!-- MINER REWARD -->
-
-            <div class="reward-box">
-
-                <div class="reward-row">
-
-                    <div>
-
-                        <div class="reward-name">
-                            🏆 Reward Miner
-                        </div>
-
-                        <div
-                            id="minerRewardInfo"
-                            class="reward-info"
-                        >
-                            Disponibile dal Livello 2
-                        </div>
-
-                    </div>
-
-
-                    <button
-                        id="minerRewardBtn"
-                        type="button"
-                        class="secondary"
-                    >
-                        Claim
-                    </button>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             REFERRAL
-             ================================================= -->
-
-        <section
-            id="referralBox"
-            class="card hidden"
-        >
-
-            <h2 class="section-title">
-                👥 Referral
-            </h2>
-
-
-            <div class="reward-info">
-                Il tuo codice referral
-            </div>
-
-
-            <div
-                id="referralCode"
-                class="referral-code"
-            >
-                —
-            </div>
-
-
-            <div class="stats">
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Referral
-                    </div>
-
-                    <div
-                        id="referralCount"
-                        class="stat-value"
-                    >
-                        0
-                    </div>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Bonus referral
-                    </div>
-
-                    <div
-                        id="referralBonus"
-                        class="stat-value"
-                    >
-                        0.00 BOB
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <button
-                id="copyReferralBtn"
-                type="button"
-                class="secondary full-button"
-            >
-                📋 Copia codice
-            </button>
-
-
-            <div
-                id="referralMessage"
-                class="message"
-                aria-live="polite"
-            ></div>
-
-        </section>
-
-
-        <!-- =================================================
-             ACCOUNT
-             ================================================= -->
-
-        <section
-            id="accountBox"
-            class="card hidden"
-        >
-
-            <div class="user-info">
-
-                Account:
-
-                <strong id="userEmail">
-                    —
-                </strong>
-
-            </div>
-
-
-            <button
-                id="logoutBtn"
-                type="button"
-                class="danger full-button"
-            >
-                🚪 Logout
-            </button>
-
-        </section>
-
-
-        <!-- =================================================
-             FOOTER
-             ================================================= -->
-
-        <footer class="footer">
-            BOB Mining V14
-        </footer>
+            👁️
+        </button>
 
     </div>
 
-</main>
+</div>
 
+
+<div class="button-row">
+
+    <button
+        id="loginBtn"
+        type="button"
+        class="primary"
+    >
+        Accedi
+    </button>
+
+    <button
+        id="signupBtn"
+        type="button"
+        class="secondary"
+    >
+        Registrati
+    </button>
+
+</div>
+
+
+<div
+    id="authMessage"
+    class="message"
+    aria-live="polite"
+></div>
+```
+
+</section>
+
+<!-- =====================================================
+     MINING
+     ===================================================== -->
+
+<section
+    id="miningBox"
+    class="card hidden"
+>
+
+```
+<div class="mining-header">
+
+    <h2>
+        ⛏️ Mining
+    </h2>
+
+    <span id="levelBadge">
+        LIVELLO 1
+    </span>
+
+</div>
+
+
+<div class="balance-card">
+
+    <div class="balance-label">
+        BOB Balance
+    </div>
+
+    <div id="balance">
+        0.00
+    </div>
+
+    <div class="points">
+        BOB Points
+    </div>
+
+</div>
+
+
+<div class="stats">
+
+    <div class="stat">
+
+        <div class="stat-label">
+            Hashrate
+        </div>
+
+        <div
+            id="hashrate"
+            class="stat-value"
+        >
+            10 GH/s
+        </div>
+
+    </div>
+
+
+    <div class="stat">
+
+        <div class="stat-label">
+            Produzione
+        </div>
+
+        <div
+            id="production"
+            class="stat-value"
+        >
+            0.10/min
+        </div>
+
+    </div>
+
+
+    <div class="stat">
+
+        <div class="stat-label">
+            Bonus velocità
+        </div>
+
+        <div
+            id="speedBonus"
+            class="stat-value"
+        >
+            0%
+        </div>
+
+    </div>
+
+
+    <div class="stat">
+
+        <div class="stat-label">
+            Mining offline
+        </div>
+
+        <div
+            id="offlineLimit"
+            class="stat-value"
+        >
+            2 ore
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="status">
+
+    <span>
+        Mining status
+    </span>
+
+    <span
+        id="miningStatus"
+        class="status-offline"
+    >
+        OFFLINE
+    </span>
+
+</div>
+
+
+<div class="mining-buttons">
+
+    <button
+        id="toggleMiningBtn"
+        type="button"
+        class="primary"
+    >
+        ▶️ Avvia Mining
+    </button>
+
+    <button
+        id="claimBtn"
+        type="button"
+        class="secondary"
+    >
+        💰 Claim Points
+    </button>
+
+</div>
+
+
+<button
+    id="upgradeBtn"
+    type="button"
+    class="primary full-button"
+>
+    ⬆️ Upgrade Miner — 100 BOB
+</button>
+
+
+<div
+    id="miningMessage"
+    class="message"
+    aria-live="polite"
+></div>
+```
+
+</section>
+
+<!-- =====================================================
+     POTENZIAMENTI
+     ===================================================== -->
+
+<section
+    id="boostsBox"
+    class="card hidden"
+>
+
+```
+<h2 class="section-title">
+    ⚡ Potenziamenti
+</h2>
+
+
+<!-- SPEED -->
+
+<div class="boost-box">
+
+    <div class="boost-top">
+
+        <div>
+
+            <div class="boost-name">
+                ⚡ Mining Speed
+            </div>
+
+            <div
+                id="speedBoostCurrent"
+                class="boost-current"
+            >
+                Bonus attuale: 0%
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="boost-description">
+        Aumenta la produzione del mining.
+    </div>
+
+
+    <div class="boost-price">
+        +10% Speed — 50 BOB
+    </div>
+
+
+    <div class="boost-actions">
+
+        <button
+            id="speedBoostBtn"
+            type="button"
+            class="boost"
+        >
+            ⚡ Acquista
+        </button>
+
+        <button
+            id="speedBoostCryptoBtn"
+            type="button"
+            class="crypto"
+        >
+            🪙 Crypto
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- HASHRATE -->
+
+<div class="boost-box">
+
+    <div class="boost-name">
+        🔥 Hashrate
+    </div>
+
+    <div
+        id="hashrateBoostCurrent"
+        class="boost-current"
+    >
+        Hashrate attuale: 10 GH/s
+    </div>
+
+    <div class="boost-description">
+        Aumenta la potenza del Miner.
+    </div>
+
+    <div class="boost-price">
+        +10 GH/s — 75 BOB
+    </div>
+
+    <div class="boost-actions">
+
+        <button
+            id="hashrateBoostBtn"
+            type="button"
+            class="boost"
+        >
+            🔥 Acquista
+        </button>
+
+        <button
+            id="hashrateBoostCryptoBtn"
+            type="button"
+            class="crypto"
+        >
+            🪙 Crypto
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- OFFLINE -->
+
+<div class="boost-box">
+
+    <div class="boost-name">
+        🕐 Mining Offline
+    </div>
+
+    <div
+        id="offlineBoostCurrent"
+        class="boost-current"
+    >
+        Limite attuale: 2 ore
+    </div>
+
+    <div class="boost-description">
+        Aumenta il tempo massimo di mining offline.
+    </div>
+
+    <div class="boost-price">
+        +2 ore — 100 BOB
+    </div>
+
+    <div class="boost-actions">
+
+        <button
+            id="offlineBoostBtn"
+            type="button"
+            class="boost"
+        >
+            🕐 Acquista
+        </button>
+
+        <button
+            id="offlineBoostCryptoBtn"
+            type="button"
+            class="crypto"
+        >
+            🪙 Crypto
+        </button>
+
+    </div>
+
+</div>
+
+
+<div
+    id="boostMessage"
+    class="message"
+    aria-live="polite"
+></div>
+```
+
+</section>
+
+<!-- =====================================================
+     PAGAMENTI
+     ===================================================== -->
+
+<section
+    id="paymentsBox"
+    class="card hidden"
+>
+
+```
+<h2 class="section-title">
+    💳 Acquista
+</h2>
+
+
+<!-- CARTA -->
+
+<div class="payment-box">
+
+    <div class="payment-name">
+        💳 Pagamento con Carta
+    </div>
+
+    <div class="payment-info">
+        Acquista BOB Mining Upgrade con carta.
+    </div>
+
+    <div class="payment-actions">
+
+        <button
+            id="cardPaymentBtn"
+            type="button"
+            class="card-pay"
+        >
+            💳 Paga con Carta
+        </button>
+
+        <button
+            id="cardPaymentUpgradeBtn"
+            type="button"
+            class="primary"
+        >
+            🚀 Upgrade
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- CRYPTO -->
+
+<div class="payment-box">
+
+    <div class="payment-name">
+        🪙 Pagamento Crypto
+    </div>
+
+    <div class="payment-info">
+        Pagamento crypto — il token BOB verrà collegato
+        dopo il deploy e la configurazione del contratto.
+    </div>
+
+    <div class="payment-actions">
+
+        <button
+            id="cryptoPaymentBtn"
+            type="button"
+            class="crypto"
+        >
+            🪙 Paga Crypto
+        </button>
+
+        <button
+            id="connectWalletBtn"
+            type="button"
+            class="secondary"
+        >
+            🔗 Collega Wallet
+        </button>
+
+    </div>
+
+</div>
+
+
+<div
+    id="paymentMessage"
+    class="message"
+    aria-live="polite"
+>
+    Pagamenti reali non ancora attivi.
+</div>
+```
+
+</section>
+
+<!-- =====================================================
+     REWARDS
+     ===================================================== -->
+
+<section
+    id="rewardsBox"
+    class="card hidden"
+>
+
+```
+<h2 class="section-title">
+    🎁 Rewards
+</h2>
+
+
+<div class="reward-box">
+
+    <div class="reward-row">
+
+        <div>
+
+            <div class="reward-name">
+                Daily Bonus
+            </div>
+
+            <div
+                id="dailyBonusInfo"
+                class="reward-info"
+            >
+                Bonus giornaliero disponibile
+            </div>
+
+        </div>
+
+
+        <button
+            id="dailyBonusBtn"
+            type="button"
+            class="success"
+        >
+            Claim
+        </button>
+
+    </div>
+
+</div>
+
+
+<div class="reward-box">
+
+    <div class="reward-row">
+
+        <div>
+
+            <div class="reward-name">
+                🏆 Reward Miner
+            </div>
+
+            <div
+                id="minerRewardInfo"
+                class="reward-info"
+            >
+                Disponibile dal Livello 2
+            </div>
+
+        </div>
+
+
+        <button
+            id="minerRewardBtn"
+            type="button"
+            class="secondary"
+        >
+            Claim
+        </button>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- =====================================================
+     REFERRAL
+     ===================================================== -->
+
+<section
+    id="referralBox"
+    class="card hidden"
+>
+
+```
+<h2 class="section-title">
+    👥 Referral
+</h2>
+
+<div class="reward-info">
+    Il tuo codice referral
+</div>
+
+<div
+    id="referralCode"
+    class="referral-code"
+>
+    —
+</div>
+
+<div class="stats">
+
+    <div class="stat">
+
+        <div class="stat-label">
+            Referral
+        </div>
+
+        <div
+            id="referralCount"
+            class="stat-value"
+        >
+            0
+        </div>
+
+    </div>
+
+
+    <div class="stat">
+
+        <div class="stat-label">
+            Bonus referral
+        </div>
+
+        <div
+            id="referralBonus"
+            class="stat-value"
+        >
+            0.00 BOB
+        </div>
+
+    </div>
+
+</div>
+
+
+<button
+    id="copyReferralBtn"
+    type="button"
+    class="secondary full-button"
+>
+    📋 Copia codice
+</button>
+
+
+<div
+    id="referralMessage"
+    class="message"
+    aria-live="polite"
+></div>
+```
+
+</section>
+
+<!-- =====================================================
+     ACCOUNT
+     ===================================================== -->
+
+<section
+    id="accountBox"
+    class="card hidden"
+>
+
+```
+<div class="user-info">
+
+    Account:
+
+    <strong id="userEmail">
+        —
+    </strong>
+
+</div>
+
+
+<button
+    id="logoutBtn"
+    type="button"
+    class="danger full-button"
+>
+    🚪 Logout
+</button>
+```
+
+</section>
+
+<!-- =====================================================
+     FOOTER
+     ===================================================== -->
+
+<footer class="footer">
+    BOB Mining V15
+</footer>
+
+</div>
+
+</main>
 
 <!-- =====================================================
      SUPABASE
@@ -1317,4 +2031,5 @@
 <script src="./app.js"></script>
 
 </body>
+
 </html>
