@@ -1,9 +1,9 @@
 "use strict";
 
 /* =====================================================
-   BOB MINING V19 DEFINITIVE
+   BOB MINING V20 DEFINITIVE
    SERVER-SIDE MINING
-   Compatibile con index.html V14
+   Compatibile con index.html V16 + Payments Crypto
 
    SUPABASE
    LOGIN / REGISTRAZIONE
@@ -20,12 +20,17 @@
    - claim_daily_bonus()
    - claim_miner_reward()
 
-   REFERRAL
-   CLAIM POINTS
-   LOGOUT
+   PAGAMENTI CRYPTO:
+   - BNB / BNB Smart Chain
+   - BTC / Bitcoin
+   - ETC / Ethereum Classic
+   - ETH / Ethereum
+
+   NESSUN PAGAMENTO CARTA
+   NESSUN ACCREDITO CRYPTO AUTOMATICO
 ===================================================== */
 
-console.log("⛏️ BOB Mining V19 Definitive - avvio");
+console.log("⛏️ BOB Mining V20 Definitive - avvio");
 
 
 /* =====================================================
@@ -74,6 +79,7 @@ const DEFAULT_OFFLINE_HOURS = 2;
 const MAX_OFFLINE_HOURS = 24;
 
 const DAILY_BONUS_AMOUNT = 1;
+
 const DAILY_BONUS_COOLDOWN =
     24 * 60 * 60 * 1000;
 
@@ -82,6 +88,43 @@ const REFERRAL_BONUS_AMOUNT = 5;
 const MINING_CLAIM_INTERVAL = 30000;
 const AUTOSAVE_INTERVAL = 30000;
 const BONUS_TIMER_INTERVAL = 30000;
+
+
+/* =====================================================
+   WALLET CRYPTO REALI
+===================================================== */
+
+const CRYPTO_WALLETS = {
+
+    BNB: {
+        name: "BNB",
+        network: "BNB Smart Chain",
+        address:
+            "0x802cF4D8dc004e83F231e0cE5cC2c09ECa0DdAfb"
+    },
+
+    BTC: {
+        name: "BTC",
+        network: "Bitcoin",
+        address:
+            "bc1q3k6ypzlk5qj0gr64ng97w2j00y2mwqshcggxzm"
+    },
+
+    ETC: {
+        name: "ETC",
+        network: "Ethereum Classic",
+        address:
+            "0x5ac61E98D2D4Ff1134Ac768Da6E455C3487928Fd"
+    },
+
+    ETH: {
+        name: "ETH",
+        network: "Ethereum",
+        address:
+            "0x802cF4D8dc004e83F231e0cE5cC2c09ECa0DdAfb"
+    }
+
+};
 
 
 /* =====================================================
@@ -146,6 +189,8 @@ let bonusTimerInterval = null;
 
 let loginBox = null;
 let miningBox = null;
+let boostsBox = null;
+let paymentsBox = null;
 let rewardsBox = null;
 let referralBox = null;
 let accountBox = null;
@@ -155,7 +200,7 @@ let passwordInput = null;
 
 
 /* =====================================================
-   HELPER
+   HELPER DOM
 ===================================================== */
 
 function $(id) {
@@ -168,7 +213,9 @@ function $(id) {
 ===================================================== */
 
 function safeNumber(value, fallback = 0) {
-    const number = Number(value);
+
+    const number =
+        Number(value);
 
     if (!Number.isFinite(number)) {
         return fallback;
@@ -179,7 +226,9 @@ function safeNumber(value, fallback = 0) {
 
 
 function safeInteger(value, fallback = 0) {
-    const number = Number(value);
+
+    const number =
+        Number(value);
 
     if (!Number.isFinite(number)) {
         return fallback;
@@ -198,7 +247,9 @@ function showMessage(
     message,
     type = ""
 ) {
-    const element = $(elementId);
+
+    const element =
+        $(elementId);
 
     if (!element) {
         return;
@@ -220,6 +271,7 @@ function showAuthMessage(
     message,
     type = ""
 ) {
+
     showMessage(
         "authMessage",
         message,
@@ -232,6 +284,7 @@ function showMiningMessage(
     message,
     type = ""
 ) {
+
     showMessage(
         "miningMessage",
         message,
@@ -244,8 +297,35 @@ function showReferralMessage(
     message,
     type = ""
 ) {
+
     showMessage(
         "referralMessage",
+        message,
+        type
+    );
+}
+
+
+function showPaymentMessage(
+    message,
+    type = ""
+) {
+
+    showMessage(
+        "paymentMessage",
+        message,
+        type
+    );
+}
+
+
+function showBoostMessage(
+    message,
+    type = ""
+) {
+
+    showMessage(
+        "boostMessage",
         message,
         type
     );
@@ -257,6 +337,7 @@ function showReferralMessage(
 ===================================================== */
 
 function getUpgradeCost() {
+
     const level =
         Math.max(
             1,
@@ -275,13 +356,10 @@ function getUpgradeCost() {
 
 /* =====================================================
    PRODUZIONE VISUALIZZATA
-   IMPORTANTE:
-   NON modifica il saldo.
-   Serve solamente per mostrare
-   la velocità prevista.
 ===================================================== */
 
 function getProductionPerMinute() {
+
     const level =
         Math.max(
             1,
@@ -316,6 +394,7 @@ function getProductionPerMinute() {
 ===================================================== */
 
 function calculateHashrate() {
+
     const level =
         Math.max(
             1,
@@ -337,6 +416,7 @@ function calculateHashrate() {
 ===================================================== */
 
 function getDailyBonusAvailable() {
+
     if (!dailyBonusClaimedAt) {
         return true;
     }
@@ -359,6 +439,7 @@ function getDailyBonusAvailable() {
 
 
 function getDailyBonusRemainingMs() {
+
     if (!dailyBonusClaimedAt) {
         return 0;
     }
@@ -384,6 +465,7 @@ function getDailyBonusRemainingMs() {
 
 
 function formatRemainingTime(ms) {
+
     const totalMinutes =
         Math.ceil(
             Math.max(
@@ -401,6 +483,7 @@ function formatRemainingTime(ms) {
         totalMinutes % 60;
 
     if (hours > 0) {
+
         return (
             hours +
             "h " +
@@ -421,6 +504,7 @@ function formatRemainingTime(ms) {
 ===================================================== */
 
 function generateReferralCode() {
+
     if (
         !currentUser ||
         !currentUser.id
@@ -454,6 +538,7 @@ function generateReferralCode() {
 ===================================================== */
 
 function applyMiningAccount(data) {
+
     const account =
         data || {};
 
@@ -547,6 +632,7 @@ function applyMiningAccount(data) {
         );
 
     if (account.last_mining_at) {
+
         const date =
             new Date(
                 account.last_mining_at
@@ -557,13 +643,18 @@ function applyMiningAccount(data) {
                 date.getTime()
             )
         ) {
+
             lastMiningAt =
                 date;
+
         } else {
+
             lastMiningAt =
                 new Date();
         }
+
     } else {
+
         lastMiningAt =
             new Date();
     }
@@ -580,6 +671,7 @@ function applyMiningAccount(data) {
 ===================================================== */
 
 async function createMiningAccount() {
+
     if (
         !currentUser ||
         !supabaseClient
@@ -594,10 +686,12 @@ async function createMiningAccount() {
         generateReferralCode();
 
     try {
+
         const result =
             await supabaseClient
                 .from("mining_accounts")
                 .insert({
+
                     user_id:
                         currentUser.id,
 
@@ -663,6 +757,7 @@ async function createMiningAccount() {
                 .single();
 
         if (result.error) {
+
             console.error(
                 "❌ Creazione account:",
                 result.error
@@ -684,6 +779,7 @@ async function createMiningAccount() {
         return true;
 
     } catch (error) {
+
         console.error(
             "❌ createMiningAccount:",
             error
@@ -704,6 +800,7 @@ async function createMiningAccount() {
 ===================================================== */
 
 async function fetchMiningAccount() {
+
     if (
         !currentUser ||
         !supabaseClient
@@ -738,6 +835,7 @@ async function fetchMiningAccount() {
             .maybeSingle();
 
     if (result.error) {
+
         console.error(
             "❌ fetchMiningAccount:",
             result.error
@@ -755,6 +853,7 @@ async function fetchMiningAccount() {
 ===================================================== */
 
 async function loadMiningAccount() {
+
     if (
         !currentUser ||
         !supabaseClient
@@ -769,45 +868,34 @@ async function loadMiningAccount() {
     loadingAccount = true;
 
     try {
+
         let data =
             await fetchMiningAccount();
 
         if (!data) {
+
             const created =
                 await createMiningAccount();
 
             return created;
         }
 
-        /*
-         * Applichiamo prima i dati.
-         */
-
         applyMiningAccount(
             data
         );
 
-        /*
-         * V19:
-         * se il mining era attivo,
-         * il primo claim viene eseguito
-         * dal SERVER.
-         */
-
         if (miningActive) {
+
             await claimMiningFromServer(
                 false
             );
         }
 
-        /*
-         * Ricarica saldo reale.
-         */
-
         data =
             await fetchMiningAccount();
 
         if (data) {
+
             applyMiningAccount(
                 data
             );
@@ -816,6 +904,7 @@ async function loadMiningAccount() {
         return true;
 
     } catch (error) {
+
         console.error(
             "❌ loadMiningAccount:",
             error
@@ -829,6 +918,7 @@ async function loadMiningAccount() {
         return false;
 
     } finally {
+
         loadingAccount = false;
     }
 }
@@ -836,13 +926,13 @@ async function loadMiningAccount() {
 
 /* =====================================================
    SALVA SOLO STATO NON FINANZIARIO
-   V19
 ===================================================== */
 
 async function saveMiningState(
     miningState,
     updateTimestamp = false
 ) {
+
     if (
         !currentUser ||
         !supabaseClient
@@ -857,7 +947,9 @@ async function saveMiningState(
     savingAccount = true;
 
     try {
+
         const updateData = {
+
             mining_active:
                 Boolean(
                     miningState
@@ -867,15 +959,8 @@ async function saveMiningState(
                 new Date().toISOString()
         };
 
-        /*
-         * last_mining_at viene modificato
-         * solo quando AVVIAMO il mining.
-         *
-         * Il timestamp dei claim viene invece
-         * gestito dalla RPC server-side.
-         */
-
         if (updateTimestamp) {
+
             updateData.last_mining_at =
                 new Date().toISOString();
         }
@@ -890,6 +975,7 @@ async function saveMiningState(
                 );
 
         if (result.error) {
+
             console.error(
                 "❌ SALVATAGGIO STATO:",
                 result.error
@@ -901,6 +987,7 @@ async function saveMiningState(
         return true;
 
     } catch (error) {
+
         console.error(
             "❌ saveMiningState:",
             error
@@ -909,6 +996,7 @@ async function saveMiningState(
         return false;
 
     } finally {
+
         savingAccount = false;
     }
 }
@@ -921,6 +1009,7 @@ async function saveMiningState(
 async function claimMiningFromServer(
     showResult = true
 ) {
+
     if (
         !currentUser ||
         !supabaseClient
@@ -935,6 +1024,7 @@ async function claimMiningFromServer(
     processingMiningClaim = true;
 
     try {
+
         const result =
             await supabaseClient
                 .rpc(
@@ -942,12 +1032,14 @@ async function claimMiningFromServer(
                 );
 
         if (result.error) {
+
             console.error(
                 "❌ claim_mining:",
                 result.error
             );
 
             if (showResult) {
+
                 showMiningMessage(
                     "Errore Mining: " +
                     result.error.message,
@@ -967,15 +1059,11 @@ async function claimMiningFromServer(
                 )
             );
 
-        /*
-         * Ricarichiamo il saldo REALE
-         * dal database.
-         */
-
         const account =
             await fetchMiningAccount();
 
         if (account) {
+
             applyMiningAccount(
                 account
             );
@@ -985,11 +1073,10 @@ async function claimMiningFromServer(
             showResult &&
             reward > 0
         ) {
+
             showMiningMessage(
-                "⛏️ Mining +"
-                +
-                reward.toFixed(4)
-                +
+                "⛏️ Mining +" +
+                reward.toFixed(4) +
                 " BOB",
                 "success"
             );
@@ -1004,12 +1091,14 @@ async function claimMiningFromServer(
         return reward;
 
     } catch (error) {
+
         console.error(
             "❌ claimMiningFromServer:",
             error
         );
 
         if (showResult) {
+
             showMiningMessage(
                 "Errore durante il Mining.",
                 "error"
@@ -1019,6 +1108,7 @@ async function claimMiningFromServer(
         return 0;
 
     } finally {
+
         processingMiningClaim = false;
     }
 }
@@ -1029,7 +1119,9 @@ async function claimMiningFromServer(
 ===================================================== */
 
 async function claimDailyBonus() {
+
     if (!currentUser) {
+
         alert(
             "Devi prima effettuare l'accesso."
         );
@@ -1038,6 +1130,7 @@ async function claimDailyBonus() {
     }
 
     if (!supabaseClient) {
+
         alert(
             "Supabase non disponibile."
         );
@@ -1050,6 +1143,7 @@ async function claimDailyBonus() {
     }
 
     if (!getDailyBonusAvailable()) {
+
         const remaining =
             formatRemainingTime(
                 getDailyBonusRemainingMs()
@@ -1068,12 +1162,9 @@ async function claimDailyBonus() {
     processingDailyBonus = true;
 
     try {
-        /*
-         * Prima del bonus facciamo il claim
-         * del mining maturato.
-         */
 
         if (miningActive) {
+
             await claimMiningFromServer(
                 false
             );
@@ -1086,6 +1177,7 @@ async function claimDailyBonus() {
                 );
 
         if (result.error) {
+
             console.error(
                 "❌ claim_daily_bonus:",
                 result.error
@@ -1103,6 +1195,7 @@ async function claimDailyBonus() {
             await reloadAccountAfterRPC();
 
         if (!loaded) {
+
             alert(
                 "Bonus eseguito, ma impossibile aggiornare il saldo."
             );
@@ -1117,12 +1210,8 @@ async function claimDailyBonus() {
 
         updateMiningUI();
 
-        console.log(
-            "🎁 Daily Bonus:",
-            result.data
-        );
-
     } catch (error) {
+
         console.error(
             "❌ claimDailyBonus:",
             error
@@ -1133,6 +1222,7 @@ async function claimDailyBonus() {
         );
 
     } finally {
+
         processingDailyBonus = false;
     }
 }
@@ -1143,6 +1233,7 @@ async function claimDailyBonus() {
 ===================================================== */
 
 async function reloadAccountAfterRPC() {
+
     if (
         !currentUser ||
         !supabaseClient
@@ -1151,6 +1242,7 @@ async function reloadAccountAfterRPC() {
     }
 
     try {
+
         const data =
             await fetchMiningAccount();
 
@@ -1165,6 +1257,7 @@ async function reloadAccountAfterRPC() {
         return true;
 
     } catch (error) {
+
         console.error(
             "❌ reloadAccountAfterRPC:",
             error
@@ -1180,7 +1273,9 @@ async function reloadAccountAfterRPC() {
 ===================================================== */
 
 async function claimMinerReward() {
+
     if (!currentUser) {
+
         alert(
             "Devi prima effettuare l'accesso."
         );
@@ -1189,6 +1284,7 @@ async function claimMinerReward() {
     }
 
     if (!supabaseClient) {
+
         alert(
             "Supabase non disponibile."
         );
@@ -1197,6 +1293,7 @@ async function claimMinerReward() {
     }
 
     if (minerLevel < 2) {
+
         alert(
             "Reward disponibile dal Livello 2."
         );
@@ -1211,11 +1308,9 @@ async function claimMinerReward() {
     processingMinerReward = true;
 
     try {
-        /*
-         * Prima accredita eventuale mining maturato.
-         */
 
         if (miningActive) {
+
             await claimMiningFromServer(
                 false
             );
@@ -1228,6 +1323,7 @@ async function claimMinerReward() {
                 );
 
         if (result.error) {
+
             console.error(
                 "❌ claim_miner_reward:",
                 result.error
@@ -1245,6 +1341,7 @@ async function claimMinerReward() {
             await reloadAccountAfterRPC();
 
         if (!loaded) {
+
             alert(
                 "Reward eseguito, ma impossibile aggiornare i dati."
             );
@@ -1259,12 +1356,8 @@ async function claimMinerReward() {
 
         updateMiningUI();
 
-        console.log(
-            "🏆 Miner Reward:",
-            result.data
-        );
-
     } catch (error) {
+
         console.error(
             "❌ claimMinerReward:",
             error
@@ -1275,6 +1368,7 @@ async function claimMinerReward() {
         );
 
     } finally {
+
         processingMinerReward = false;
     }
 }
@@ -1285,7 +1379,9 @@ async function claimMinerReward() {
 ===================================================== */
 
 async function upgradeMiner() {
+
     if (!currentUser) {
+
         alert(
             "Devi prima effettuare l'accesso."
         );
@@ -1294,6 +1390,7 @@ async function upgradeMiner() {
     }
 
     if (!supabaseClient) {
+
         alert(
             "Supabase non disponibile."
         );
@@ -1308,19 +1405,13 @@ async function upgradeMiner() {
     processingUpgrade = true;
 
     try {
-        /*
-         * Prima accredita tutto il mining maturato.
-         */
 
         if (miningActive) {
+
             await claimMiningFromServer(
                 false
             );
         }
-
-        /*
-         * Upgrade esclusivamente server-side.
-         */
 
         const result =
             await supabaseClient
@@ -1329,6 +1420,7 @@ async function upgradeMiner() {
                 );
 
         if (result.error) {
+
             console.error(
                 "❌ upgrade_miner:",
                 result.error
@@ -1346,6 +1438,7 @@ async function upgradeMiner() {
             await reloadAccountAfterRPC();
 
         if (!loaded) {
+
             alert(
                 "Upgrade eseguito, ma impossibile aggiornare i dati."
             );
@@ -1361,12 +1454,8 @@ async function upgradeMiner() {
 
         updateMiningUI();
 
-        console.log(
-            "⬆️ Upgrade:",
-            result.data
-        );
-
     } catch (error) {
+
         console.error(
             "❌ upgradeMiner:",
             error
@@ -1377,6 +1466,7 @@ async function upgradeMiner() {
         );
 
     } finally {
+
         processingUpgrade = false;
     }
 }
@@ -1387,7 +1477,9 @@ async function upgradeMiner() {
 ===================================================== */
 
 async function toggleMining() {
+
     if (!currentUser) {
+
         alert(
             "Devi prima effettuare l'accesso."
         );
@@ -1399,19 +1491,10 @@ async function toggleMining() {
         return;
     }
 
-    /*
-     * ================================================
-     * FERMA MINING
-     * ================================================
-     */
+
+    /* FERMA */
 
     if (miningActive) {
-
-        /*
-         * Prima del blocco:
-         * claim del periodo maturato
-         * gestito dal SERVER.
-         */
 
         await claimMiningFromServer(
             false
@@ -1427,6 +1510,7 @@ async function toggleMining() {
             );
 
         if (!saved) {
+
             miningActive =
                 true;
 
@@ -1452,19 +1536,10 @@ async function toggleMining() {
     }
 
 
-    /*
-     * ================================================
-     * AVVIA MINING
-     * ================================================
-     */
+    /* AVVIA */
 
     miningActive =
         true;
-
-    /*
-     * Quando il mining viene avviato,
-     * il nuovo periodo parte da NOW.
-     */
 
     lastMiningAt =
         new Date();
@@ -1476,6 +1551,7 @@ async function toggleMining() {
         );
 
     if (!saved) {
+
         miningActive =
             false;
 
@@ -1504,7 +1580,9 @@ async function toggleMining() {
 ===================================================== */
 
 async function claimPoints() {
+
     if (!currentUser) {
+
         alert(
             "Devi prima effettuare l'accesso."
         );
@@ -1519,11 +1597,6 @@ async function claimPoints() {
     processingClaimPoints = true;
 
     try {
-        /*
-         * V19:
-         * Claim Points = claim del mining
-         * server-side.
-         */
 
         const reward =
             await claimMiningFromServer(
@@ -1533,13 +1606,16 @@ async function claimPoints() {
         updateMiningUI();
 
         if (reward > 0) {
+
             showMiningMessage(
                 "💰 Points accreditati: +" +
                 reward.toFixed(4) +
                 " BOB",
                 "success"
             );
+
         } else {
+
             showMiningMessage(
                 "💰 Nessun nuovo Point da accreditare.",
                 "success"
@@ -1547,6 +1623,7 @@ async function claimPoints() {
         }
 
     } catch (error) {
+
         console.error(
             "❌ claimPoints:",
             error
@@ -1557,6 +1634,7 @@ async function claimPoints() {
         );
 
     } finally {
+
         processingClaimPoints = false;
     }
 }
@@ -1567,19 +1645,18 @@ async function claimPoints() {
 ===================================================== */
 
 async function copyReferralCode() {
+
     if (!currentUser) {
         return;
     }
 
     if (!referralCode) {
+
         referralCode =
             generateReferralCode();
 
-        /*
-         * Salviamo solamente il codice referral.
-         */
-
         try {
+
             const result =
                 await supabaseClient
                     .from("mining_accounts")
@@ -1593,6 +1670,7 @@ async function copyReferralCode() {
                     );
 
             if (result.error) {
+
                 console.error(
                     "❌ Referral:",
                     result.error
@@ -1600,6 +1678,7 @@ async function copyReferralCode() {
             }
 
         } catch (error) {
+
             console.error(
                 "❌ Referral save:",
                 error
@@ -1608,6 +1687,7 @@ async function copyReferralCode() {
     }
 
     if (!referralCode) {
+
         alert(
             "Codice referral non disponibile."
         );
@@ -1616,11 +1696,13 @@ async function copyReferralCode() {
     }
 
     try {
+
         if (
             navigator.clipboard &&
             typeof navigator.clipboard.writeText ===
             "function"
         ) {
+
             await navigator.clipboard.writeText(
                 referralCode
             );
@@ -1638,12 +1720,202 @@ async function copyReferralCode() {
         );
 
     } catch (error) {
+
         showReferralMessage(
             "Codice: " +
             referralCode,
             "success"
         );
     }
+}
+
+
+/* =====================================================
+   COPY FALLBACK
+===================================================== */
+
+function copyTextFallback(text) {
+
+    const textarea =
+        document.createElement(
+            "textarea"
+        );
+
+    textarea.value =
+        text;
+
+    textarea.style.position =
+        "fixed";
+
+    textarea.style.opacity =
+        "0";
+
+    textarea.style.pointerEvents =
+        "none";
+
+    document.body.appendChild(
+        textarea
+    );
+
+    textarea.focus();
+    textarea.select();
+
+    let copied = false;
+
+    try {
+
+        copied =
+            document.execCommand(
+                "copy"
+            );
+
+    } catch (error) {
+
+        copied = false;
+    }
+
+    document.body.removeChild(
+        textarea
+    );
+
+    return copied;
+}
+
+
+/* =====================================================
+   COPY CRYPTO ADDRESS
+===================================================== */
+
+async function copyCryptoAddress(
+    asset
+) {
+
+    const wallet =
+        CRYPTO_WALLETS[
+            asset
+        ];
+
+    if (!wallet) {
+
+        console.error(
+            "❌ Crypto non trovata:",
+            asset
+        );
+
+        return;
+    }
+
+    try {
+
+        if (
+            navigator.clipboard &&
+            typeof navigator.clipboard.writeText ===
+            "function"
+        ) {
+
+            await navigator.clipboard.writeText(
+                wallet.address
+            );
+
+        } else {
+
+            if (
+                !copyTextFallback(
+                    wallet.address
+                )
+            ) {
+
+                throw new Error(
+                    "Clipboard non disponibile"
+                );
+            }
+        }
+
+        showPaymentMessage(
+            "📋 Indirizzo " +
+            wallet.name +
+            " copiato.\nRete: " +
+            wallet.network,
+            "success"
+        );
+
+        console.log(
+            "📋 Copiato:",
+            wallet.name,
+            wallet.network
+        );
+
+    } catch (error) {
+
+        console.error(
+            "❌ copyCryptoAddress:",
+            error
+        );
+
+        /*
+         * Non mostriamo mai un falso pagamento.
+         * Mostriamo semplicemente l'indirizzo
+         * nel messaggio.
+         */
+
+        showPaymentMessage(
+            wallet.name +
+            " — " +
+            wallet.network +
+            "\n\n" +
+            wallet.address,
+            "success"
+        );
+    }
+}
+
+
+/* =====================================================
+   APRI PAGAMENTI CRYPTO
+===================================================== */
+
+function openCryptoPayments(
+    source = "Crypto"
+) {
+
+    if (paymentsBox) {
+
+        paymentsBox.classList.remove(
+            "hidden"
+        );
+
+        paymentsBox.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+
+    showPaymentMessage(
+        "🪙 " +
+        source +
+        ": scegli BNB, BTC, ETC oppure ETH.\n\n" +
+        "Controlla sempre la rete prima di inviare.",
+        "success"
+    );
+}
+
+
+/* =====================================================
+   BOOST NON ANCORA SERVER-SIDE
+===================================================== */
+
+function showBoostComingSoon(
+    boostName
+) {
+
+    showBoostMessage(
+        "⚙️ " +
+        boostName +
+        " non è ancora attivo.\n\n" +
+        "Il pagamento crypto sarà collegato al boost " +
+        "solo dopo l'implementazione della verifica blockchain.",
+        "error"
+    );
 }
 
 
@@ -1659,6 +1931,7 @@ function updateMiningUI() {
         $("balance");
 
     if (balanceElement) {
+
         balanceElement.textContent =
             safeNumber(
                 balance,
@@ -1673,6 +1946,7 @@ function updateMiningUI() {
         $("levelBadge");
 
     if (levelElement) {
+
         levelElement.textContent =
             "LIVELLO " +
             Math.max(
@@ -1694,6 +1968,7 @@ function updateMiningUI() {
         $("hashrate");
 
     if (hashrateElement) {
+
         hashrateElement.textContent =
             hashrate +
             " GH/s";
@@ -1706,6 +1981,7 @@ function updateMiningUI() {
         $("production");
 
     if (productionElement) {
+
         productionElement.textContent =
             getProductionPerMinute()
                 .toFixed(2) +
@@ -1719,6 +1995,7 @@ function updateMiningUI() {
         $("speedBonus");
 
     if (speedBonusElement) {
+
         speedBonusElement.textContent =
             safeNumber(
                 speedBonus,
@@ -1734,6 +2011,7 @@ function updateMiningUI() {
         $("offlineLimit");
 
     if (offlineLimitElement) {
+
         offlineLimitElement.textContent =
             safeNumber(
                 offlineHours,
@@ -1768,12 +2046,13 @@ function updateMiningUI() {
     }
 
 
-    /* TOGGLE BUTTON */
+    /* TOGGLE */
 
     const toggleButton =
         $("toggleMiningBtn");
 
     if (toggleButton) {
+
         toggleButton.textContent =
             miningActive
                 ? "⏹️ Ferma Mining"
@@ -1787,6 +2066,7 @@ function updateMiningUI() {
         $("upgradeBtn");
 
     if (upgradeButton) {
+
         upgradeButton.textContent =
             "⬆️ Upgrade Miner — " +
             getUpgradeCost().toFixed(0) +
@@ -1794,9 +2074,7 @@ function updateMiningUI() {
     }
 
 
-    /* =================================================
-       DAILY BONUS
-    ================================================= */
+    /* DAILY BONUS */
 
     const dailyBonusInfo =
         $("dailyBonusInfo");
@@ -1838,9 +2116,7 @@ function updateMiningUI() {
     }
 
 
-    /* =================================================
-       MINER REWARD
-    ================================================= */
+    /* MINER REWARD */
 
     const minerRewardInfo =
         $("minerRewardInfo");
@@ -1863,9 +2139,7 @@ function updateMiningUI() {
     }
 
 
-    /* =================================================
-       REFERRAL
-    ================================================= */
+    /* REFERRAL */
 
     const referralCodeElement =
         $("referralCode");
@@ -1876,7 +2150,6 @@ function updateMiningUI() {
             referralCode ||
             "—";
     }
-
 
     const referralCountElement =
         $("referralCount");
@@ -1892,7 +2165,6 @@ function updateMiningUI() {
             );
     }
 
-
     const referralBonusElement =
         $("referralBonus");
 
@@ -1907,9 +2179,7 @@ function updateMiningUI() {
     }
 
 
-    /* =================================================
-       ACCOUNT
-    ================================================= */
+    /* ACCOUNT */
 
     const userEmailElement =
         $("userEmail");
@@ -1918,9 +2188,50 @@ function updateMiningUI() {
         userEmailElement &&
         currentUser
     ) {
+
         userEmailElement.textContent =
             currentUser.email ||
             "Account";
+    }
+
+
+    /* CRYPTO ADDRESS */
+
+    const bnbAddress =
+        $("bnbAddress");
+
+    const btcAddress =
+        $("btcAddress");
+
+    const etcAddress =
+        $("etcAddress");
+
+    const ethAddress =
+        $("ethAddress");
+
+
+    if (bnbAddress) {
+
+        bnbAddress.textContent =
+            CRYPTO_WALLETS.BNB.address;
+    }
+
+    if (btcAddress) {
+
+        btcAddress.textContent =
+            CRYPTO_WALLETS.BTC.address;
+    }
+
+    if (etcAddress) {
+
+        etcAddress.textContent =
+            CRYPTO_WALLETS.ETC.address;
+    }
+
+    if (ethAddress) {
+
+        ethAddress.textContent =
+            CRYPTO_WALLETS.ETH.address;
     }
 
 
@@ -1936,30 +2247,49 @@ function updateMiningUI() {
 function showLogin() {
 
     if (loginBox) {
+
         loginBox.classList.remove(
             "hidden"
         );
     }
 
     if (miningBox) {
+
         miningBox.classList.add(
             "hidden"
         );
     }
 
+    if (boostsBox) {
+
+        boostsBox.classList.add(
+            "hidden"
+        );
+    }
+
+    if (paymentsBox) {
+
+        paymentsBox.classList.add(
+            "hidden"
+        );
+    }
+
     if (rewardsBox) {
+
         rewardsBox.classList.add(
             "hidden"
         );
     }
 
     if (referralBox) {
+
         referralBox.classList.add(
             "hidden"
         );
     }
 
     if (accountBox) {
+
         accountBox.classList.add(
             "hidden"
         );
@@ -1977,30 +2307,49 @@ function showLogin() {
 function showMining() {
 
     if (loginBox) {
+
         loginBox.classList.add(
             "hidden"
         );
     }
 
     if (miningBox) {
+
         miningBox.classList.remove(
             "hidden"
         );
     }
 
+    if (boostsBox) {
+
+        boostsBox.classList.remove(
+            "hidden"
+        );
+    }
+
+    if (paymentsBox) {
+
+        paymentsBox.classList.remove(
+            "hidden"
+        );
+    }
+
     if (rewardsBox) {
+
         rewardsBox.classList.remove(
             "hidden"
         );
     }
 
     if (referralBox) {
+
         referralBox.classList.remove(
             "hidden"
         );
     }
 
     if (accountBox) {
+
         accountBox.classList.remove(
             "hidden"
         );
@@ -2014,19 +2363,12 @@ function showMining() {
 
 
 /* =====================================================
-   MINING LOOP V19
+   MINING LOOP
 ===================================================== */
 
 function startMiningLoop() {
 
     stopMiningLoop();
-
-    /*
-     * NON calcola più BOB localmente.
-     *
-     * Chiama claim_mining()
-     * sul server.
-     */
 
     miningInterval =
         setInterval(
@@ -2066,7 +2408,7 @@ function stopMiningLoop() {
 
 
 /* =====================================================
-   AUTOSAVE V19
+   AUTOSAVE
 ===================================================== */
 
 function startAutosave() {
@@ -2083,13 +2425,6 @@ function startAutosave() {
                 ) {
                     return;
                 }
-
-                /*
-                 * NON modifichiamo balance.
-                 *
-                 * Il saldo viene gestito
-                 * esclusivamente dal server.
-                 */
 
                 updateMiningUI();
 
@@ -2114,7 +2449,7 @@ function stopAutosave() {
 
 
 /* =====================================================
-   DAILY BONUS TIMER
+   BONUS TIMER
 ===================================================== */
 
 function startBonusTimer() {
@@ -2126,6 +2461,7 @@ function startBonusTimer() {
             function () {
 
                 if (currentUser) {
+
                     updateMiningUI();
                 }
 
@@ -2219,11 +2555,6 @@ async function logout() {
 
     try {
 
-        /*
-         * Prima del logout:
-         * accredita il mining maturato.
-         */
-
         if (
             currentUser &&
             miningActive
@@ -2256,11 +2587,6 @@ async function logout() {
                     "❌ Logout:",
                     result.error
                 );
-
-                /*
-                 * Se il logout fallisce,
-                 * non cambiamo stato locale.
-                 */
 
                 alert(
                     "Errore logout:\n\n" +
@@ -2491,10 +2817,6 @@ async function register() {
         }
 
 
-        /*
-         * Sessione immediata.
-         */
-
         if (
             result.data.user &&
             result.data.session
@@ -2667,10 +2989,6 @@ function setupAuthListener() {
                 "SIGNED_IN"
             ) {
 
-                /*
-                 * Evita doppio caricamento.
-                 */
-
                 if (
                     session &&
                     session.user &&
@@ -2684,6 +3002,7 @@ function setupAuthListener() {
                         await loadMiningAccount();
 
                     if (loaded) {
+
                         showMining();
                     }
                 }
@@ -2772,6 +3091,8 @@ function setupEvents() {
         $("logoutBtn");
 
 
+    /* AUTH */
+
     if (loginBtn) {
 
         loginBtn.addEventListener(
@@ -2779,7 +3100,6 @@ function setupEvents() {
             login
         );
     }
-
 
     if (signupBtn) {
 
@@ -2790,6 +3110,8 @@ function setupEvents() {
     }
 
 
+    /* MINING */
+
     if (toggleMiningBtn) {
 
         toggleMiningBtn.addEventListener(
@@ -2798,7 +3120,6 @@ function setupEvents() {
         );
     }
 
-
     if (claimBtn) {
 
         claimBtn.addEventListener(
@@ -2806,7 +3127,6 @@ function setupEvents() {
             claimPoints
         );
     }
-
 
     if (upgradeBtn) {
 
@@ -2817,6 +3137,8 @@ function setupEvents() {
     }
 
 
+    /* REWARDS */
+
     if (dailyBonusBtn) {
 
         dailyBonusBtn.addEventListener(
@@ -2824,7 +3146,6 @@ function setupEvents() {
             claimDailyBonus
         );
     }
-
 
     if (minerRewardBtn) {
 
@@ -2835,6 +3156,8 @@ function setupEvents() {
     }
 
 
+    /* REFERRAL */
+
     if (copyReferralBtn) {
 
         copyReferralBtn.addEventListener(
@@ -2844,11 +3167,220 @@ function setupEvents() {
     }
 
 
+    /* LOGOUT */
+
     if (logoutBtn) {
 
         logoutBtn.addEventListener(
             "click",
             logout
+        );
+    }
+
+
+    /* =================================================
+       CRYPTO PAYMENT BUTTONS
+    ================================================= */
+
+    const bnbPaymentBtn =
+        $("bnbPaymentBtn");
+
+    const btcPaymentBtn =
+        $("btcPaymentBtn");
+
+    const etcPaymentBtn =
+        $("etcPaymentBtn");
+
+    const ethPaymentBtn =
+        $("ethPaymentBtn");
+
+
+    if (bnbPaymentBtn) {
+
+        bnbPaymentBtn.addEventListener(
+            "click",
+            function () {
+
+                copyCryptoAddress(
+                    "BNB"
+                );
+            }
+        );
+    }
+
+
+    if (btcPaymentBtn) {
+
+        btcPaymentBtn.addEventListener(
+            "click",
+            function () {
+
+                copyCryptoAddress(
+                    "BTC"
+                );
+            }
+        );
+    }
+
+
+    if (etcPaymentBtn) {
+
+        etcPaymentBtn.addEventListener(
+            "click",
+            function () {
+
+                copyCryptoAddress(
+                    "ETC"
+                );
+            }
+        );
+    }
+
+
+    if (ethPaymentBtn) {
+
+        ethPaymentBtn.addEventListener(
+            "click",
+            function () {
+
+                copyCryptoAddress(
+                    "ETH"
+                );
+            }
+        );
+    }
+
+
+    /* =================================================
+       MINER CRYPTO
+    ================================================= */
+
+    const minerCryptoBtn =
+        $("minerCryptoBtn");
+
+    if (minerCryptoBtn) {
+
+        minerCryptoBtn.addEventListener(
+            "click",
+            function () {
+
+                openCryptoPayments(
+                    "Upgrade Miner"
+                );
+            }
+        );
+    }
+
+
+    /* =================================================
+       BOOST CRYPTO
+    ================================================= */
+
+    const speedBoostCryptoBtn =
+        $("speedBoostCryptoBtn");
+
+    const hashrateBoostCryptoBtn =
+        $("hashrateBoostCryptoBtn");
+
+    const offlineBoostCryptoBtn =
+        $("offlineBoostCryptoBtn");
+
+
+    if (speedBoostCryptoBtn) {
+
+        speedBoostCryptoBtn.addEventListener(
+            "click",
+            function () {
+
+                openCryptoPayments(
+                    "Speed Boost"
+                );
+            }
+        );
+    }
+
+
+    if (hashrateBoostCryptoBtn) {
+
+        hashrateBoostCryptoBtn.addEventListener(
+            "click",
+            function () {
+
+                openCryptoPayments(
+                    "Hashrate Boost"
+                );
+            }
+        );
+    }
+
+
+    if (offlineBoostCryptoBtn) {
+
+        offlineBoostCryptoBtn.addEventListener(
+            "click",
+            function () {
+
+                openCryptoPayments(
+                    "Offline Boost"
+                );
+            }
+        );
+    }
+
+
+    /* =================================================
+       BOOST CON BOB
+       NON ATTIVIAMO ACQUISTI FINTI
+    ================================================= */
+
+    const speedBoostBtn =
+        $("speedBoostBtn");
+
+    const hashrateBoostBtn =
+        $("hashrateBoostBtn");
+
+    const offlineBoostBtn =
+        $("offlineBoostBtn");
+
+
+    if (speedBoostBtn) {
+
+        speedBoostBtn.addEventListener(
+            "click",
+            function () {
+
+                showBoostComingSoon(
+                    "Speed Boost"
+                );
+            }
+        );
+    }
+
+
+    if (hashrateBoostBtn) {
+
+        hashrateBoostBtn.addEventListener(
+            "click",
+            function () {
+
+                showBoostComingSoon(
+                    "Hashrate Boost"
+                );
+            }
+        );
+    }
+
+
+    if (offlineBoostBtn) {
+
+        offlineBoostBtn.addEventListener(
+            "click",
+            function () {
+
+                showBoostComingSoon(
+                    "Offline Boost"
+                );
+            }
         );
     }
 
@@ -2868,6 +3400,7 @@ function setupEvents() {
                     event.key ===
                     "Enter"
                 ) {
+
                     login();
                 }
             }
@@ -2885,6 +3418,7 @@ function setupEvents() {
                     event.key ===
                     "Enter"
                 ) {
+
                     login();
                 }
             }
@@ -2913,11 +3447,6 @@ function setupPageVisibility() {
                     miningActive
                 ) {
 
-                    /*
-                     * Al ritorno nell'app:
-                     * server calcola il tempo trascorso.
-                     */
-
                     await claimMiningFromServer(
                         false
                     );
@@ -2938,15 +3467,6 @@ window.addEventListener(
     "pagehide",
     function () {
 
-        /*
-         * NON modifichiamo il saldo.
-         *
-         * NON modifichiamo last_mining_at.
-         *
-         * Il server calcolerà il periodo
-         * trascorso al prossimo claim.
-         */
-
         stopMiningLoop();
     }
 );
@@ -2959,7 +3479,7 @@ window.addEventListener(
 async function initApp() {
 
     console.log(
-        "🚀 BOB Mining V19 Definitive..."
+        "🚀 BOB Mining V20 Definitive..."
     );
 
 
@@ -2970,6 +3490,12 @@ async function initApp() {
 
     miningBox =
         $("miningBox");
+
+    boostsBox =
+        $("boostsBox");
+
+    paymentsBox =
+        $("paymentsBox");
 
     rewardsBox =
         $("rewardsBox");
@@ -3030,7 +3556,7 @@ async function initApp() {
 
 
     console.log(
-        "✅ BOB Mining V19 Definitive pronto."
+        "✅ BOB Mining V20 Definitive pronto."
     );
 }
 
@@ -3077,6 +3603,10 @@ window.BOBMining = {
 
     copyReferralCode,
 
+    copyCryptoAddress,
+
+    openCryptoPayments,
+
     loadMiningAccount,
 
     updateMiningUI,
@@ -3085,10 +3615,12 @@ window.BOBMining = {
 
     getUpgradeCost,
 
-    claimMiningFromServer
+    claimMiningFromServer,
+
+    CRYPTO_WALLETS
 };
 
 
 console.log(
-    "⛏️ BOB Mining V19 Definitive caricato."
+    "⛏️ BOB Mining V20 Definitive caricato."
 );
